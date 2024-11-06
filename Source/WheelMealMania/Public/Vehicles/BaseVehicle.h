@@ -24,6 +24,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
 	float ThrottleAccelerationRate = 5.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
+	UCurveFloat* AccelerationRateCurve;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine|Idle")
 	float IdleEngineBreakingRate = 0.05f;
 
@@ -40,6 +43,11 @@ public:
 	float WheelRadius = 5.5f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float SteeringSensitivity = 2.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
+	UCurveFloat* SteeringRangeByAcceleration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
+	UCurveFloat* DriftSteeringRangeByAcceleration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float WheelMaxAngleDeg = 55.f;
@@ -135,10 +143,12 @@ private:
 	// Accelerating
 	float Throttle = 0.0;
 	float Acceleration = 0.0;
+	FVector VehiclePhysicsVelocity = FVector::ZeroVector;
 
 	// Steering
-	float TargetSteering = 0.0;
-	float Steering = 0.0;
+	FVector2D TargetSteering = FVector2D::ZeroVector;
+	FVector2D Steering = FVector2D::ZeroVector;
+	float SteeringRange = 1.f;
 
 	// Side Balance
 	float TargetSideBalance = 0.0;
@@ -166,7 +176,7 @@ protected:
 
 	void SteeringInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnSteeringUpdate(float NewSteering);
+	void OnSteeringUpdate(FVector2D NewSteering);
 
 	void BreakInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -192,8 +202,9 @@ protected:
 	void ResetCameraInput(const FInputActionValue& InputValue);
 
 private:
-	void SuspensionCast();
-	void UpdateWheelsVelocityAndDirection();
+	void SuspensionCast(float DeltaTime);
+	void UpdateWheelsVelocityAndDirection(float DeltaTime);
+
 	bool WheelCast(USceneComponent* WheelSocket, FHitResult& HitResult);
 	bool IsOnGround();
 };
