@@ -57,8 +57,12 @@ void ABaseVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Acceleration = FMath::FInterpTo(Acceleration, Throttle, DeltaTime,
-		bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate);
+	float AccelerationRate = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
+	AccelerationRate = bIsBreaking ? BreakRate : AccelerationRate;
+	Acceleration = FMath::FInterpTo(Acceleration,
+		Throttle,
+		DeltaTime,
+		AccelerationRate);
 	Steering = FMath::FInterpTo(Steering, TargetSteering, DeltaTime, SteeringSensitivity);
 
 	SuspensionCast();
@@ -71,12 +75,30 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ThrottleInput);
+		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::ThrottleInput);
+
+		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::BreakInput);
+		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::BreakInput);
+
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::SteeringInput);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::SteeringInput);
 
-		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ThrottleInput);
-		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::ThrottleInput);
+		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HandbreakInput);
+		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HandbreakInput);
+		
+		EnhancedInput->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::JumpingInput);
+		
+		EnhancedInput->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::LookAroundInput);
+		EnhancedInput->BindAction(LookAroundInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::LookAroundInput);
+
+		EnhancedInput->BindAction(ResetCameraInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ResetCameraInput);
 	}
+}
+
+float ABaseVehicle::GetCurrentTargetSpeed()
+{
+	return Acceleration*MaxSpeed;
 }
 
 void ABaseVehicle::SuspensionCast()
@@ -102,33 +124,37 @@ void ABaseVehicle::SuspensionCast()
 
 void ABaseVehicle::UpdateWheelsVelocityAndDirection()
 {
+	bool bIsOnGround = false;
 	float TargetSpeed = Acceleration * MaxSpeed * VehicleCollision->GetMass();
-	for (USceneComponent* WheelSocket : { BackLeftWheelSocket, BackRightWheelSocket }) {
+	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
 		FHitResult TraceHitResult;
 		if (!WheelCast(WheelSocket, TraceHitResult)) {
 			continue;
 		}
-
-		FVector Forward = TraceHitResult.ImpactNormal.Cross(FVector::RightVector);
+		bIsOnGround = true;
+		FVector Forward = VehicleCollision->GetForwardVector();
 		VehicleCollision->AddForceAtLocation(
 			Forward * TargetSpeed,
 			TraceHitResult.TraceStart
 		);
 	}
 
-	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket }) {
-		FHitResult TraceHitResult;
-		if (!WheelCast(WheelSocket, TraceHitResult)) {
-			continue;
-		}
-
-		FVector Forward = TraceHitResult.ImpactNormal.Cross(FVector::RightVector);
-		Forward.RotateAngleAxis(WheelMaxAngleDeg * Steering, FVector::UpVector);
-		VehicleCollision->AddForceAtLocation(
-			Forward * TargetSpeed,
-			TraceHitResult.TraceStart
+	if (!bIsOnGround) {
+		FVector VehicleTorque = FVector(
+			Steering * VehicleCollision->GetMass() * 2500000.f,
+			0.f,
+			0.f
 		);
+		VehicleCollision->AddTorqueInDegrees(VehicleTorque);
+		return;
 	}
+
+	FVector VehicleTorque = FVector(
+		Steering * VehicleCollision->GetMass() * 2500000.f * Acceleration/MaxSpeed,
+		0.f,
+		Steering * VehicleCollision->GetMass() * 5000000.f * FMath::Abs(FMath::Sign(Acceleration))
+	);
+	VehicleCollision->AddTorqueInDegrees(VehicleTorque);
 
 	// Update Mass Center
 	VehicleCollision->SetCenterOfMass(
@@ -166,12 +192,72 @@ void ABaseVehicle::SteeringInput(const FInputActionValue& InputValue)
 void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
 	Throttle = InputValue.Get<float>();
-	bIsThrottling = FMath::Abs(Throttle) > 0.0;
+	bIsThrottling = Throttle > 0.0;
 
 	OnThrottleUpdate(Throttle);
 }
 
+void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
+{
+	bIsBreaking = InputValue.Get<float>() > 0.0;
+	if (bIsBreaking){
+		Throttle = FMath::Clamp(Throttle - InputValue.Get<float>(), 0.0, 1.0);
+	}
+	else {
+		Throttle = FMath::Clamp(Throttle, 0.0, 1.0);
+	}
+
+	OnBreaking();
+}
+
+void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
+{
+	bIsHandbreaking = InputValue.Get<bool>();
+
+	OnHandbreaking();
+}
+
 void ABaseVehicle::JumpingInput(const FInputActionValue& InputValue)
 {
+	bool bJumpSuccess = false;
+	FVector CarVelocity = GetVelocity();
+	UE_LOG(LogTemp, Warning, TEXT("JUMPING while moving %s"), *CarVelocity.ToString());
+	float TargetJumpStrength = VehicleCollision->GetMass() * JumpStrength * 10.f;
+	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
+		FHitResult TraceHitResult;
+		if (!WheelCast(WheelSocket, TraceHitResult)) {
+			continue;
+		}
+		VehicleCollision->SetCenterOfMass(FVector::ZeroVector);
+		FVector JumpForce = TraceHitResult.ImpactNormal * TargetJumpStrength;
+		VehicleCollision->AddForceAtLocation(
+			JumpForce,
+			TraceHitResult.TraceStart
+		);
+
+		bJumpSuccess = true;
+	}
+
+	if (!bJumpSuccess) return;
+
 	OnJumped();
+}
+
+void ABaseVehicle::SideBalanceInput(const FInputActionValue& InputValue)
+{
+	TargetSideBalance = InputValue.Get<float>();
+
+	OnSideBalanceChanged(TargetSideBalance);
+}
+
+void ABaseVehicle::LookAroundInput(const FInputActionValue& InputValue)
+{
+	FVector2D LookAroundVector = InputValue.Get<FVector2D>() * 10.f;
+
+	CameraArm->AddLocalRotation(FRotator(0.f, LookAroundVector.X, 0.f));
+}
+
+void ABaseVehicle::ResetCameraInput(const FInputActionValue& InputValue)
+{
+	CameraArm->SetRelativeRotation(FRotator::ZeroRotator);
 }

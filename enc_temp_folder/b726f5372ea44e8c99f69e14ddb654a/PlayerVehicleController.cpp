@@ -20,7 +20,7 @@ void APlayerVehicleController::Tick(float Delta)
 	Super::Tick(Delta);
 
 	if (IsValid(PlayerVehicle) && IsValid(PlayerHUD)) {
-		PlayerHUD->UpdateSpeed(PlayerVehicle->GetCurrentTargetSpeed());
+		PlayerHUD->UpdateSpeed(PlayerVehicle->GetVelocity().Length());
 	}
 }
 

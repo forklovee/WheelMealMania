@@ -47,13 +47,16 @@ public:
 	float HandbreakRate = 0.05f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
-	float SpringStrength = 500.f;
+	float SpringStrength = 1000.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	float SpringLength = 60.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	FVector MassCenterOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
+	float JumpStrength = 1000.f;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
@@ -84,18 +87,43 @@ protected:
 	UInputAction* ThrottleInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* BreakInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
+	UInputAction* HandBreakInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
+	UInputAction* SideBalanceInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SteeringInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
+	UInputAction* LookAroundInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
+	UInputAction* ResetCameraInputAction;
 
 	UPROPERTY(BlueprintReadOnly, Category="Engine")
 	bool bIsThrottling = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
+	bool bIsBreaking = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
+	bool bIsHandbreaking = false;
 private:
+	// Accelerating
+	float Throttle = 0.0;
+	float Acceleration = 0.0;
+
 	// Steering
 	float TargetSteering = 0.0;
 	float Steering = 0.0;
 
-	// Accelerating
-	float Throttle = 0.0;
-	float Acceleration = 0.0;
+	// Side Balance
+	float TargetSideBalance = 0.0;
 
 public:
 	ABaseVehicle();
@@ -103,13 +131,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	float GetCurrentTargetSpeed();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	void SteeringInput(const FInputActionValue& InputValue);
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnSteeringUpdate(float NewSteering);
 
 	void ThrottleInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -117,9 +143,28 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAccelerationUpdate(float NewAcceleration);
 
+	void SteeringInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSteeringUpdate(float NewSteering);
+
+	void BreakInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnBreaking();
+
+	void HandbreakInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHandbreaking();
+
 	void JumpingInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnJumped();
+
+	void SideBalanceInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSideBalanceChanged(float NewSideBalance);
+
+	void LookAroundInput(const FInputActionValue& InputValue);
+	void ResetCameraInput(const FInputActionValue& InputValue);
 
 private:
 	void SuspensionCast();
