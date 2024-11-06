@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine|Idle")
 	float IdleEngineBreakingRate = 0.05f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine|Idle")
+	float InAirBreakingRate = 0.05f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine|Sound")
 	USoundBase* EngineIdleSound;
 
@@ -55,6 +58,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	FVector MassCenterOffset = FVector::ZeroVector;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Socket")
+	float SocketDistanceOffset = 17.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
 	float JumpStrength = 1000.f;
 
@@ -75,13 +81,25 @@ protected:
 	USceneComponent* FrontLeftWheelSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* FrontLeftSuspensionSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* FrontRightWheelSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* FrontRightSuspensionSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackLeftWheelSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* BackLeftSuspensionSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackRightWheelSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* BackRightSuspensionSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input", meta = (AllowPrivateAccess="true"))
 	UInputAction* ThrottleInputAction;
@@ -125,6 +143,9 @@ private:
 	// Side Balance
 	float TargetSideBalance = 0.0;
 
+	uint8 JumpCounter = 0;
+
+	bool bIsOnGround = false;
 public:
 	ABaseVehicle();
 
@@ -158,6 +179,10 @@ protected:
 	void JumpingInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnJumped();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnInAir();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLanded();
 
 	void SideBalanceInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -170,4 +195,5 @@ private:
 	void SuspensionCast();
 	void UpdateWheelsVelocityAndDirection();
 	bool WheelCast(USceneComponent* WheelSocket, FHitResult& HitResult);
+	bool IsOnGround();
 };
