@@ -135,8 +135,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="Engine")
 	bool bIsThrottling = false;
-	UPROPERTY(BlueprintReadOnly, Category = "Engine")
-	bool bIsReversing = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsBreaking = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
@@ -145,8 +143,9 @@ private:
 	// Accelerating
 	float Throttle = 0.0;
 	float Acceleration = 0.0;
-
-	FVector LastDrivingDirection = FVector::ZeroVector;
+	float MomentumAcceleration = 0.0;
+	FVector MomentumDirection = FVector::ZeroVector;
+	FVector VehiclePhysicsVelocity = FVector::ZeroVector;
 
 	// Steering
 	FVector2D TargetSteering = FVector2D::ZeroVector;
