@@ -207,6 +207,7 @@ protected:
 private:
 	void SuspensionCast(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
+	void InAirRotation(float DeltaTime);
 
 	float GetTargetWheelSpeed();
 	FVector GetTargetVelocity();
