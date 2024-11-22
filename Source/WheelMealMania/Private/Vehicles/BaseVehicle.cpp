@@ -103,15 +103,11 @@ void ABaseVehicle::Tick(float DeltaTime)
 	Steering = FMath::Lerp(Steering, TargetSteering, DeltaTime*SteeringSensitivity);
 
 	// MAIN PROCESSING
+	UpdateAcceleration(DeltaTime);
 	SuspensionCast(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
 	InAirRotation(DeltaTime); // Updates only when all wheels are in air
 	// MAIN PROCESSING
-
-	float TargetAcceleration = bIsOnGround ? Throttle : 0.f;
-	float AccelerationRate = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
-	AccelerationRate = bIsOnGround ? AccelerationRate : InAirBreakingRate;
-	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, AccelerationRate);
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
 	
@@ -164,6 +160,49 @@ EGearShift ABaseVehicle::GetCurrentGearShift()
 	return CurrentShift;
 }
 
+bool ABaseVehicle::IsThrottling()
+{
+	return bIsThrottling;
+}
+
+void ABaseVehicle::UpdateAcceleration(float DeltaTime)
+{
+	// Apply Throttle, when on ground
+	float TargetAcceleration = bIsOnGround ? Throttle : 0.f;
+
+	// Basic acceleration Forward throttle acceleration or idle engine.
+	float NewAcceleration = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
+	bool bVehicleHasStopped = GetHorizontalVelocity().Length() < 100.f;
+	switch (GetCurrentGearShift())
+	{
+		case EGearShift::DRIVE:
+			if (!bDrivingForwards && bVehicleHasStopped)
+			{
+				bDrivingForwards = true;
+				UE_LOG(LogTemp, Warning, TEXT("Can go forward now."));
+			}
+			TargetAcceleration = bDrivingForwards ? TargetAcceleration : 0.f;
+
+			NewAcceleration = bDrivingForwards ? ThrottleAccelerationRate : IdleEngineBreakingRate;
+			break;
+		case EGearShift::REVERSE:
+			if (bDrivingForwards && bVehicleHasStopped)
+			{
+				bDrivingForwards = false;
+				UE_LOG(LogTemp, Warning, TEXT("Can reverse now."));
+			}
+			TargetAcceleration = !bDrivingForwards ? TargetAcceleration : 0.f;
+
+			NewAcceleration = !bDrivingForwards ? ThrottleAccelerationRate : IdleEngineBreakingRate;
+			break;
+	}
+
+	NewAcceleration = bIsOnGround ? NewAcceleration : InAirBreakingRate;
+
+	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, NewAcceleration);
+}
+
+
 void ABaseVehicle::SuspensionCast(float DeltaTime)
 {
 	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
@@ -201,7 +240,8 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	FVector WheelMomentumSum = FVector::ZeroVector;
 	FVector WheelForceSum = FVector::ZeroVector;
 
-	float TargetSpeed = MaxSpeed * Acceleration * VehicleCollision->GetMass();
+	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
+	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
 	for (USceneComponent* WheelSocket : { BackLeftWheelSocket, BackRightWheelSocket, FrontLeftWheelSocket, FrontRightWheelSocket }) {
 		
 		// Wheel Trace Test
@@ -285,37 +325,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		FLinearColor::Red
 	);
 
-	// Apply Friction
-	// Ground Side friction
-	//if (IsAnyWheelOnTheGround()) {
-	//	FVector CurrentVelocity = FVector::VectorPlaneProject(GetVelocity(), VehicleCollision->GetUpVector());
-	//	FVector VelocityToForceDiff = CurrentVelocity - WheelForceSum;
-	//	VelocityToForceDiff *= 1.f - FMath::Abs(WheelForceSum.GetSafeNormal().Dot(LastDrivingDirection.GetSafeNormal()));
-	//	/*UKismetSystemLibrary::DrawDebugArrow(
-	//		this,
-	//		VehicleCollision->GetComponentLocation() + GetVelocity(),
-	//		VehicleCollision->GetComponentLocation() + GetVelocity() + VelocityToForceDiff,
-	//		120.f,
-	//		FLinearColor::Blue
-	//	);*/
-
-	//	float GroundFriction = 1.0f;
-	//	FVector FrictionForce = VelocityToForceDiff * GroundFriction;
-	//	//FrictionForce *= FMath::Abs(FrictionDirection.Dot(VehicleCollision->GetRightVector()));
-	//	VehicleCollision->AddForceAtLocation(
-	//		FrictionForce, VehicleCollision->GetComponentLocation());
-
-	//	UKismetSystemLibrary::DrawDebugArrow(
-	//		this,
-	//		VehicleCollision->GetComponentLocation(),
-	//		VehicleCollision->GetComponentLocation() + VelocityToForceDiff,
-	//		55.f,
-	//		FLinearColor::Blue
-	//	);
-	//}
-
 	FVector VehicleMassCenter = MassCenterOffset;
-
 	UKismetSystemLibrary::DrawDebugArrow(this,
 		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
 		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()) + FVector::UpVector * 150.f,
@@ -426,7 +436,6 @@ void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
 	Throttle = FMath::Clamp(InputValue.Get<float>(), -0.1, 1.0);
 	bIsThrottling = Throttle > 0.0;
-	bIsReversing = Throttle < 0.0;
 
 	OnThrottleUpdate(Throttle);
 }

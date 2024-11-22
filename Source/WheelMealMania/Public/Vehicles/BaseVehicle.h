@@ -32,7 +32,10 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
-	float MaxSpeed= 500.f;
+	float MaxSpeed = 1500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
+	float MaxReverseSpeed = 300.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
 	float ThrottleAccelerationRate = 5.f;
@@ -162,6 +165,7 @@ private:
 	TArray<USceneComponent*> BackWheelSockets; 
 	// Accelerating
 	float Throttle = 0.0;
+	bool bDrivingForwards = true;
 	float Acceleration = 0.0;
 	FVector LastDrivingDirection = FVector::ZeroVector;
 
@@ -197,6 +201,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsThrottling();
 
 	void ThrottleInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -238,6 +245,7 @@ protected:
 	void ResetCameraInput(const FInputActionValue& InputValue);
 
 private:
+	void UpdateAcceleration(float DeltaTime);
 	void SuspensionCast(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
 	void InAirRotation(float DeltaTime);
