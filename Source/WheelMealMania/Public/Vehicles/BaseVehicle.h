@@ -12,10 +12,23 @@ class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
+UENUM(BlueprintType)
+enum class EGearShift : uint8{
+	DRIVE = 0 UMETA(DisplayName = "Drive"),
+	REVERSE = 1 UMETA(DisplayName = "Reverse")
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
+
 UCLASS()
 class WHEELMEALMANIA_API ABaseVehicle : public APawn
 {
 	GENERATED_BODY()
+
+public:
+	FOnGearChanged OnGearChangedDelegate;
+	FOnGearShifting OnGearShiftingDelegate;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
@@ -115,6 +128,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* BreakInputAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* GearShiftInputAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
 	UInputAction* HandBreakInputAction;
 
@@ -142,11 +158,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsHandbreaking = false;
 private:
+	TArray<USceneComponent*> FrontWheelSockets; 
+	TArray<USceneComponent*> BackWheelSockets; 
 	// Accelerating
 	float Throttle = 0.0;
 	float Acceleration = 0.0;
-
 	FVector LastDrivingDirection = FVector::ZeroVector;
+
+	// Gear Shift
+	bool bIsGearShifting = false;
+	EGearShift CurrentShift = EGearShift::DRIVE;
 
 	// Steering
 	FVector2D TargetSteering = FVector2D::ZeroVector;
@@ -159,14 +180,20 @@ private:
 	uint8 JumpCounter = 0;
 
 	bool bIsOnGround = false;
+
+	// Moveset timers
+	FTimerHandle MovesetDashTimerHandle;
 public:
 	ABaseVehicle();
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
 	float GetCurrentTargetSpeed();
-
+	
+	UFUNCTION(BlueprintCallable)
+	EGearShift GetCurrentGearShift();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -184,6 +211,12 @@ protected:
 	void BreakInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBreaking();
+
+	void GearShiftInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGearShift(EGearShift NewShift);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGearShifting(bool bNewIsGearShifting);
 
 	void HandbreakInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)

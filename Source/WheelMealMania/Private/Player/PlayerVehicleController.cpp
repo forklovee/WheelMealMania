@@ -10,8 +10,13 @@ void APlayerVehicleController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PlayerHUD = CreateWidget<UPlayerHUD>(this, PlayerHUDClass)) {
+	if ((PlayerHUD = CreateWidget<UPlayerHUD>(this, PlayerHUDClass))) {
 		PlayerHUD->AddToViewport();
+
+		if (IsValid(PlayerVehicle)){
+			PlayerVehicle->OnGearChangedDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateCurrentGear);
+			PlayerVehicle->OnGearShiftingDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateIsGearShifting);
+		}
 	}
 }
 

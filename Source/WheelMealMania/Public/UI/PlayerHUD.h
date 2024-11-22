@@ -17,7 +17,16 @@ class WHEELMEALMANIA_API UPlayerHUD : public UUserWidget
 public:
 	void UpdateSpeed(float NewSpeed);
 
+	void UpdateCurrentGear(EGearShift CurrentGear);
+	void UpdateIsGearShifting(bool bIsGearShifting);
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpeedUpdate(float NewSpeed);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCurrentGearUpdate(EGearShift CurrentGear);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnIsGearShiftingUpdate(bool bIsGearShifting);
+
 };

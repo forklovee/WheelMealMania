@@ -64,6 +64,8 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FrontWheelSockets = { FrontLeftWheelSocket, FrontRightWheelSocket };
+	BackWheelSockets = { BackLeftWheelSocket, BackRightWheelSocket };
 }
 
 // Called every frame
@@ -134,6 +136,9 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::BreakInput);
 		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::BreakInput);
 
+		EnhancedInput->BindAction(GearShiftInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::GearShiftInput);
+		EnhancedInput->BindAction(GearShiftInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::GearShiftInput);
+
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::SteeringInput);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::SteeringInput);
 
@@ -152,6 +157,11 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 float ABaseVehicle::GetCurrentTargetSpeed()
 {
 	return GetVelocity().Length();
+}
+
+EGearShift ABaseVehicle::GetCurrentGearShift()
+{
+	return CurrentShift;
 }
 
 void ABaseVehicle::SuspensionCast(float DeltaTime)
@@ -188,9 +198,6 @@ void ABaseVehicle::SuspensionCast(float DeltaTime)
 
 void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 {
-	TArray<USceneComponent*> FrontWheelSockets = { FrontLeftWheelSocket, FrontRightWheelSocket };
-	TArray<USceneComponent*> BackWheelSockets = { BackLeftWheelSocket, BackRightWheelSocket };
-
 	FVector WheelMomentumSum = FVector::ZeroVector;
 	FVector WheelForceSum = FVector::ZeroVector;
 
@@ -429,6 +436,31 @@ void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 	bIsBreaking = InputValue.Get<float>() > 0.0 && Acceleration > 0.001;
 
 	OnBreaking();
+}
+
+void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
+{
+	EGearShift LastShift = CurrentShift;
+	bool bLastIsGearShifting = bIsGearShifting;
+	float ShiftInput = InputValue.Get<float>();
+
+	if (ShiftInput > 0.0){
+		CurrentShift = EGearShift::DRIVE;
+	}
+	else if (ShiftInput < 0.0){
+		CurrentShift = EGearShift::REVERSE;
+	}
+
+	bIsGearShifting = (FMath::Abs(ShiftInput) != 0.0);
+	if (bLastIsGearShifting != bIsGearShifting){
+		OnGearShifting(bIsGearShifting);
+		OnGearShiftingDelegate.Broadcast(bIsGearShifting);
+	}
+
+	if (LastShift != CurrentShift){
+		OnGearShift(CurrentShift);
+		OnGearChangedDelegate.Broadcast(CurrentShift);
+	}
 }
 
 void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)

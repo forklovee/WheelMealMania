@@ -7,3 +7,13 @@ void UPlayerHUD::UpdateSpeed(float NewSpeed)
 {
 	OnSpeedUpdate(NewSpeed);
 }
+
+void UPlayerHUD::UpdateCurrentGear(EGearShift CurrentGear)
+{
+	OnCurrentGearUpdate(CurrentGear);
+}
+
+void UPlayerHUD::UpdateIsGearShifting(bool bIsGearShifting)
+{
+	OnIsGearShiftingUpdate(bIsGearShifting);
+}
