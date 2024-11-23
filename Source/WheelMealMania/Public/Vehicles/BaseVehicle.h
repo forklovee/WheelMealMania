@@ -88,6 +88,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
 	float JumpStrength = 1000.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets")
+	float DashForce = 5000.f;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
 	UBoxComponent* VehicleCollision;
@@ -171,6 +174,7 @@ private:
 
 	// Gear Shift
 	bool bIsGearShifting = false;
+	bool bChangedToNewGear = false;
 	EGearShift CurrentShift = EGearShift::DRIVE;
 
 	// Steering
@@ -187,6 +191,7 @@ private:
 
 	// Moveset timers
 	FTimerHandle MovesetDashTimerHandle;
+	bool bJustDashed = false;
 public:
 	ABaseVehicle();
 
@@ -205,6 +210,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsThrottling();
 
+	void ThrottlePressedInput(const FInputActionValue& InputValue);
 	void ThrottleInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnThrottleUpdate(float NewThrottle);
@@ -220,8 +226,9 @@ protected:
 	void OnBreaking();
 
 	void GearShiftInput(const FInputActionValue& InputValue);
+	void ShiftToNewGear(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnGearShift(EGearShift NewShift);
+	void OnGearShift(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGearShifting(bool bNewIsGearShifting);
 
@@ -244,6 +251,8 @@ protected:
 	void LookAroundInput(const FInputActionValue& InputValue);
 	void ResetCameraInput(const FInputActionValue& InputValue);
 
+	void DashForward();
+
 private:
 	void UpdateAcceleration(float DeltaTime);
 	void SuspensionCast(float DeltaTime);
@@ -258,4 +267,6 @@ private:
 	bool WheelCast(USceneComponent* WheelSocket, FHitResult& HitResult);
 	bool IsOnGround();
 	bool IsAnyWheelOnTheGround();
+
+	void ClearDashTimer();
 };

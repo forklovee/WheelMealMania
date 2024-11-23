@@ -126,6 +126,7 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Started, this, &ABaseVehicle::ThrottlePressedInput);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ThrottleInput);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::ThrottleInput);
 
@@ -212,7 +213,7 @@ void ABaseVehicle::SuspensionCast(float DeltaTime)
 			SuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, -SuspensionSocketDistance));
 		}
 
-		FHitResult TraceHitResult;
+		FHitResult TraceHitResult;about:blank#blocked
 		if (!WheelCast(WheelSocket, TraceHitResult)) {
 			continue;
 		}
@@ -240,6 +241,9 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	FVector WheelMomentumSum = FVector::ZeroVector;
 	FVector WheelForceSum = FVector::ZeroVector;
 
+	float TurnAngle = WheelMaxAngleDeg;
+	TurnAngle = bIsGearShifting ? WheelMaxAngleDeg : WheelMaxAngleDeg * .5f;
+
 	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
 	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
 	for (USceneComponent* WheelSocket : { BackLeftWheelSocket, BackRightWheelSocket, FrontLeftWheelSocket, FrontRightWheelSocket }) {
@@ -255,11 +259,11 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		if (FrontWheelSockets.Contains(WheelSocket)) {
 			float BaseSteeringRange = 0.75f;
 			float SteeringAngleScaler = (BaseSteeringRange + Acceleration * (1.f - BaseSteeringRange)) * static_cast<float>(Acceleration > 0.0);
-			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * WheelMaxAngleDeg * Steering.X, VehicleCollision->GetUpVector());
+			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 		}
 		else {
 			float SteeringAngleScaler = Acceleration * static_cast<float>(Acceleration > 0.0);
-			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * WheelMaxAngleDeg * Steering.X, VehicleCollision->GetUpVector());
+			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 		}
 
 		if (!bWheelOnGround) {
@@ -287,11 +291,13 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	}
 	
 	// Torque Turn Vehicle
+	float TorqueForce = 6.f;
+	TorqueForce = bIsGearShifting ? TorqueForce : TorqueForce * .75f;
 	VehicleCollision->AddTorqueInRadians(
 		FVector(
 			0.f,
 			0.f,
-			Steering.X * 6.0f * 100000000.f * Acceleration
+			Steering.X * TorqueForce * 100000000.f * Acceleration
 		)
 	);
 	//}
@@ -432,8 +438,17 @@ void ABaseVehicle::SteeringInput(const FInputActionValue& InputValue)
 	OnSteeringUpdate(Steering);
 }
 
+void ABaseVehicle::ThrottlePressedInput(const FInputActionValue& InputValue)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Throttle Pressed."));
+	if (MovesetDashTimerHandle.IsValid()){
+		DashForward();
+	}
+}
+
 void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
+	bool bLastThrottling = bIsThrottling;
 	Throttle = FMath::Clamp(InputValue.Get<float>(), -0.1, 1.0);
 	bIsThrottling = Throttle > 0.0;
 
@@ -451,6 +466,7 @@ void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
 {
 	EGearShift LastShift = CurrentShift;
 	bool bLastIsGearShifting = bIsGearShifting;
+	bChangedToNewGear = LastShift != CurrentShift;
 	float ShiftInput = InputValue.Get<float>();
 
 	if (ShiftInput > 0.0){
@@ -466,10 +482,27 @@ void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
 		OnGearShiftingDelegate.Broadcast(bIsGearShifting);
 	}
 
+	
 	if (LastShift != CurrentShift){
-		OnGearShift(CurrentShift);
-		OnGearChangedDelegate.Broadcast(CurrentShift);
+		ShiftToNewGear(CurrentShift);	
 	}
+}
+
+void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
+{
+	bJustDashed = false;
+
+	MovesetDashTimerHandle.Invalidate();
+	
+	GetWorld()->GetTimerManager().SetTimer(
+	MovesetDashTimerHandle,
+	this, &ABaseVehicle::ClearDashTimer,
+	0.5f, false);
+	
+	UE_LOG(LogTemp, Warning, TEXT("Start Dash timer!"));
+
+	OnGearShift(NewGear);
+	OnGearChangedDelegate.Broadcast(NewGear);
 }
 
 void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
@@ -522,4 +555,29 @@ void ABaseVehicle::LookAroundInput(const FInputActionValue& InputValue)
 void ABaseVehicle::ResetCameraInput(const FInputActionValue& InputValue)
 {
 	CameraArm->SetRelativeRotation(FRotator::ZeroRotator);
+}
+
+void ABaseVehicle::ClearDashTimer()
+{
+	MovesetDashTimerHandle.Invalidate();
+	UE_LOG(LogTemp, Warning, TEXT("Dash timer cleared!"));
+}
+
+void ABaseVehicle::DashForward()
+{
+	if (!IsAnyWheelOnTheGround() || bJustDashed){
+		return;
+	}
+
+	bJustDashed = true;
+	ClearDashTimer();
+	UE_LOG(LogTemp, Warning, TEXT("Dash!"));
+
+	Acceleration = FMath::Clamp(Acceleration + 0.5f, 0.f, 1.f);
+	float TargetDashForce = DashForce * 100000.f;
+	TargetDashForce *= (bDrivingForwards ? 1.f : -1.f);
+	VehicleCollision->AddForceAtLocation(
+		TargetDashForce * VehicleCollision->GetForwardVector(),
+		VehicleCollision->GetComponentLocation()
+	);
 }
