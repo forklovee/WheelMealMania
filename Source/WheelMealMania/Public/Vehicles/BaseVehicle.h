@@ -251,6 +251,14 @@ protected:
 	void LookAroundInput(const FInputActionValue& InputValue);
 	void ResetCameraInput(const FInputActionValue& InputValue);
 
+	UFUNCTION()
+	void VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnVehicleHit(ABaseVehicle* Vehicle,
+		AActor* ActorHit, USceneComponent* ComponentHit,
+		FVector HitPoint, FVector HitNormal);
+
 	void DashForward();
 
 private:

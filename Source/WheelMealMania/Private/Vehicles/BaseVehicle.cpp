@@ -18,6 +18,8 @@ ABaseVehicle::ABaseVehicle()
 
 	VehicleCollision = CreateDefaultSubobject<UBoxComponent>(FName("CollisionBox"));
 	VehicleCollision->SetLinearDamping(2.f);
+	VehicleCollision->SetGenerateOverlapEvents(true);
+	VehicleCollision->SetNotifyRigidBodyCollision(true);
 	RootComponent = VehicleCollision;
 	
 	VehicleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("VehicleMesh"));
@@ -63,6 +65,8 @@ ABaseVehicle::ABaseVehicle()
 void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
+
+	VehicleCollision->OnComponentHit.AddDynamic(this, &ABaseVehicle::VehicleHit);
 	
 	FrontWheelSockets = { FrontLeftWheelSocket, FrontRightWheelSocket };
 	BackWheelSockets = { BackLeftWheelSocket, BackRightWheelSocket };
@@ -555,6 +559,30 @@ void ABaseVehicle::LookAroundInput(const FInputActionValue& InputValue)
 void ABaseVehicle::ResetCameraInput(const FInputActionValue& InputValue)
 {
 	CameraArm->SetRelativeRotation(FRotator::ZeroRotator);
+}
+
+void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	float ImpactForce = GetVelocity().Length() * VehicleCollision->GetMass() * 50.f;
+	VehicleCollision->AddForceAtLocation(
+		ImpactForce * Hit.ImpactNormal,
+		VehicleCollision->GetComponentLocation()
+	);
+
+	UE_LOG(LogTemp, Display, TEXT("Impact Force: %f"), ImpactForce);
+
+	UKismetSystemLibrary::DrawDebugArrow(
+		this,
+		VehicleCollision->GetComponentLocation(),
+		VehicleCollision->GetComponentLocation() + ImpactForce,
+		10.f,
+		FLinearColor::Red,
+		10.f,
+		1.f
+	);
+
+	OnVehicleHit(this, OtherActor, OtherComp, Hit.ImpactPoint, Hit.ImpactNormal);
 }
 
 void ABaseVehicle::ClearDashTimer()
