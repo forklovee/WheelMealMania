@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "AbilitySystemInterface.h"
 #include "BaseVehicle.generated.h"
 
 class UBoxComponent;
@@ -22,7 +23,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
 
 UCLASS()
-class WHEELMEALMANIA_API ABaseVehicle : public APawn
+class WHEELMEALMANIA_API ABaseVehicle : public APawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -88,7 +89,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
 	float JumpStrength = 1000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
+	float DashTimeWindow = 0.25f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
 	float DashForce = 5000.f;
 
 protected:
@@ -154,6 +157,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ResetCameraInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	class UAbilitySystemComponent* AbilitySystem;
 
 	UPROPERTY(BlueprintReadOnly, Category="Engine")
 	bool bIsThrottling = false;
@@ -260,6 +266,11 @@ protected:
 		FVector HitPoint, FVector HitNormal);
 
 	void DashForward();
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
+	{
+		return AbilitySystem;
+	}
 
 private:
 	void UpdateAcceleration(float DeltaTime);

@@ -9,6 +9,7 @@
 
 #include "Vehicles/BaseVehicle.h"
 #include <EnhancedInputComponent.h>
+#include "AbilitySystemComponent.h"
 
 // Sets default values
 ABaseVehicle::ABaseVehicle()
@@ -59,6 +60,8 @@ ABaseVehicle::ABaseVehicle()
 	BackRightSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("BackRightSuspensionSocket"));
 	BackRightSuspensionSocket->SetupAttachment(BackRightWheelSocket);
 	BackRightSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
+
+	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(FName("AbilitySystem"));
 }
 
 // Called when the game starts or when spawned
@@ -183,8 +186,13 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 		case EGearShift::DRIVE:
 			if (!bDrivingForwards && bVehicleHasStopped)
 			{
-				bDrivingForwards = true;
-				UE_LOG(LogTemp, Warning, TEXT("Can go forward now."));
+				if (bVehicleHasStopped) {
+					bDrivingForwards = true;
+					UE_LOG(LogTemp, Warning, TEXT("Can go forward now."));
+				}
+				if (Acceleration > 0.f) {
+					bDrivingForwards = true;
+				}
 			}
 			TargetAcceleration = bDrivingForwards ? TargetAcceleration : 0.f;
 
@@ -217,7 +225,7 @@ void ABaseVehicle::SuspensionCast(float DeltaTime)
 			SuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, -SuspensionSocketDistance));
 		}
 
-		FHitResult TraceHitResult;about:blank#blocked
+		FHitResult TraceHitResult;
 		if (!WheelCast(WheelSocket, TraceHitResult)) {
 			continue;
 		}
@@ -445,6 +453,7 @@ void ABaseVehicle::SteeringInput(const FInputActionValue& InputValue)
 void ABaseVehicle::ThrottlePressedInput(const FInputActionValue& InputValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Throttle Pressed."));
+
 	if (MovesetDashTimerHandle.IsValid()){
 		DashForward();
 	}
@@ -453,7 +462,7 @@ void ABaseVehicle::ThrottlePressedInput(const FInputActionValue& InputValue)
 void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
 	bool bLastThrottling = bIsThrottling;
-	Throttle = FMath::Clamp(InputValue.Get<float>(), -0.1, 1.0);
+	Throttle = FMath::Clamp(InputValue.Get<float>(), -1.0, 1.0);
 	bIsThrottling = Throttle > 0.0;
 
 	OnThrottleUpdate(Throttle);
@@ -501,7 +510,7 @@ void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 	GetWorld()->GetTimerManager().SetTimer(
 	MovesetDashTimerHandle,
 	this, &ABaseVehicle::ClearDashTimer,
-	0.5f, false);
+		DashTimeWindow, false);
 	
 	UE_LOG(LogTemp, Warning, TEXT("Start Dash timer!"));
 
@@ -599,11 +608,19 @@ void ABaseVehicle::DashForward()
 
 	bJustDashed = true;
 	ClearDashTimer();
-	UE_LOG(LogTemp, Warning, TEXT("Dash!"));
 
-	Acceleration = FMath::Clamp(Acceleration + 0.5f, 0.f, 1.f);
+	switch (GetCurrentGearShift())
+	{
+		case EGearShift::DRIVE:
+			Acceleration = FMath::Clamp(Acceleration * 1.25f, 0.1f, 1.f);
+			UE_LOG(LogTemp, Warning, TEXT("Dash Forward!"));
+			break;
+		case EGearShift::REVERSE:
+			UE_LOG(LogTemp, Display, TEXT("Dash Back! %f"), Acceleration);
+			Acceleration = FMath::Clamp(Acceleration * .5f, -1.0f, 0.f);
+	}
+	
 	float TargetDashForce = DashForce * 100000.f;
-	TargetDashForce *= (bDrivingForwards ? 1.f : -1.f);
 	VehicleCollision->AddForceAtLocation(
 		TargetDashForce * VehicleCollision->GetForwardVector(),
 		VehicleCollision->GetComponentLocation()
