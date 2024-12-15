@@ -268,15 +268,19 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		float WheelSpeed = TargetSpeed * .25f;
 		FVector WheelForward = VehicleCollision->GetForwardVector();
 
+		float SteeringAngleScaler = 1.0f;
 		if (FrontWheelSockets.Contains(WheelSocket)) {
-			float BaseSteeringRange = 0.75f;
-			float SteeringAngleScaler = (BaseSteeringRange + Acceleration * (1.f - BaseSteeringRange)) * static_cast<float>(Acceleration > 0.0);
-			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
+			SteeringAngleScaler = 1.f;
 		}
 		else {
-			float SteeringAngleScaler = Acceleration * static_cast<float>(Acceleration > 0.0);
-			WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
+			SteeringAngleScaler = Acceleration;
+
+			if (bIsBreaking) {
+				WheelSpeed *= 0.0f;
+			}
 		}
+
+		WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 
 		if (!bWheelOnGround) {
 			WheelMomentumSum += LastDrivingDirection * WheelSpeed;
@@ -388,9 +392,9 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
 {
-	Acceleration = FMath::Clamp(Acceleration-Value*.005f, 0.f, 1.f);
+	Acceleration = FMath::Clamp(Acceleration-Value*.0025f, 0.f, 1.f);
 	VehicleCollision->AddForceAtLocation(
-		-Value * VehicleCollision->GetComponentVelocity() * 3000.f,
+		-Value * VehicleCollision->GetComponentVelocity() * 5000.f * (1.f-Acceleration),
 		VehicleCollision->GetComponentLocation()
 	);
 
@@ -535,13 +539,6 @@ void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
 {
 	bIsHandbreaking = InputValue.Get<bool>();
-
-	if (bIsHandbreaking) {
-		Throttle = FMath::Clamp(Throttle, 0.0, .05f);
-	}
-	else {
-		Throttle = FMath::Clamp(Throttle, 0.0, 1.0);
-	}
 
 	OnHandbreaking();
 }

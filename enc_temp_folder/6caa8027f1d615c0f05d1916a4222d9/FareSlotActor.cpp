@@ -66,10 +66,10 @@ void AFareSlotActor::SpawnFareCharacter()
 		return;
 	}
 
-	FVector LocationSpawn = GetFareSpawnPointLocation();
-	if (FareCharacter = GetWorld()->SpawnActor<AFareCharacter>(
-		FareCharacterClass.Get(), LocationSpawn, FRotator::ZeroRotator)) {
-		UE_LOG(LogTemp, Display, TEXT("Spawned Fare Character!"))
+	if (FareCharacter = GetWorld()->SpawnActor<AFareCharacter>(FareCharacterClass.Get())) {
+		FareCharacter->SetActorLocation(
+			GetFareSpawnPointLocation()
+		);
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Failed to spawn Fare Character!"))
@@ -79,26 +79,18 @@ void AFareSlotActor::SpawnFareCharacter()
 FVector AFareSlotActor::GetFareSpawnPointLocation() const
 {
 	FHitResult LineTraceHitResult;
-	UKismetSystemLibrary::CapsuleTraceSingle(
+	UKismetSystemLibrary::LineTraceSingle(
 		this,
-		GetActorLocation() + FVector(0.f, 0.f, SlotRadius*.25f),
-		GetActorLocation() - FVector(0.f, 0.f, SlotRadius),
-		75.f,
-		220.f,
+		GetActorLocation() + FVector(0.f, SlotRadius, 0.f),
+		GetActorLocation() - FVector(0.f, SlotRadius, 0.f),
 		ETraceTypeQuery::TraceTypeQuery1,
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::ForOneFrame,
 		LineTraceHitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		60.f
+		true
 	);
 
-	if (!LineTraceHitResult.bBlockingHit) {
-		return GetActorLocation();
-	}
-	return LineTraceHitResult.Location;
+	return LineTraceHitResult.bBlockingHit ? LineTraceHitResult.ImpactPoint : GetActorLocation();
 }
 

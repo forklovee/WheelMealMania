@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float SlotRadius = 100.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AFareCharacter> FareCharacterClass;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	USceneComponent* DefaultSpawnPoint;
@@ -31,9 +34,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
 	class UBillboardComponent* MarkerBillboard;
 
+	AFareCharacter* FareCharacter;
+
 public:	
 	// Sets default values for this actor's properties
 	AFareSlotActor();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsFareCharacterSpawned() const;
+	UFUNCTION(BlueprintCallable)
+	void SpawnFareCharacter();
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
