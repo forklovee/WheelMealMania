@@ -278,6 +278,8 @@ private:
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
 	void InAirRotation(float DeltaTime);
 
+	void InstantAccelerationDecrease(float Value);
+
 	float GetTargetWheelSpeed();
 	FVector GetTargetVelocity();
 

@@ -386,6 +386,17 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 		-VehicleCollision->GetForwardVector() * Steering.X * 50.f * 100000000.f);
 }
 
+void ABaseVehicle::InstantAccelerationDecrease(float Value)
+{
+	Acceleration = FMath::Clamp(Acceleration-Value*.005f, 0.f, 1.f);
+	VehicleCollision->AddForceAtLocation(
+		-Value * VehicleCollision->GetComponentVelocity() * 3000.f,
+		VehicleCollision->GetComponentLocation()
+	);
+
+	UE_LOG(LogTemp, Display, TEXT("%f"), VehicleCollision->GetComponentVelocity().Length())
+}
+
 float ABaseVehicle::GetTargetWheelSpeed()
 {
 	return Acceleration * MaxSpeed * VehicleCollision->GetMass();
@@ -470,7 +481,10 @@ void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 
 void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 {
-	bIsBreaking = InputValue.Get<float>() > 0.0 && Acceleration > 0.001;
+	float BreakScale = InputValue.Get<float>();
+	bIsBreaking = BreakScale > 0.0;
+
+	InstantAccelerationDecrease(1.0*BreakScale);
 
 	OnBreaking();
 }
