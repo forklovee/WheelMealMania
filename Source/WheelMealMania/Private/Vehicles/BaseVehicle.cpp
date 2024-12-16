@@ -308,7 +308,6 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	
 	// Torque Turn Vehicle
 	float TorqueForce = 6.f;
-	TorqueForce = bIsGearShifting ? TorqueForce : TorqueForce * .75f;
 	VehicleCollision->AddTorqueInRadians(
 		FVector(
 			0.f,
@@ -316,7 +315,6 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			Steering.X * TorqueForce * 100000000.f * Acceleration
 		)
 	);
-	//}
 
 	// Add Momentum
 	VehicleCollision->AddForceAtLocation(
@@ -386,8 +384,12 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 	VehicleCollision->AddTorqueInDegrees(
 		-VehicleCollision->GetRightVector() * Steering.Y * 50.f * 100000000.f);
 
-	VehicleCollision->AddTorqueInDegrees(
-		-VehicleCollision->GetForwardVector() * Steering.X * 50.f * 100000000.f);
+	VehicleCollision->AddTorqueInRadians(
+		FVector(
+			0.f,
+			0.f,
+			Steering.X * 50.f * 100000.f).ProjectOnTo(VehicleCollision->GetUpVector())
+	);
 }
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
