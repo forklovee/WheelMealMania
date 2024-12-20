@@ -1,13 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Vehicles/BaseVehicle.h"
+
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/EngineTypes.h"
 #include "InputAction.h"
+#include "NiagaraComponent.h"
 
-#include "Vehicles/BaseVehicle.h"
 #include <EnhancedInputComponent.h>
 #include "AbilitySystemComponent.h"
 
@@ -39,6 +41,8 @@ ABaseVehicle::ABaseVehicle()
 	FrontLeftSuspensionSocket= CreateDefaultSubobject<USceneComponent>(FName("FrontLeftSuspensionSocket"));
 	FrontLeftSuspensionSocket->SetupAttachment(FrontLeftWheelSocket);
 	FrontLeftSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
+	FrontLeftWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("FrontLeftTrail"));
+	FrontLeftWheelTrail->SetupAttachment(FrontLeftSuspensionSocket);
 	
 	FrontRightWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("FrontRightWheelSocket"));
 	FrontRightWheelSocket->SetupAttachment(RootComponent);
@@ -46,6 +50,8 @@ ABaseVehicle::ABaseVehicle()
 	FrontRightSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("FrontRightSuspensionSocket"));
 	FrontRightSuspensionSocket->SetupAttachment(FrontRightWheelSocket);
 	FrontRightSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
+	FrontRightWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("FrontRightTrail"));
+	FrontRightWheelTrail->SetupAttachment(FrontRightSuspensionSocket);
 
 	BackLeftWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("BackLeftWheelSocket"));
 	BackLeftWheelSocket->SetupAttachment(RootComponent);
@@ -53,6 +59,8 @@ ABaseVehicle::ABaseVehicle()
 	BackLeftSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("BackLeftSuspensionSocket"));
 	BackLeftSuspensionSocket->SetupAttachment(BackLeftWheelSocket);
 	BackLeftSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
+	BackLeftWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("BackLeftTrail"));
+	BackLeftWheelTrail->SetupAttachment(BackLeftSuspensionSocket);
 
 	BackRightWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("BackRightWheelSocket"));
 	BackRightWheelSocket->SetupAttachment(RootComponent);
@@ -60,6 +68,8 @@ ABaseVehicle::ABaseVehicle()
 	BackRightSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("BackRightSuspensionSocket"));
 	BackRightSuspensionSocket->SetupAttachment(BackRightWheelSocket);
 	BackRightSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
+	BackRightWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("BackRightSocket"));
+	BackRightWheelTrail->SetupAttachment(BackRightSuspensionSocket);
 
 	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(FName("AbilitySystem"));
 }
@@ -73,6 +83,12 @@ void ABaseVehicle::BeginPlay()
 	
 	FrontWheelSockets = { FrontLeftWheelSocket, FrontRightWheelSocket };
 	BackWheelSockets = { BackLeftWheelSocket, BackRightWheelSocket };
+
+	WheelSocketTrails = {};
+	WheelSocketTrails.Add(FrontLeftWheelSocket, FrontLeftWheelTrail);
+	WheelSocketTrails.Add(FrontRightWheelSocket, FrontRightWheelTrail);
+	WheelSocketTrails.Add(BackLeftWheelSocket, BackLeftWheelTrail);
+	WheelSocketTrails.Add(BackRightWheelSocket, BackRightWheelTrail);
 }
 
 // Called every frame
@@ -95,16 +111,16 @@ void ABaseVehicle::Tick(float DeltaTime)
 
 	// Manually add gravity
 	// General gravity
-	float LinearDampingGravityScaler = 1.0f + VehicleCollision->GetLinearDamping() * .1f;
-	VehicleCollision->AddForceAtLocation(
+	/*VehicleCollision->AddForceAtLocation(
 		FVector::DownVector * 981.f * 3050.f * LinearDampingGravityScaler,
 		VehicleCollision->GetComponentLocation()
-	);
-	VehicleCollision->AddForceAtLocation(
-		FVector::DownVector * 981.f * 1050.f * LinearDampingGravityScaler,
+	);*/
+	/*VehicleCollision->AddForceAtLocation(
+		FVector::DownVector * 981.f * 1550.f * LinearDampingGravityScaler,
 		VehicleCollision->GetComponentLocation() + VehicleCollision->GetForwardVector() * 50.f
-	);
+	);*/
 	VehicleCollision->SetEnableGravity(false);
+	// Manually add gravity
 
 	// Process Steering
 	Steering = FMath::Lerp(Steering, TargetSteering, DeltaTime*SteeringSensitivity);
@@ -117,7 +133,7 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// MAIN PROCESSING
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
-	
+
 	UKismetSystemLibrary::DrawDebugArrow(
 		this,
 		VehicleCollision->GetComponentLocation(),
@@ -166,6 +182,11 @@ float ABaseVehicle::GetCurrentTargetSpeed()
 EGearShift ABaseVehicle::GetCurrentGearShift()
 {
 	return CurrentShift;
+}
+
+void ABaseVehicle::OnConstruction(const FTransform& Transform)
+{
+	// In editor :^)
 }
 
 bool ABaseVehicle::IsThrottling()
@@ -225,11 +246,20 @@ void ABaseVehicle::SuspensionCast(float DeltaTime)
 			SuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, -SuspensionSocketDistance));
 		}
 
+		UNiagaraComponent* WheelTrailComponent = WheelSocketTrails[WheelSocket];
+
 		FHitResult TraceHitResult;
-		if (!WheelCast(WheelSocket, TraceHitResult)) {
+		bool bIsWheelOnTheGround = WheelCast(WheelSocket, TraceHitResult);
+
+		// If on the ground, activate the wheel trail effect
+		if (WheelTrailComponent) {
+			WheelTrailComponent->SetActive(bIsWheelOnTheGround);
+		}
+
+		if (!bIsWheelOnTheGround) {
 			continue;
 		}
-		
+
 		float DistanceNormalized = FMath::GetMappedRangeValueClamped(FVector2D(0.0, SpringLength), FVector2D(0.0, 1.0), TraceHitResult.Distance);
 		float DistanceInversed = 1.f - DistanceNormalized;
 
@@ -253,9 +283,6 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	FVector WheelMomentumSum = FVector::ZeroVector;
 	FVector WheelForceSum = FVector::ZeroVector;
 
-	float TurnAngle = WheelMaxAngleDeg;
-	TurnAngle = bIsGearShifting ? WheelMaxAngleDeg : WheelMaxAngleDeg * .5f;
-
 	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
 	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
 	for (USceneComponent* WheelSocket : { BackLeftWheelSocket, BackRightWheelSocket, FrontLeftWheelSocket, FrontRightWheelSocket }) {
@@ -266,7 +293,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 
 		// Add drive force, if wheel touches the ground
 		float WheelSpeed = TargetSpeed * .25f;
-		FVector WheelForward = VehicleCollision->GetForwardVector();
+		FVector WheelForward = WheelSocket->GetForwardVector();
 
 		float SteeringAngleScaler = 1.0f;
 		if (FrontWheelSockets.Contains(WheelSocket)) {
@@ -280,13 +307,31 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			}
 		}
 
+		float TurnAngleScale = 1.f;
+		float TurnAngle = WheelMaxAngleDeg;
+		if (IsValid(SteeringRangeCurve)) {
+			TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+		}
+
+		TurnAngle *= TurnAngleScale;
+		if (BackWheelSockets.Contains(WheelSocket)) {
+			TurnAngle *= Acceleration*.05;
+		}
+
 		WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 
+		FVector WheelGravityDirection = FVector::DownVector;
 		if (!bWheelOnGround) {
+			FVector WheelGravity = WheelGravityDirection * 981.f * 1050.f * GravityScale;
+			VehicleCollision->AddForceAtLocation(WheelGravity, WheelSocket->GetComponentLocation());
+
 			WheelMomentumSum += LastDrivingDirection * WheelSpeed;
 			WheelForceSum += LastDrivingDirection * WheelSpeed;
 			continue;
 		}
+		WheelGravityDirection = -TraceHitResult.ImpactNormal;
+		FVector WheelGravity = WheelGravityDirection * 981.f * 1050.f * GravityScale;
+		VehicleCollision->AddForceAtLocation(WheelGravity, WheelSocket->GetComponentLocation());
 
 		// Apply Drive Forces
 		FVector WheelForce = WheelForward * TargetSpeed;
@@ -306,13 +351,18 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		);
 	}
 	
+	float TurnAngleScale = 1.f;
+	if (IsValid(SteeringRangeCurve)) {
+		TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+	}
+
 	// Torque Turn Vehicle
-	float TorqueForce = 6.f;
+	float TorqueForce = 6.f * TurnAngleScale;
 	VehicleCollision->AddTorqueInRadians(
 		FVector(
 			0.f,
 			0.f,
-			Steering.X * TorqueForce * 100000000.f * Acceleration
+			Steering.X * TorqueForce * 10000000.f * Acceleration
 		)
 	);
 

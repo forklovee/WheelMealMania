@@ -11,6 +11,8 @@ class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UNiagaraSystem;
+class UNiagaraComponent;
 struct FInputActionValue;
 
 UENUM(BlueprintType)
@@ -32,6 +34,9 @@ public:
 	FOnGearShifting OnGearShiftingDelegate;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
+	float GravityScale = 1.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
 	float MaxSpeed = 1500.f;
 
@@ -62,7 +67,7 @@ public:
 	float SteeringSensitivity = 2.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
-	UCurveFloat* SteeringRangeByAcceleration;
+	UCurveFloat* SteeringRangeCurve;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	UCurveFloat* DriftSteeringRangeByAcceleration;
 
@@ -109,6 +114,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* FrontLeftWheelSocket;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* FrontLeftWheelTrail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* FrontLeftSuspensionSocket;
@@ -116,17 +124,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* FrontRightWheelSocket;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* FrontRightWheelTrail;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* FrontRightSuspensionSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackLeftWheelSocket;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* BackLeftWheelTrail;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackLeftSuspensionSocket;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackRightWheelSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* BackRightWheelTrail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* BackRightSuspensionSocket;
@@ -171,7 +188,9 @@ protected:
 	bool bIsHandbreaking = false;
 private:
 	TArray<USceneComponent*> FrontWheelSockets; 
-	TArray<USceneComponent*> BackWheelSockets; 
+	TArray<USceneComponent*> BackWheelSockets;
+
+	TMap<USceneComponent*, UNiagaraComponent*> WheelSocketTrails;
 	// Accelerating
 	float Throttle = 0.0;
 	bool bDrivingForwards = true;
@@ -210,7 +229,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EGearShift GetCurrentGearShift();
 protected:
-	// Called when the game starts or when spawned
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)

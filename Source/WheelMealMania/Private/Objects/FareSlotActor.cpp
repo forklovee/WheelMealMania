@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Objects/FareSlotActor.h"
+
 #include "Components/BillboardComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/FareCharacter.h"
-
-#include "Objects/FareSlotActor.h"
 
 // Sets default values
 AFareSlotActor::AFareSlotActor()

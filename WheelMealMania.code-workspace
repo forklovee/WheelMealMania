@@ -1,8 +1,12 @@
 {
 	"folders": [
 		{
-			"name": "UE5",
+			"name": "WheelMealMania",
 			"path": "."
+		},
+		{
+			"name": "UE5",
+			"path": "D:\\UE_5.4"
 		}
 	],
 	"settings": {
@@ -19,3073 +23,435 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				"label": "UnrealEditor Linux Debug Build",
+				"label": "WheelMealMania Win64 Debug Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux Debug Rebuild",
+				"label": "WheelMealMania Win64 Debug Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"UnrealEditor Linux Debug Clean"
+					"WheelMealMania Win64 Debug Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux Debug Clean",
+				"label": "WheelMealMania Win64 Debug Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Debug",
-					"-waitmutex",
-					"-clean"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux DebugGame Build",
+				"label": "WheelMealMania Win64 DebugGame Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"DebugGame",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux DebugGame Rebuild",
+				"label": "WheelMealMania Win64 DebugGame Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"DebugGame",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"UnrealEditor Linux DebugGame Clean"
+					"WheelMealMania Win64 DebugGame Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux DebugGame Clean",
+				"label": "WheelMealMania Win64 DebugGame Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"DebugGame",
-					"-waitmutex",
-					"-clean"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux Development Build",
+				"label": "WheelMealMania Win64 Development Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Development",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux Development Rebuild",
+				"label": "WheelMealMania Win64 Development Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Development",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"UnrealEditor Linux Development Clean"
+					"WheelMealMania Win64 Development Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealEditor Linux Development Clean",
+				"label": "WheelMealMania Win64 Development Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
-					"UnrealEditor",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Debug Rebuild",
+				"label": "WheelMealMania Win64 Test Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame Linux Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"Debug",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame Linux DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux DebugGame Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"DebugGame",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Development Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame Linux Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
-					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame Linux Test Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Test",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Test Rebuild",
+				"label": "WheelMealMania Win64 Test Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Test",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame Linux Test Clean"
+					"WheelMealMania Win64 Test Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Test Clean",
+				"label": "WheelMealMania Win64 Test Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Test",
-					"-waitmutex",
-					"-clean"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Shipping Build",
+				"label": "WheelMealMania Win64 Shipping Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Shipping",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Shipping Rebuild",
+				"label": "WheelMealMania Win64 Shipping Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Shipping",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame Linux Shipping Clean"
+					"WheelMealMania Win64 Shipping Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame Linux Shipping Clean",
+				"label": "WheelMealMania Win64 Shipping Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
-					"UnrealGame",
-					"Linux",
+					"WheelMealMania",
+					"Win64",
 					"Shipping",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "UnrealGame LinuxArm64 Debug Rebuild",
+				"label": "WheelMealManiaEditor Win64 Debug Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame LinuxArm64 Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Debug",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame LinuxArm64 DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 DebugGame Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Development Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame LinuxArm64 Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Test Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Test Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame LinuxArm64 Test Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Test Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Shipping Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Shipping Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"UnrealGame LinuxArm64 Shipping Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealGame LinuxArm64 Shipping Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"UnrealGame",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Debug Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania Linux Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Debug",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania Linux DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux DebugGame Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"DebugGame",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Development Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania Linux Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Test Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Test Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania Linux Test Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Test Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Test",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Shipping Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Shipping Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania Linux Shipping Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania Linux Shipping Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"Linux",
-					"Shipping",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Debug Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Debug",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania LinuxArm64 Debug Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Debug",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 DebugGame Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania LinuxArm64 DebugGame Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 DebugGame Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"DebugGame",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Development Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania LinuxArm64 Development Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Test Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Test Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania LinuxArm64 Test Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Test Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Test",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Shipping Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Shipping Rebuild",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build",
-					"WheelMealMania LinuxArm64 Shipping Clean"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealMania LinuxArm64 Shipping Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealMania",
-					"LinuxArm64",
-					"Shipping",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealManiaEditor Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "D:\\UE_5.4"
+				}
+			},
+			{
+				"label": "WheelMealManiaEditor Win64 Debug Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"WheelMealManiaEditor",
+					"Win64",
+					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
+					"WheelMealManiaEditor Win64 Debug Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux Debug Rebuild",
+				"label": "WheelMealManiaEditor Win64 Debug Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"Debug",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"WheelMealManiaEditor Linux Debug Clean"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux Debug Clean",
+				"label": "WheelMealManiaEditor Win64 DebugGame Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
-					"Debug",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealManiaEditor Linux DebugGame Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"DebugGame",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux DebugGame Rebuild",
+				"label": "WheelMealManiaEditor Win64 DebugGame Rebuild",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"DebugGame",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"WheelMealManiaEditor Linux DebugGame Clean"
+					"WheelMealManiaEditor Win64 DebugGame Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux DebugGame Clean",
+				"label": "WheelMealManiaEditor Win64 DebugGame Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"DebugGame",
-					"-waitmutex",
-					"-clean"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux Development Build",
+				"label": "WheelMealManiaEditor Win64 Development Build",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"Development",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "D:\\UE_5.4"
+				}
+			},
+			{
+				"label": "WheelMealManiaEditor Win64 Development Rebuild",
+				"group": "build",
+				"command": "Engine\\Build\\BatchFiles\\Build.bat",
+				"args": [
+					"WheelMealManiaEditor",
+					"Win64",
+					"Development",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build"
+					"WheelMealManiaEditor Win64 Development Clean"
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			},
 			{
-				"label": "WheelMealManiaEditor Linux Development Rebuild",
+				"label": "WheelMealManiaEditor Win64 Development Clean",
 				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"command": "Engine\\Build\\BatchFiles\\Clean.bat",
 				"args": [
 					"WheelMealManiaEditor",
-					"Linux",
+					"Win64",
 					"Development",
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"ShaderCompileWorker Linux Development Build",
-					"WheelMealManiaEditor Linux Development Clean"
-				],
 				"type": "shell",
 				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "WheelMealManiaEditor Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
-				"args": [
-					"WheelMealManiaEditor",
-					"Linux",
-					"Development",
-					"-waitmutex",
-					"-clean"
-				],
-				"problemMatcher": "$msCompile",
-				"dependsOn": [
-					"UnrealBuildTool Linux Development Build"
-				],
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Android.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Android/Android.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Android.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Android/Android.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Android.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Android/Android.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Android.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Android/Android.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Apple.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Apple/Apple.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Apple.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Apple/Apple.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Apple.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Apple/Apple.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Apple.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Apple/Apple.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationScripts.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Scripts/AutomationScripts.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationScripts.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Scripts/AutomationScripts.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationScripts.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Scripts/AutomationScripts.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationScripts.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Scripts/AutomationScripts.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationTool Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationTool Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationTool Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationTool Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationUtils.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationUtils/AutomationUtils.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationUtils.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationUtils/AutomationUtils.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationUtils.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationUtils/AutomationUtils.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "AutomationUtils.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/AutomationUtils/AutomationUtils.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "BuildGraph.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/BuildGraph/BuildGraph.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "BuildGraph.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/BuildGraph/BuildGraph.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "BuildGraph.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/BuildGraph/BuildGraph.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "BuildGraph.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/BuildGraph/BuildGraph.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CookedEditor.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CookedEditor/CookedEditor.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CookedEditor.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CookedEditor/CookedEditor.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CookedEditor.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CookedEditor/CookedEditor.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CookedEditor.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CookedEditor/CookedEditor.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CrowdinLocalization.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CrowdinLocalization/CrowdinLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CrowdinLocalization.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CrowdinLocalization/CrowdinLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CrowdinLocalization.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CrowdinLocalization/CrowdinLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "CrowdinLocalization.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/CrowdinLocalization/CrowdinLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Gauntlet.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Gauntlet/Gauntlet.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Gauntlet.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Gauntlet/Gauntlet.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Gauntlet.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Gauntlet/Gauntlet.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Gauntlet.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Gauntlet/Gauntlet.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "IOS.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/IOS/IOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "IOS.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/IOS/IOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "IOS.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/IOS/IOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "IOS.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/IOS/IOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Linux.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Linux/Linux.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Linux.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Linux/Linux.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Linux.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Linux/Linux.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Linux.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Linux/Linux.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Localization.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Localization/Localization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Localization.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Localization/Localization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Localization.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Localization/Localization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Localization.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Localization/Localization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "LowLevelTests.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/LowLevelTests/LowLevelTests.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "LowLevelTests.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/LowLevelTests/LowLevelTests.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "LowLevelTests.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/LowLevelTests/LowLevelTests.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "LowLevelTests.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/LowLevelTests/LowLevelTests.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Mac.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Mac/Mac.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Mac.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Mac/Mac.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Mac.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Mac/Mac.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Mac.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Mac/Mac.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "OneSkyLocalization.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/OneSkyLocalization/OneSkyLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "OneSkyLocalization.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/OneSkyLocalization/OneSkyLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "OneSkyLocalization.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/OneSkyLocalization/OneSkyLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "OneSkyLocalization.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/OneSkyLocalization/OneSkyLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "ScriptGeneratorUbtPlugin.ubtplugin Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Plugins/ScriptPlugin/Source/ScriptGeneratorUbtPlugin/ScriptGeneratorUbtPlugin.ubtplugin.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "ScriptGeneratorUbtPlugin.ubtplugin Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Plugins/ScriptPlugin/Source/ScriptGeneratorUbtPlugin/ScriptGeneratorUbtPlugin.ubtplugin.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "ScriptGeneratorUbtPlugin.ubtplugin Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Plugins/ScriptPlugin/Source/ScriptGeneratorUbtPlugin/ScriptGeneratorUbtPlugin.ubtplugin.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "ScriptGeneratorUbtPlugin.ubtplugin Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Plugins/ScriptPlugin/Source/ScriptGeneratorUbtPlugin/ScriptGeneratorUbtPlugin.ubtplugin.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SmartlingLocalization.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SmartlingLocalization/SmartlingLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SmartlingLocalization.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SmartlingLocalization/SmartlingLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SmartlingLocalization.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SmartlingLocalization/SmartlingLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SmartlingLocalization.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SmartlingLocalization/SmartlingLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SteamDeck.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SteamDeck/SteamDeck.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SteamDeck.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SteamDeck/SteamDeck.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SteamDeck.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SteamDeck/SteamDeck.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "SteamDeck.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/SteamDeck/SteamDeck.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "TVOS.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/TVOS/TVOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "TVOS.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/TVOS/TVOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "TVOS.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/TVOS/TVOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "TVOS.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/TVOS/TVOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Turnkey.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Turnkey/Turnkey.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Turnkey.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Turnkey/Turnkey.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Turnkey.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Turnkey/Turnkey.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Turnkey.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Turnkey/Turnkey.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealBuildTool Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealBuildTool Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealBuildTool Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "UnrealBuildTool Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "VisionOS.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Platforms/VisionOS/Source/Programs/AutomationTool/VisionOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "VisionOS.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Platforms/VisionOS/Source/Programs/AutomationTool/VisionOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "VisionOS.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Platforms/VisionOS/Source/Programs/AutomationTool/VisionOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "VisionOS.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Platforms/VisionOS/Source/Programs/AutomationTool/VisionOS.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Win.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Win/Win.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Win.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Win/Win.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Win.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Win/Win.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "Win.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/Win/Win.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "XLocLocalization.Automation Linux Debug Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/XLocLocalization/XLocLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "XLocLocalization.Automation Linux Debug Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Debug",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/XLocLocalization/XLocLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "XLocLocalization.Automation Linux Development Build",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"build",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/XLocLocalization/XLocLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
-				}
-			},
-			{
-				"label": "XLocLocalization.Automation Linux Development Clean",
-				"group": "build",
-				"command": "Engine/Build/BatchFiles/RunDotnet.sh",
-				"args": [
-					"clean",
-					"--configuration",
-					"Development",
-					"/home/forklovee/dev/UnrealEngine54/Engine/Source/Programs/AutomationTool/XLocLocalization/XLocLocalization.Automation.csproj"
-				],
-				"problemMatcher": "$msCompile",
-				"type": "shell",
-				"options": {
-					"cwd": "/home/forklovee/dev/UnrealEngine54"
+					"cwd": "D:\\UE_5.4"
 				}
 			}
 		]
@@ -3094,270 +460,153 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
-				"name": "Launch UnrealEditor (Debug)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
-				"preLaunchTask": "UnrealEditor Linux Debug Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealEditor (DebugGame)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
-				"preLaunchTask": "UnrealEditor Linux DebugGame Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealEditor (Development)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor",
-				"preLaunchTask": "UnrealEditor Linux Development Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealGame (Debug)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealGame-Linux-Debug",
-				"preLaunchTask": "UnrealGame Linux Debug Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealGame (DebugGame)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealGame-Linux-DebugGame",
-				"preLaunchTask": "UnrealGame Linux DebugGame Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealGame (Development)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealGame",
-				"preLaunchTask": "UnrealGame Linux Development Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealGame (Test)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealGame-Linux-Test",
-				"preLaunchTask": "UnrealGame Linux Test Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "Launch UnrealGame (Shipping)",
-				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealGame-Linux-Shipping",
-				"preLaunchTask": "UnrealGame Linux Shipping Build",
-				"args": [
-				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
 				"name": "Launch WheelMealMania (Debug)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/WheelMealMania/Binaries/Linux/UnrealGame-Linux-Debug",
-				"preLaunchTask": "WheelMealMania Linux Debug Build",
+				"program": "D:\\UnrealProjects\\WheelMealMania\\Binaries\\Win64\\UnrealGame-Win64-Debug.exe",
+				"preLaunchTask": "WheelMealMania Win64 Debug Build",
 				"args": [
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealMania (DebugGame)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/WheelMealMania/Binaries/Linux/UnrealGame-Linux-DebugGame",
-				"preLaunchTask": "WheelMealMania Linux DebugGame Build",
+				"program": "D:\\UnrealProjects\\WheelMealMania\\Binaries\\Win64\\UnrealGame-Win64-DebugGame.exe",
+				"preLaunchTask": "WheelMealMania Win64 DebugGame Build",
 				"args": [
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealMania (Development)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/WheelMealMania/Binaries/Linux/UnrealGame",
-				"preLaunchTask": "WheelMealMania Linux Development Build",
+				"program": "D:\\UnrealProjects\\WheelMealMania\\Binaries\\Win64\\UnrealGame.exe",
+				"preLaunchTask": "WheelMealMania Win64 Development Build",
 				"args": [
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealMania (Test)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/WheelMealMania/Binaries/Linux/UnrealGame-Linux-Test",
-				"preLaunchTask": "WheelMealMania Linux Test Build",
+				"program": "D:\\UnrealProjects\\WheelMealMania\\Binaries\\Win64\\UnrealGame-Win64-Test.exe",
+				"preLaunchTask": "WheelMealMania Win64 Test Build",
 				"args": [
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealMania (Shipping)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/WheelMealMania/Binaries/Linux/UnrealGame-Linux-Shipping",
-				"preLaunchTask": "WheelMealMania Linux Shipping Build",
+				"program": "D:\\UnrealProjects\\WheelMealMania\\Binaries\\Win64\\UnrealGame-Win64-Shipping.exe",
+				"preLaunchTask": "WheelMealMania Win64 Shipping Build",
 				"args": [
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealManiaEditor (Debug)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
-				"preLaunchTask": "WheelMealManiaEditor Linux Debug Build",
+				"program": "D:\\UE_5.4\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-Debug.exe",
+				"preLaunchTask": "WheelMealManiaEditor Win64 Debug Build",
 				"args": [
-					"WheelMealMania"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject"
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealManiaEditor (DebugGame)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
-				"preLaunchTask": "WheelMealManiaEditor Linux DebugGame Build",
+				"program": "D:\\UE_5.4\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-DebugGame.exe",
+				"preLaunchTask": "WheelMealManiaEditor Win64 DebugGame Build",
 				"args": [
-					"WheelMealMania"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject"
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
+				"cwd": "D:\\UE_5.4",
+				"stopAtEntry": false,
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Launch WheelMealManiaEditor (Development)",
 				"request": "launch",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/Linux/UnrealEditor",
-				"preLaunchTask": "WheelMealManiaEditor Linux Development Build",
+				"program": "D:\\UE_5.4\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+				"preLaunchTask": "WheelMealManiaEditor Win64 Development Build",
 				"args": [
-					"WheelMealMania"
+					"D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject"
 				],
-				"cwd": "/home/forklovee/dev/UnrealEngine54",
-				"type": "cppdbg",
-				"visualizerFile": "/home/forklovee/dev/UnrealEngine54/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
-				"showDisplayString": true
-			},
-			{
-				"name": "AutomationTool (Debug)",
-				"type": "coreclr",
-				"request": "launch",
-				"preLaunchTask": "AutomationTool Linux Debug Build",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/DotNET/AutomationTool/AutomationTool",
-				"args": [
-				],
-				"console": "internalConsole",
-				"internalConsoleOptions": "openOnSessionStart",
+				"cwd": "D:\\UE_5.4",
 				"stopAtEntry": false,
-				"cwd": "/home/forklovee/dev/UnrealEngine54"
-			},
-			{
-				"name": "AutomationTool (Development)",
-				"type": "coreclr",
-				"request": "launch",
-				"preLaunchTask": "AutomationTool Linux Development Build",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/DotNET/AutomationTool/AutomationTool",
-				"args": [
-				],
-				"console": "internalConsole",
-				"internalConsoleOptions": "openOnSessionStart",
-				"stopAtEntry": false,
-				"cwd": "/home/forklovee/dev/UnrealEngine54"
-			},
-			{
-				"name": "UnrealBuildTool (Debug)",
-				"type": "coreclr",
-				"request": "launch",
-				"preLaunchTask": "UnrealBuildTool Linux Debug Build",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool",
-				"args": [
-				],
-				"console": "internalConsole",
-				"internalConsoleOptions": "openOnSessionStart",
-				"stopAtEntry": false,
-				"cwd": "/home/forklovee/dev/UnrealEngine54"
-			},
-			{
-				"name": "UnrealBuildTool (Development)",
-				"type": "coreclr",
-				"request": "launch",
-				"preLaunchTask": "UnrealBuildTool Linux Development Build",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool",
-				"args": [
-				],
-				"console": "internalConsole",
-				"internalConsoleOptions": "openOnSessionStart",
-				"stopAtEntry": false,
-				"cwd": "/home/forklovee/dev/UnrealEngine54"
+				"console": "integratedTerminal",
+				"type": "cppvsdbg",
+				"visualizerFile": "D:\\UE_5.4\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"sourceFileMap": {
+					"D:\\build\\++UE5\\Sync": "D:\\UE_5.4"
+				}
 			},
 			{
 				"name": "Generate Project Files",
 				"type": "coreclr",
 				"request": "launch",
-				"preLaunchTask": "UnrealBuildTool Linux Development Build",
-				"program": "/home/forklovee/dev/UnrealEngine54/Engine/Build/BatchFiles/RunUBT.bat",
+				"preLaunchTask": "UnrealBuildTool Win64 Development Build",
+				"program": "D:\\UE_5.4\\Engine\\Build\\BatchFiles\\RunUBT.bat",
 				"args": [
 					"-projectfiles",
 					"-vscode",
-					"-project=/home/forklovee/dev/UnrealEngine54/WheelMealMania/WheelMealMania.uproject",
+					"-project=D:\\UnrealProjects\\WheelMealMania\\WheelMealMania.uproject",
 					"-game",
 					"-engine",
 					"-dotnet"
 				],
-				"console": "internalConsole",
-				"internalConsoleOptions": "openOnSessionStart",
+				"console": "integratedTerminal",
 				"stopAtEntry": false,
-				"cwd": "/home/forklovee/dev/UnrealEngine54"
+				"cwd": "D:\\UE_5.4"
 			}
 		]
 	}
