@@ -639,9 +639,7 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	float ImpactDot = FVector::UpVector.Dot(Hit.ImpactNormal);
-	if (!FMath::IsNearlyZero(ImpactDot)) {
-		return;
-	}
+
 
 	float ImpactForce = GetVelocity().Length() * VehicleCollision->GetMass() * 50.f;
 	VehicleCollision->AddForceAtLocation(
