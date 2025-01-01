@@ -5,13 +5,15 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+
+#include "Vehicles/WheelComponent.h"
+
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/EngineTypes.h"
 #include "InputAction.h"
 #include "NiagaraComponent.h"
 
 #include <EnhancedInputComponent.h>
-#include "AbilitySystemComponent.h"
 
 // Sets default values
 ABaseVehicle::ABaseVehicle()
@@ -33,45 +35,6 @@ ABaseVehicle::ABaseVehicle()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	Camera->SetupAttachment(CameraArm);
-
-	//Setup Suspension Sockets
-	FrontLeftWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("FrontLeftWheelSocket"));
-	FrontLeftWheelSocket->SetupAttachment(RootComponent);
-	FrontLeftWheelSocket->SetRelativeLocation(FVector(50.f, -20.f, 0.f));
-	FrontLeftSuspensionSocket= CreateDefaultSubobject<USceneComponent>(FName("FrontLeftSuspensionSocket"));
-	FrontLeftSuspensionSocket->SetupAttachment(FrontLeftWheelSocket);
-	FrontLeftSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
-	FrontLeftWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("FrontLeftTrail"));
-	FrontLeftWheelTrail->SetupAttachment(FrontLeftSuspensionSocket);
-	
-	FrontRightWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("FrontRightWheelSocket"));
-	FrontRightWheelSocket->SetupAttachment(RootComponent);
-	FrontRightWheelSocket->SetRelativeLocation(FVector(50.f, 20.f, 0.f));
-	FrontRightSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("FrontRightSuspensionSocket"));
-	FrontRightSuspensionSocket->SetupAttachment(FrontRightWheelSocket);
-	FrontRightSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
-	FrontRightWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("FrontRightTrail"));
-	FrontRightWheelTrail->SetupAttachment(FrontRightSuspensionSocket);
-
-	BackLeftWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("BackLeftWheelSocket"));
-	BackLeftWheelSocket->SetupAttachment(RootComponent);
-	BackLeftWheelSocket->SetRelativeLocation(FVector(-50.f, -20.f, 0.f));
-	BackLeftSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("BackLeftSuspensionSocket"));
-	BackLeftSuspensionSocket->SetupAttachment(BackLeftWheelSocket);
-	BackLeftSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
-	BackLeftWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("BackLeftTrail"));
-	BackLeftWheelTrail->SetupAttachment(BackLeftSuspensionSocket);
-
-	BackRightWheelSocket = CreateDefaultSubobject<USceneComponent>(FName("BackRightWheelSocket"));
-	BackRightWheelSocket->SetupAttachment(RootComponent);
-	BackRightWheelSocket->SetRelativeLocation(FVector(-50.f, 20.f, 0.f));
-	BackRightSuspensionSocket = CreateDefaultSubobject<USceneComponent>(FName("BackRightSuspensionSocket"));
-	BackRightSuspensionSocket->SetupAttachment(BackRightWheelSocket);
-	BackRightSuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, SpringLength));
-	BackRightWheelTrail = CreateDefaultSubobject<UNiagaraComponent>(FName("BackRightSocket"));
-	BackRightWheelTrail->SetupAttachment(BackRightSuspensionSocket);
-
-	AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(FName("AbilitySystem"));
 }
 
 // Called when the game starts or when spawned
@@ -79,16 +42,8 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetupVehicleWheelComponents();
 	VehicleCollision->OnComponentHit.AddDynamic(this, &ABaseVehicle::VehicleHit);
-	
-	FrontWheelSockets = { FrontLeftWheelSocket, FrontRightWheelSocket };
-	BackWheelSockets = { BackLeftWheelSocket, BackRightWheelSocket };
-
-	WheelSocketTrails = {};
-	WheelSocketTrails.Add(FrontLeftWheelSocket, FrontLeftWheelTrail);
-	WheelSocketTrails.Add(FrontRightWheelSocket, FrontRightWheelTrail);
-	WheelSocketTrails.Add(BackLeftWheelSocket, BackLeftWheelTrail);
-	WheelSocketTrails.Add(BackRightWheelSocket, BackRightWheelTrail);
 }
 
 // Called every frame
@@ -109,27 +64,14 @@ void ABaseVehicle::Tick(float DeltaTime)
 	}
 	bIsOnGround = bNewIsOnGround;
 
-	// Manually add gravity
-	// General gravity
-	/*VehicleCollision->AddForceAtLocation(
-		FVector::DownVector * 981.f * 3050.f * LinearDampingGravityScaler,
-		VehicleCollision->GetComponentLocation()
-	);*/
-	/*VehicleCollision->AddForceAtLocation(
-		FVector::DownVector * 981.f * 1550.f * LinearDampingGravityScaler,
-		VehicleCollision->GetComponentLocation() + VehicleCollision->GetForwardVector() * 50.f
-	);*/
 	VehicleCollision->SetEnableGravity(false);
-	// Manually add gravity
 
 	// Process Steering
 	Steering = FMath::Lerp(Steering, TargetSteering, DeltaTime*SteeringSensitivity);
 
 	// MAIN PROCESSING
 	UpdateAcceleration(DeltaTime);
-	SuspensionCast(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
-	InAirRotation(DeltaTime); // Updates only when all wheels are in air
 	// MAIN PROCESSING
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
@@ -161,6 +103,9 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::SteeringInput);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::SteeringInput);
+
+		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HydraulicsControlInput);
+		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HydraulicsControlInput);
 
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HandbreakInput);
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HandbreakInput);
@@ -236,67 +181,28 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, NewAcceleration);
 }
 
-
-void ABaseVehicle::SuspensionCast(float DeltaTime)
-{
-	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
-		if (USceneComponent* SuspensionSocket = WheelSocket->GetChildComponent(0)) {
-			float SuspensionSocketDistance = -GetVelocity().Z * 0.05;
-			SuspensionSocketDistance = FMath::Clamp(SuspensionSocketDistance, SpringLength*.5f, SpringLength - SocketDistanceOffset*.5f);
-			SuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, -SuspensionSocketDistance));
-		}
-
-		UNiagaraComponent* WheelTrailComponent = WheelSocketTrails[WheelSocket];
-
-		FHitResult TraceHitResult;
-		bool bIsWheelOnTheGround = WheelCast(WheelSocket, TraceHitResult);
-
-		// If on the ground, activate the wheel trail effect
-		if (WheelTrailComponent) {
-			WheelTrailComponent->SetActive(bIsWheelOnTheGround);
-		}
-
-		if (!bIsWheelOnTheGround) {
-			continue;
-		}
-
-		float DistanceNormalized = FMath::GetMappedRangeValueClamped(FVector2D(0.0, SpringLength), FVector2D(0.0, 1.0), TraceHitResult.Distance);
-		float DistanceInversed = 1.f - DistanceNormalized;
-
-		FVector TraceOffset = TraceHitResult.TraceStart - TraceHitResult.TraceEnd;
-		FVector TraceDirection = TraceHitResult.Normal;
-		FVector TargetForce = DistanceInversed * VehicleCollision->GetMass() * SpringStrength * TraceDirection;
-		VehicleCollision->AddForceAtLocation(
-			TargetForce,
-			WheelSocket->GetComponentLocation()
-		);
-
-		if (USceneComponent* SuspensionSocket = WheelSocket->GetChildComponent(0)) {
-			float SuspensionSocketDistance = (TraceHitResult.TraceStart - TraceHitResult.ImpactPoint).Length() - SocketDistanceOffset;
-			SuspensionSocket->SetRelativeLocation(FVector(0.f, 0.f, -SuspensionSocketDistance));
-		}
-	}
-}
-
 void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 {
+	float TurnAngleScale = 1.f;
+	if (IsValid(SteeringRangeCurve)) {
+		TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+	}
+
 	FVector WheelMomentumSum = FVector::ZeroVector;
 	FVector WheelForceSum = FVector::ZeroVector;
 
 	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
 	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
-	for (USceneComponent* WheelSocket : { BackLeftWheelSocket, BackRightWheelSocket, FrontLeftWheelSocket, FrontRightWheelSocket }) {
+	for (UWheelComponent* Wheel : Wheels) {
 		
-		// Wheel Trace Test
-		FHitResult TraceHitResult;
-		bool bWheelOnGround = WheelCast(WheelSocket, TraceHitResult);
+		bool bWheelOnGround = Wheel->IsOnGround();
 
 		// Add drive force, if wheel touches the ground
 		float WheelSpeed = TargetSpeed * .25f;
-		FVector WheelForward = WheelSocket->GetForwardVector();
+		FVector WheelForward = Wheel->GetForwardVector();
 
 		float SteeringAngleScaler = 1.0f;
-		if (FrontWheelSockets.Contains(WheelSocket)) {
+		if (FrontWheels.Contains(Wheel)) {
 			SteeringAngleScaler = 1.f;
 		}
 		else {
@@ -307,66 +213,55 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			}
 		}
 
-		float TurnAngleScale = 1.f;
-		float TurnAngle = WheelMaxAngleDeg;
-		if (IsValid(SteeringRangeCurve)) {
-			TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
-		}
-
-		TurnAngle *= TurnAngleScale;
-		if (BackWheelSockets.Contains(WheelSocket)) {
+		float TurnAngle = WheelMaxAngleDeg * TurnAngleScale;
+		if (BackWheels.Contains(Wheel)) {
 			TurnAngle *= Acceleration*.05;
 		}
 
 		WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 
 		FVector WheelGravityDirection = FVector::DownVector;
+		FVector WheelGravity = WheelGravityDirection * 981.f * GravityScale;
 		if (!bWheelOnGround) {
-			FVector WheelGravity = WheelGravityDirection * 981.f * 1050.f * GravityScale;
-			VehicleCollision->AddForceAtLocation(WheelGravity, WheelSocket->GetComponentLocation());
+			WheelGravity *= 900.f;
+			VehicleCollision->AddForceAtLocation(WheelGravity, Wheel->GetComponentLocation());
 
-			WheelMomentumSum += (LastDrivingDirection * WheelSpeed) * 2.f;
+			WheelMomentumSum += (LastDrivingDirection * WheelSpeed) * 4.f;
 			WheelForceSum += LastDrivingDirection * WheelSpeed;
 			continue;
 		}
-		WheelGravityDirection = -TraceHitResult.ImpactNormal;
-		FVector WheelGravity = WheelGravityDirection * 981.f * 1050.f * GravityScale;
-		VehicleCollision->AddForceAtLocation(WheelGravity, WheelSocket->GetComponentLocation());
+		WheelGravityDirection = -Wheel->GetGroundNormalVector();
+		WheelGravity *= 1050.f;
+
+		VehicleCollision->AddForceAtLocation(WheelGravity, Wheel->GetComponentLocation());
 
 		// Apply Drive Forces
 		FVector WheelForce = WheelForward * TargetSpeed;
 
 		VehicleCollision->AddForceAtLocation(
-			WheelForce, WheelSocket->GetComponentLocation()
+			WheelForce, Wheel->GetComponentLocation()
 		);
 		WheelForceSum += WheelForce;
 
 		// Draw wheel force
 		UKismetSystemLibrary::DrawDebugArrow(
 			this,
-			TraceHitResult.TraceStart,
-			TraceHitResult.TraceStart + WheelForce * 0.001f,
+			Wheel->GetComponentLocation(),
+			Wheel->GetComponentLocation() + WheelForce * 0.001f,
 			55.f,
 			FLinearColor::Yellow
 		);
 	}
-	
-	float TurnAngleScale = 1.f;
-	if (IsValid(SteeringRangeCurve)) {
-		TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
-	}
 
 	// Torque Turn Vehicle
-	float TorqueForce = 12.f * TurnAngleScale;
-	if (Acceleration > 0.f) {
-		VehicleCollision->AddTorqueInRadians(
-			FVector(
-				0.f,
-				0.f,
-				Steering.X * TorqueForce * 10000000.f
-			)
-		);
-	}
+	float TorqueForce = TurnAngleScale * WheelMaxAngleDeg;
+	VehicleCollision->AddTorqueInRadians(
+		FVector(
+			0.f,
+			0.f,
+			Steering.X * TorqueForce * 10000000.f
+		)
+	);
 
 	// Add Momentum
 	VehicleCollision->AddForceAtLocation(
@@ -433,7 +328,7 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 		return;
 	}
 
-	VehicleCollision->AddTorqueInDegrees(
+	/*VehicleCollision->AddTorqueInDegrees(
 		-VehicleCollision->GetRightVector() * Steering.Y * 50.f * 100000000.f);
 
 	VehicleCollision->AddTorqueInRadians(
@@ -441,7 +336,7 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 			0.f,
 			0.f,
 			Steering.X * 50.f * 100000.f).ProjectOnTo(VehicleCollision->GetUpVector())
-	);
+	);*/
 }
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
@@ -470,32 +365,11 @@ FVector ABaseVehicle::GetHorizontalVelocity()
 	return GetVelocity() * FVector(1.f, 1.f, 0.f);
 }
 
-bool ABaseVehicle::WheelCast(USceneComponent* WheelSocket, FHitResult& HitResult)
-{
-	UKismetSystemLibrary::SphereTraceSingle(
-		this,
-		WheelSocket->GetComponentLocation(),
-		WheelSocket->GetComponentLocation() - (SpringLength*VehicleCollision->GetUpVector()),
-		WheelRadius,
-		UEngineTypes::ConvertToTraceType(ECC_Visibility),
-		false,
-		{ this },
-		EDrawDebugTrace::ForOneFrame,
-		HitResult,
-		true,
-		FLinearColor::Blue,
-		FLinearColor::Red,
-		0.1f
-	);
-	return HitResult.bBlockingHit;
-}
-
 bool ABaseVehicle::IsOnGround()
 {
 	uint8 WheelsOnGround = 0;
-	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
-		FHitResult HitResult;
-		if (WheelCast(WheelSocket, HitResult)) {
+	for (UWheelComponent* Wheel : Wheels) {
+		if (Wheel->IsOnGround()) {
 			WheelsOnGround++;
 		}
 	}
@@ -504,9 +378,8 @@ bool ABaseVehicle::IsOnGround()
 
 bool ABaseVehicle::IsAnyWheelOnTheGround()
 {
-	for (USceneComponent* WheelSocket : { FrontLeftWheelSocket, FrontRightWheelSocket, BackLeftWheelSocket, BackRightWheelSocket }) {
-		FHitResult HitResult;
-		if (WheelCast(WheelSocket, HitResult)) {
+	for (UWheelComponent* Wheel : Wheels) {
+		if (Wheel->IsOnGround()) {
 			return true;
 		}
 	}
@@ -517,6 +390,12 @@ void ABaseVehicle::SteeringInput(const FInputActionValue& InputValue)
 {
 	TargetSteering = InputValue.Get<FVector2D>();
 	OnSteeringUpdate(Steering);
+}
+
+void ABaseVehicle::HydraulicsControlInput(const FInputActionValue& InputValue)
+{
+	TargetHydraulicsControl = InputValue.Get<FVector2D>();
+	OnHydraulicsControlUpdated(TargetHydraulicsControl);
 }
 
 void ABaseVehicle::ThrottlePressedInput(const FInputActionValue& InputValue)
@@ -695,4 +574,38 @@ void ABaseVehicle::DashForward()
 		TargetDashForce * VehicleCollision->GetForwardVector(),
 		VehicleCollision->GetComponentLocation()
 	);
+}
+
+void ABaseVehicle::SetupVehicleWheelComponents() 
+{
+	for (UActorComponent* ActorWheelComponent : GetComponents()) {
+		UWheelComponent* WheelComponent = Cast <UWheelComponent>(ActorWheelComponent);
+		if (!WheelComponent) {
+			continue;
+		}
+
+		Wheels.Add(WheelComponent);
+
+		switch (WheelComponent->GetVerticalAlignment()) {
+		case EWheelVerticalAlignment::VA_FRONT:
+			FrontWheels.Add(WheelComponent);
+			break;
+		case EWheelVerticalAlignment::VA_BACK:
+			BackWheels.Add(WheelComponent);
+			break;
+		}
+
+		switch (WheelComponent->GetHorizontalAlignment()) {
+		case EWheelHorizontalAlignment::HA_RIGHT:
+			RightWheels.Add(WheelComponent);
+			break;
+		case EWheelHorizontalAlignment::HA_LEFT:
+			LeftWheels.Add(WheelComponent);
+			break;
+		}
+	}
+
+	if (Wheels.IsEmpty()) {
+		UE_LOG(LogTemp, Error, TEXT("%s Cannot setup vehicle wheels!"), *GetName());
+	}
 }

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "AbilitySystemInterface.h"
 #include "BaseVehicle.generated.h"
 
 class UBoxComponent;
@@ -13,19 +12,20 @@ class UCameraComponent;
 class UInputAction;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class UWheelComponent;
 struct FInputActionValue;
 
 UENUM(BlueprintType)
 enum class EGearShift : uint8{
-	DRIVE = 0 UMETA(DisplayName = "Drive"),
-	REVERSE = 1 UMETA(DisplayName = "Reverse")
+	DRIVE = 0		UMETA(DisplayName = "Drive"),
+	REVERSE = 1		UMETA(DisplayName = "Reverse")
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
 
 UCLASS()
-class WHEELMEALMANIA_API ABaseVehicle : public APawn, public IAbilitySystemInterface
+class WHEELMEALMANIA_API ABaseVehicle : public APawn
 {
 	GENERATED_BODY()
 
@@ -62,8 +62,6 @@ public:
 	USoundBase* EngineThrottleSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
-	float WheelRadius = 5.5f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float SteeringSensitivity = 2.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
@@ -72,18 +70,12 @@ public:
 	UCurveFloat* DriftSteeringRangeByAcceleration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
-	float WheelMaxAngleDeg = 55.f;
+	float WheelMaxAngleDeg = 75.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brakes")
 	float BreakRate = 0.05f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brakes")
 	float HandbreakRate = 0.05f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
-	float SpringStrength = 1000.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
-	float SpringLength = 60.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	FVector MassCenterOffset = FVector::ZeroVector;
@@ -112,42 +104,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* FrontLeftWheelSocket;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* FrontLeftWheelTrail;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* FrontLeftSuspensionSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* FrontRightWheelSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* FrontRightWheelTrail;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* FrontRightSuspensionSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* BackLeftWheelSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* BackLeftWheelTrail;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* BackLeftSuspensionSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* BackRightWheelSocket;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components|Effects", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* BackRightWheelTrail;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|Suspension", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* BackRightSuspensionSocket;
-
+#pragma region InputActions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input", meta = (AllowPrivateAccess="true"))
 	UInputAction* ThrottleInputAction;
 
@@ -164,7 +121,7 @@ protected:
 	UInputAction* JumpInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
-	UInputAction* SideBalanceInputAction;
+	UInputAction* RotationControlInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SteeringInputAction;
@@ -175,8 +132,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ResetCameraInputAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	class UAbilitySystemComponent* AbilitySystem;
+#pragma endregion InputActions
 
 	UPROPERTY(BlueprintReadOnly, Category="Engine")
 	bool bIsThrottling = false;
@@ -187,8 +143,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsHandbreaking = false;
 private:
-	TArray<USceneComponent*> FrontWheelSockets; 
-	TArray<USceneComponent*> BackWheelSockets;
+	TArray<UWheelComponent*> Wheels;
+
+	TArray<UWheelComponent*> FrontWheels;
+	TArray<UWheelComponent*> BackWheels;
+	TArray<UWheelComponent*> LeftWheels;
+	TArray<UWheelComponent*> RightWheels;
 
 	TMap<USceneComponent*, UNiagaraComponent*> WheelSocketTrails;
 	// Accelerating
@@ -206,6 +166,10 @@ private:
 	FVector2D TargetSteering = FVector2D::ZeroVector;
 	FVector2D Steering = FVector2D::ZeroVector;
 	float SteeringRange = 1.f;
+
+	// Rotation Control
+	FVector2D TargetHydraulicsControl = FVector2D::ZeroVector;
+	FVector2D HydraulicsControl = FVector2D::ZeroVector;
 
 	// Side Balance
 	float TargetSideBalance = 0.0;
@@ -247,6 +211,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSteeringUpdate(FVector2D NewSteering);
 
+	void HydraulicsControlInput(const FInputActionValue& InputValue);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHydraulicsControlUpdated(FVector2D NewHydraulicsControl);
+
 	void BreakInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBreaking();
@@ -287,14 +255,8 @@ protected:
 
 	void DashForward();
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
-	{
-		return AbilitySystem;
-	}
-
 private:
 	void UpdateAcceleration(float DeltaTime);
-	void SuspensionCast(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
 	void InAirRotation(float DeltaTime);
 
@@ -305,9 +267,10 @@ private:
 
 	FVector GetHorizontalVelocity();
 
-	bool WheelCast(USceneComponent* WheelSocket, FHitResult& HitResult);
 	bool IsOnGround();
 	bool IsAnyWheelOnTheGround();
 
 	void ClearDashTimer();
+
+	void SetupVehicleWheelComponents();
 };
