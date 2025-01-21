@@ -65,6 +65,9 @@ public:
 	float SteeringSensitivity = 2.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
+	float SteeringTorqueForce = 2.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	UCurveFloat* SteeringRangeCurve;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	UCurveFloat* DriftSteeringRangeByAcceleration;

@@ -6,6 +6,10 @@
 #include "GameFramework/GameModeBase.h"
 #include "BaseGameMode.generated.h"
 
+class ABaseDeliveryTargetArea;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewDeliveryTargetAdded, ABaseDeliveryTargetArea*, DeliveryTargetArea);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStartedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStoppedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTimerUpdatedSignature, int, Minutes, int, Seconds);
@@ -16,13 +20,28 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintAssignable)
+	FOnNewDeliveryTargetAdded OnNewDeliveryTargetAdded;
+	
+	UPROPERTY(BlueprintAssignable)
 	FOnTimerStartedSignature OnTimerStarted;
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerStoppedSignature OnTimerStopped;
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerUpdatedSignature OnTimerUpdated;
 
+protected:
+	TArray<ABaseDeliveryTargetArea*> DeliveryTargets;
+	
 public:
+	UFUNCTION(BlueprintCallable)
+	TArray<ABaseDeliveryTargetArea*>& GetDeliveryTargets();
+	UFUNCTION(BlueprintCallable)
+	void AddDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTargetArea);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeliveryTargetAdded(ABaseDeliveryTargetArea* NewDeliveryTargetArea);
+
+	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer(int TimeSeconds);
 	UFUNCTION(BlueprintCallable)
@@ -40,7 +59,7 @@ public:
 	void TimerUpdated(int CurrentTimeRemaining);
 	UFUNCTION(BlueprintImplementableEvent)
 	void TimerTimeAdded(int TimeAdded);
-
+	
 private:
 	UFUNCTION()
 	void DecreaseTime();

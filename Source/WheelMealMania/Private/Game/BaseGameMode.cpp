@@ -3,6 +3,19 @@
 
 #include "Game/BaseGameMode.h"
 
+TArray<ABaseDeliveryTargetArea*>& ABaseGameMode::GetDeliveryTargets()
+{
+	return DeliveryTargets;
+}
+
+void ABaseGameMode::AddDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTargetArea)
+{
+	DeliveryTargets.Add(NewDeliveryTargetArea);
+
+	OnNewDeliveryTargetAdded.Broadcast(NewDeliveryTargetArea);
+	DeliveryTargetAdded(NewDeliveryTargetArea);
+}
+
 void ABaseGameMode::StartTimer(int TimeSeconds)
 {
 	TimeRemaining = TimeSeconds;
@@ -12,6 +25,7 @@ void ABaseGameMode::StartTimer(int TimeSeconds)
 		this, &ABaseGameMode::DecreaseTime,
 		1.f, true, 1.f);
 
+	OnTimerStarted.Broadcast();
 	TimerStarted(TimeSeconds);
 }
 
@@ -48,5 +62,6 @@ void ABaseGameMode::DecreaseTime()
 void ABaseGameMode::StopTimer()
 {
 	TimeoutTimerHandle.Invalidate();
+	OnTimerStopped.Broadcast();
 	TimerStopped();
 }

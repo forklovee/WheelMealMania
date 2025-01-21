@@ -254,7 +254,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	}
 
 	// Torque Turn Vehicle
-	float TorqueForce = TurnAngleScale * WheelMaxAngleDeg;
+	float TorqueForce = SteeringTorqueForce * TurnAngleScale * WheelMaxAngleDeg;
 	VehicleCollision->AddTorqueInRadians(
 		FVector(
 			0.f,

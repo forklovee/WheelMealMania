@@ -67,8 +67,9 @@ void AFareSlotActor::SpawnFareCharacter()
 	}
 
 	FVector LocationSpawn = GetFareSpawnPointLocation();
-	if (FareCharacter = GetWorld()->SpawnActor<AFareCharacter>(
-		FareCharacterClass.Get(), LocationSpawn, FRotator::ZeroRotator)) {
+	FareCharacter = GetWorld()->SpawnActor<AFareCharacter>(
+		FareCharacterClass.Get(), LocationSpawn, FRotator::ZeroRotator);
+	if (FareCharacter) {
 		UE_LOG(LogTemp, Display, TEXT("Spawned Fare Character!"))
 	}
 	else {

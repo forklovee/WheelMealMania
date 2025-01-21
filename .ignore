@@ -1,8 +1,8 @@
 /.git
-/.github
-/.vs
+/Intermediate
+/.idea
+/Saved
 /.vscode
 /Content
 /DerivedDataCache
-/Intermediate
-/Saved
+/Plugins/Developer/RiderLink/Intermediate
