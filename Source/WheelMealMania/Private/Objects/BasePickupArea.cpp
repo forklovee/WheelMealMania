@@ -1,19 +1,14 @@
 
 #include "Objects/BasePickupArea.h"
+
+#include "Game/BaseGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "Objects/BaseDeliveryTargetArea.h"
 
 // Sets default values
 ABasePickupArea::ABasePickupArea()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
-	AreaMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AreaMesh"));
-	SetRootComponent(AreaMesh);
-
-	AreaMesh->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
-	AreaMesh->SetCanEverAffectNavigation(false);
-	AreaMesh->SetAffectDistanceFieldLighting(false);
-	AreaMesh->CastShadow = false;
+	
 }
 
 void ABasePickupArea::SetDeliveryTarget(ABaseDeliveryTargetArea* InDeliveryTarget)
@@ -22,22 +17,46 @@ void ABasePickupArea::SetDeliveryTarget(ABaseDeliveryTargetArea* InDeliveryTarge
 	DeliveryTargetSet(DeliveryTargetArea.Get());
 }
 
-void ABasePickupArea::OnConstruction(const FTransform& Transform)
+int ABasePickupArea::GetTimeSecondsToDeliveryTarget() const
 {
-	Super::OnConstruction(Transform);
-
-	AreaMesh->SetWorldScale3D(AreaScale);
+	if (DeliveryTargetArea.IsValid())
+	{
+		const float DistanceToTarget = FVector::Distance(GetActorLocation(), DeliveryTargetArea->GetActorLocation());
+		int TimeSeconds = 5;
+		TimeSeconds += static_cast<int>(DistanceToTarget / 500.f);
+		return TimeSeconds;
+	}
+	return 0;
 }
 
 void ABasePickupArea::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-void ABasePickupArea::Tick(float DeltaTime)
+void ABasePickupArea::OnVehicleStoppedInsideArea()
 {
-	Super::Tick(DeltaTime);
+	Super::OnVehicleStoppedInsideArea();
 
+	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!GameMode)
+	{
+		return;
+	}
+
+	GameMode->AddDeliveryTarget(DeliveryTargetArea.Get());
+	
+	SecondsRemaining = GetTimeSecondsToDeliveryTarget();
+	GetWorldTimerManager().SetTimer(DeliveryTickTimerHandle, this, &ABasePickupArea::OnDeliveryTimerTick, 1.0, true);
 }
 
+void ABasePickupArea::OnDeliveryTimerTick()
+{
+	SecondsRemaining--;
+	DeliveryTimerUpdate(SecondsRemaining);
+	if (SecondsRemaining <= 0)
+	{
+		DeliveryTickTimerHandle.Invalidate();
+		DeliveryTimerStopped();
+	}
+}

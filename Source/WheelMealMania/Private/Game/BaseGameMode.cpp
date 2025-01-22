@@ -3,6 +3,19 @@
 
 #include "Game/BaseGameMode.h"
 
+#include "Blueprint/UserWidget.h"
+#include "UI/PlayerHUD.h"
+#include "Vehicles/BaseVehicle.h"
+
+ABaseVehicle* ABaseGameMode::GetPlayerVehicle()
+{
+	if (PlayerVehicle == nullptr)
+	{
+		PlayerVehicle = Cast<ABaseVehicle>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	}
+	return PlayerVehicle.Get();
+}
+
 TArray<ABaseDeliveryTargetArea*>& ABaseGameMode::GetDeliveryTargets()
 {
 	return DeliveryTargets;
@@ -45,11 +58,20 @@ int ABaseGameMode::GetRemainingTimeMinutes() const
 	return FMath::FloorToInt(TimeRemaining / 60.f);
 }
 
+void ABaseGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	PlayerVehicle = Cast<ABaseVehicle>(GetWorld()->GetFirstPlayerController()->GetPawn());
+}
+
 void ABaseGameMode::DecreaseTime()
 {
 	TimeRemaining -= 1;
 	if (TimeRemaining <= 0) {
 		StopTimer();
+		TimeRemaining = 0;
+		return;
 	}
 
 	OnTimerUpdated.Broadcast(

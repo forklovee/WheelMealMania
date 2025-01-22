@@ -28,11 +28,13 @@ protected:
 	TObjectPtr<UPlayerHUD> PlayerHUD;
 
 public:
-	virtual void Tick(float Delta) override;
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	UPlayerHUD* GetPlayerHUD() const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
+	virtual void Tick(float Delta) override;
+	
 	virtual void OnPossess(APawn* Pawn) override;
 };

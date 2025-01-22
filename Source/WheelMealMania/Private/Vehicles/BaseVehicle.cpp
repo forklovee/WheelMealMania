@@ -218,7 +218,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			TurnAngle *= Acceleration*.05;
 		}
 
-		WheelForward = WheelForward.RotateAngleAxis(SteeringAngleScaler * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
+		// WheelForward = WheelForward.RotateAngleAxis(1.f * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
 
 		FVector WheelGravityDirection = FVector::DownVector;
 		FVector WheelGravity = WheelGravityDirection * 981.f * GravityScale;
@@ -254,7 +254,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	}
 
 	// Torque Turn Vehicle
-	float TorqueForce = SteeringTorqueForce * TurnAngleScale * WheelMaxAngleDeg;
+	float TorqueForce = SteeringTorqueForce * WheelMaxAngleDeg;
 	VehicleCollision->AddTorqueInRadians(
 		FVector(
 			0.f,
@@ -347,7 +347,7 @@ void ABaseVehicle::InstantAccelerationDecrease(float Value)
 		VehicleCollision->GetComponentLocation()
 	);
 
-	UE_LOG(LogTemp, Display, TEXT("%f"), VehicleCollision->GetComponentVelocity().Length())
+	// UE_LOG(LogTemp, Display, TEXT("%f"), VehicleCollision->GetComponentVelocity().Length())
 }
 
 float ABaseVehicle::GetTargetWheelSpeed()

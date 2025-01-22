@@ -3,42 +3,49 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VehicleEventArea.h"
 #include "GameFramework/Actor.h"
 #include "BasePickupArea.generated.h"
 
 class ABaseDeliveryTargetArea;
 
 UCLASS()
-class ABasePickupArea : public AActor
+class ABasePickupArea : public AVehicleEventArea
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pickup Area")
-	FVector AreaScale = FVector::OneVector;
-	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* AreaMesh;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Area")
 	TWeakObjectPtr<ABaseDeliveryTargetArea> DeliveryTargetArea;
+
+private:
+	FTimerHandle DeliveryTickTimerHandle;
+	int SecondsRemaining = 0;
 	
 public:	
 	ABasePickupArea();
 
 	void SetDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTarget);
 
-protected:
-	virtual void OnConstruction(const FTransform& Transform) override;
+	UFUNCTION(BlueprintCallable, Category = "Pickup Area")
+	int GetTimeSecondsToDeliveryTarget() const;
 
-	// Called when the game starts or when spawned
+protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DeliveryTargetSet(ABaseDeliveryTargetArea* NewDeliveryTarget);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	virtual void OnVehicleStoppedInsideArea() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeliveryTimerUpdate(int SecondsRemaining);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeliveryTimerStopped();
+private:
+	UFUNCTION()
+	void OnDeliveryTimerTick();
+	void OnDeliveryTimerEnded();
 };

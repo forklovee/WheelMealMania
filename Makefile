@@ -98,43 +98,43 @@ UnrealGame-LinuxArm64-Shipping:
 UnrealGame: UnrealGame-Linux-Development
 
 WheelMealMania-Android-DebugGame:
-	 $(BUILD) WheelMealMania Android DebugGame  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Android DebugGame  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-Android-Development:
-	 $(BUILD) WheelMealMania Android Development  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Android Development  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-Android-Shipping:
-	 $(BUILD) WheelMealMania Android Shipping  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Android Shipping  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-Linux-DebugGame:
-	 $(BUILD) WheelMealMania Linux DebugGame  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Linux DebugGame  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-Linux-Development:
-	 $(BUILD) WheelMealMania Linux Development  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Linux Development  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-Linux-Shipping:
-	 $(BUILD) WheelMealMania Linux Shipping  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania Linux Shipping  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-LinuxArm64-DebugGame:
-	 $(BUILD) WheelMealMania LinuxArm64 DebugGame  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania LinuxArm64 DebugGame  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-LinuxArm64-Development:
-	 $(BUILD) WheelMealMania LinuxArm64 Development  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania LinuxArm64 Development  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania-LinuxArm64-Shipping:
-	 $(BUILD) WheelMealMania LinuxArm64 Shipping  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealMania LinuxArm64 Shipping  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealMania: WheelMealMania-Linux-Development
 
 WheelMealManiaEditor-Linux-DebugGame:
-	 $(BUILD) WheelMealManiaEditor Linux DebugGame  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealManiaEditor Linux DebugGame  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealManiaEditor-Linux-Development:
-	 $(BUILD) WheelMealManiaEditor Linux Development  -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
+	 $(BUILD) WheelMealManiaEditor Linux Development  -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" $(ARGS)
 
 WheelMealManiaEditor: WheelMealManiaEditor-Linux-Development
 
 configure:
-	$(BUILD) -ProjectFiles -Project="/home/forklovee/Dev/Projects/WheelMealMania/WheelMealMania.uproject" -Game 
+	$(BUILD) -ProjectFiles -Project="/home/forklovee/Documents/Unreal Projects/WheelMealMania/WheelMealMania.uproject" -Game 
 
 .PHONY: $(TARGETS)

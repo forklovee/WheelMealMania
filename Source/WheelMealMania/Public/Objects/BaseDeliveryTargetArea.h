@@ -3,24 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "VehicleEventArea.h"
 #include "GameFramework/Actor.h"
 #include "BaseDeliveryTargetArea.generated.h"
 
 UCLASS()
-class WHEELMEALMANIA_API ABaseDeliveryTargetArea : public AActor
+class WHEELMEALMANIA_API ABaseDeliveryTargetArea : public AVehicleEventArea
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ABaseDeliveryTargetArea();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };

@@ -30,9 +30,14 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	FOnTimerUpdatedSignature OnTimerUpdated;
 
 protected:
-	TArray<ABaseDeliveryTargetArea*> DeliveryTargets;
+	TWeakObjectPtr<class ABaseVehicle> PlayerVehicle;
 	
+	TArray<ABaseDeliveryTargetArea*> DeliveryTargets;
+
 public:
+	UFUNCTION(BlueprintCallable)
+	ABaseVehicle* GetPlayerVehicle();
+	
 	UFUNCTION(BlueprintCallable)
 	TArray<ABaseDeliveryTargetArea*>& GetDeliveryTargets();
 	UFUNCTION(BlueprintCallable)
@@ -40,7 +45,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DeliveryTargetAdded(ABaseDeliveryTargetArea* NewDeliveryTargetArea);
-
 	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer(int TimeSeconds);
@@ -61,6 +65,8 @@ public:
 	void TimerTimeAdded(int TimeAdded);
 	
 private:
+	virtual void BeginPlay() override;
+	
 	UFUNCTION()
 	void DecreaseTime();
 	void StopTimer();

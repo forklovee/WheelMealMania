@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerHUD.generated.h"
 
+enum class EGearShift : uint8;
 /**
  * 
  */
@@ -13,8 +14,18 @@ UCLASS()
 class WHEELMEALMANIA_API UPlayerHUD : public UUserWidget
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<class ABaseVehicle> PlayerVehicle;
+
+	UPROPERTY(BlueprintReadOnly)
+	TWeakObjectPtr<class ABaseDeliveryTargetArea> DeliveryTargetArea;
 	
 public:
+	UFUNCTION(BlueprintCallable)
+	void SetPlayerVehicle(ABaseVehicle* NewPlayerVehicle);
+	
 	void UpdateSpeed(float NewSpeed);
 
 	void UpdateCurrentGear(EGearShift CurrentGear);

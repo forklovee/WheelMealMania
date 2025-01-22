@@ -6,13 +6,18 @@
 #include "Vehicles/BaseVehicle.h"
 #include "EnhancedInputSubsystems.h"
 
+UPlayerHUD* APlayerVehicleController::GetPlayerHUD() const
+{
+	return PlayerHUD;
+}
+
 void APlayerVehicleController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if ((PlayerHUD = CreateWidget<UPlayerHUD>(this, PlayerHUDClass))) {
 		PlayerHUD->AddToViewport();
-
+		PlayerHUD->SetPlayerVehicle(PlayerVehicle);
 		if (IsValid(PlayerVehicle)){
 			PlayerVehicle->OnGearChangedDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateCurrentGear);
 			PlayerVehicle->OnGearShiftingDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateIsGearShifting);
