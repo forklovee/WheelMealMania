@@ -11,14 +11,23 @@ UCLASS()
 class WHEELMEALMANIA_API ABaseDeliveryTargetArea : public AVehicleEventArea
 {
 	GENERATED_BODY()
+
+private:
+	TWeakObjectPtr<AActor> RequiredActor;
 	
 public:	
 	ABaseDeliveryTargetArea();
+	
+	UFUNCTION(BlueprintCallable)
+	AActor* GetRequiredActor() const;
+	UFUNCTION(BlueprintCallable)
+	void SetRequiredActor(AActor* PassengerActor);
 
+	virtual void PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle) override;
+	
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
+	virtual bool CanVehicleEnterArea(ABaseVehicle* Vehicle) const override;
 
 };

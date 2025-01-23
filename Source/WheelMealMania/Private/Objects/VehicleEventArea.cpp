@@ -13,7 +13,7 @@ AVehicleEventArea::AVehicleEventArea()
 	AreaMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AreaMesh"));
 	SetRootComponent(AreaMesh);
 
-	AreaMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	AreaMesh->SetCollisionProfileName(FName("VehicleTrigger"));
 	AreaMesh->SetCanEverAffectNavigation(false);
 	AreaMesh->SetAffectDistanceFieldLighting(false);
 	AreaMesh->CastShadow = false;
@@ -34,6 +34,7 @@ void AVehicleEventArea::BeginPlay()
 	
 	AreaMesh->OnComponentBeginOverlap.AddDynamic(this, &AVehicleEventArea::OnComponentBeginOverlap);
 	AreaMesh->OnComponentEndOverlap.AddDynamic(this, &AVehicleEventArea::OnComponentEndOverlap);
+	AreaMesh->SetCollisionProfileName(FName("VehicleTrigger"));
 }
 
 void AVehicleEventArea::Tick(float DeltaTime)
@@ -65,40 +66,69 @@ void AVehicleEventArea::Tick(float DeltaTime)
 	}
 }
 
+bool AVehicleEventArea::CanVehicleEnterArea(ABaseVehicle* Vehicle) const
+{
+	return true;
+}
+
+void AVehicleEventArea::PlayerVehicleEntered_Implementation(ABaseVehicle* Vehicle)
+{
+	PlayerVehicle = Vehicle;
+	bIsPlayerVehicleMoving = true;
+	SetActorTickEnabled(PlayerVehicle.IsValid());
+	if (PlayerVehicle.IsValid())
+	{
+		UE_LOG(LogTemp, Display, TEXT("Vehicle %s Entered area: %s"), *PlayerVehicle->GetName(), *GetName());
+	}
+}
+
+void AVehicleEventArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
+{
+	
+}
+
+void AVehicleEventArea::PlayerVehicleExited_Implementation(ABaseVehicle* Vehicle)
+{
+	VehicleStoppingDeadzoneTimerHandle.Invalidate();
+	SetActorTickEnabled(false);
+	PlayerVehicle = nullptr;
+	bIsPlayerVehicleMoving = false;
+
+	if (IsValid(Vehicle)){
+		UE_LOG(LogTemp, Display, TEXT("Vehicle %s Exited area: %s"), *Vehicle->GetName(), *GetName());
+	}
+}
+
 void AVehicleEventArea::OnVehicleStoppedInsideArea()
 {
-	PlayerVehicleStoppedInside();
+	if (!PlayerVehicle.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player Vehicle is NULLPTR!!!"));
+		return;
+	}
 	UE_LOG(LogTemp, Display, TEXT("Vehicle %s Stopped inside area: %s"), *PlayerVehicle->GetName(), *GetName());
+	
+	PlayerVehicleStoppedInside(PlayerVehicle.Get());
 }
 
 void AVehicleEventArea::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABaseVehicle* Vehicle = Cast<ABaseVehicle>(OtherActor);
+	
 	if (!IsValid(Vehicle)) return;
 	if (Vehicle->GetInstigatorController() != GetWorld()->GetFirstPlayerController()) return;
+	if (!CanVehicleEnterArea(Vehicle)) return;
 	
-	PlayerVehicleEntered();
-	PlayerVehicle = Vehicle;
-	bIsPlayerVehicleMoving = true;
-
-	SetActorTickEnabled(PlayerVehicle.IsValid());
-
-	UE_LOG(LogTemp, Display, TEXT("Vehicle %s Entered area: %s"), *OtherActor->GetName(), *GetName());
+	PlayerVehicleEntered(Vehicle);
 }
 
 void AVehicleEventArea::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor != PlayerVehicle.Get()) return;
-
-	PlayerVehicleExited();
 	
-	SetActorTickEnabled(false);
-	PlayerVehicle = nullptr;
-	bIsPlayerVehicleMoving = false;
-	
-	UE_LOG(LogTemp, Display, TEXT("Vehicle %s Exited area: %s"), *OtherActor->GetName(), *GetName());
+	PlayerVehicleExited(PlayerVehicle.Get());
 }
 
 

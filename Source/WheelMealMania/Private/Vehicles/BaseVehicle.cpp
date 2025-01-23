@@ -15,6 +15,8 @@
 
 #include <EnhancedInputComponent.h>
 
+#include "Vehicles/VehicleSeatComponent.h"
+
 // Sets default values
 ABaseVehicle::ABaseVehicle()
 {
@@ -43,6 +45,7 @@ void ABaseVehicle::BeginPlay()
 	Super::BeginPlay();
 
 	SetupVehicleWheelComponents();
+	SetupVehicleSeatComponents();
 	VehicleCollision->OnComponentHit.AddDynamic(this, &ABaseVehicle::VehicleHit);
 }
 
@@ -76,13 +79,16 @@ void ABaseVehicle::Tick(float DeltaTime)
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
 
-	UKismetSystemLibrary::DrawDebugArrow(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		VehicleCollision->GetComponentLocation() + LastDrivingDirection * 300.f,
-		120.f,
-		FLinearColor::White
-	);
+	if (bDrawDebug)
+	{
+		UKismetSystemLibrary::DrawDebugArrow(
+			this,
+			VehicleCollision->GetComponentLocation(),
+			VehicleCollision->GetComponentLocation() + LastDrivingDirection * 300.f,
+			120.f,
+			FLinearColor::White
+		);
+	}
 }
 
 // Called to bind functionality to input
@@ -127,6 +133,52 @@ float ABaseVehicle::GetCurrentTargetSpeed()
 EGearShift ABaseVehicle::GetCurrentGearShift()
 {
 	return CurrentShift;
+}
+
+bool ABaseVehicle::HasPassenger(AActor* Passenger) const
+{
+	for (const UVehicleSeatComponent* Seat : Seats)
+	{
+		if (Seat->GetSittingActor() == Passenger)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+UVehicleSeatComponent* ABaseVehicle::GetPassengerSeat(AActor* Passenger) const
+{
+	for (UVehicleSeatComponent* Seat : Seats)
+	{
+		if (Seat->GetSittingActor() == Passenger)
+		{
+			return Seat;
+		}
+	}
+	return nullptr;
+}
+
+TArray<AActor*> ABaseVehicle::GetPassengers()
+{
+	TArray<AActor*> Passengers;
+	for (const UVehicleSeatComponent* Seat : Seats)
+	{
+		Passengers.Add(Seat->GetSittingActor());
+	}
+	return Passengers;
+}
+
+UVehicleSeatComponent* ABaseVehicle::GetFirstFreeSeat() const
+{
+	for (UVehicleSeatComponent* Seat : Seats)
+	{
+		if (Seat->GetSittingActor() == nullptr)
+		{
+			return Seat;
+		}
+	}
+	return nullptr;
 }
 
 void ABaseVehicle::OnConstruction(const FTransform& Transform)
@@ -244,13 +296,16 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		WheelForceSum += WheelForce;
 
 		// Draw wheel force
-		UKismetSystemLibrary::DrawDebugArrow(
-			this,
-			Wheel->GetComponentLocation(),
-			Wheel->GetComponentLocation() + WheelForce * 0.001f,
-			55.f,
-			FLinearColor::Yellow
-		);
+		if (bDrawDebug)
+		{
+			UKismetSystemLibrary::DrawDebugArrow(
+				this,
+				Wheel->GetComponentLocation(),
+				Wheel->GetComponentLocation() + WheelForce * 0.001f,
+				55.f,
+				FLinearColor::Yellow
+			);
+		}
 	}
 
 	// Torque Turn Vehicle
@@ -267,59 +322,62 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	VehicleCollision->AddForceAtLocation(
 		WheelMomentumSum, VehicleCollision->GetComponentLocation());
 
-	UKismetSystemLibrary::DrawDebugArrow(
+	// Update Mass Center
+	const FVector VehicleMassCenter = MassCenterOffset;
+	VehicleCollision->SetCenterOfMass(VehicleMassCenter);
+	
+	if (bDrawDebug)
+	{
+		UKismetSystemLibrary::DrawDebugArrow(
 		this,
 		VehicleCollision->GetComponentLocation(),
 		VehicleCollision->GetComponentLocation() + WheelMomentumSum * 200.f,
 		120.f,
 		FLinearColor::Gray
-	);
+		);
 
-	// Desired Velocity
-	UKismetSystemLibrary::DrawDebugArrow(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		VehicleCollision->GetComponentLocation() + WheelForceSum * 200.f,
-		120.f,
-		FLinearColor::Green
-	);
+		// Desired Velocity
+		UKismetSystemLibrary::DrawDebugArrow(
+			this,
+			VehicleCollision->GetComponentLocation(),
+			VehicleCollision->GetComponentLocation() + WheelForceSum * 200.f,
+			120.f,
+			FLinearColor::Green
+		);
 
-	UKismetSystemLibrary::DrawDebugArrow(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		VehicleCollision->GetComponentLocation() + GetVelocity(),
-		120.f,
-		FLinearColor::Red
-	);
+		UKismetSystemLibrary::DrawDebugArrow(
+			this,
+			VehicleCollision->GetComponentLocation(),
+			VehicleCollision->GetComponentLocation() + GetVelocity(),
+			120.f,
+			FLinearColor::Red
+		);
 
-	FVector VehicleMassCenter = MassCenterOffset;
-	UKismetSystemLibrary::DrawDebugArrow(this,
+		UKismetSystemLibrary::DrawDebugArrow(this,
 		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
 		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()) + FVector::UpVector * 150.f,
 		128.f, FLinearColor::Blue);
 
-	UKismetSystemLibrary::DrawDebugBox(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		FVector::OneVector * 50.f,
-		FLinearColor::Blue,
-		VehicleCollision->GetForwardVector().ToOrientationRotator(),
-		0.f,
-		25.f
-	);
+		UKismetSystemLibrary::DrawDebugBox(
+			this,
+			VehicleCollision->GetComponentLocation(),
+			FVector::OneVector * 50.f,
+			FLinearColor::Blue,
+			VehicleCollision->GetForwardVector().ToOrientationRotator(),
+			0.f,
+			25.f
+		);
 
-	UKismetSystemLibrary::DrawDebugBox(
-		this,
-		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
-		FVector::OneVector * 50.f,
-		FLinearColor::Red,
-		VehicleCollision->GetForwardVector().ToOrientationRotator(),
-		0.f,
-		12.f
-	);
-
-	// Update Mass Center
-	VehicleCollision->SetCenterOfMass(VehicleMassCenter);
+		UKismetSystemLibrary::DrawDebugBox(
+			this,
+			VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
+			FVector::OneVector * 50.f,
+			FLinearColor::Red,
+			VehicleCollision->GetForwardVector().ToOrientationRotator(),
+			0.f,
+			12.f
+		);
+	}
 }
 
 void ABaseVehicle::InAirRotation(float DeltaTime)
@@ -522,7 +580,7 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		return;
 	}
 
-	float ImpactForce = GetVelocity().Length() * VehicleCollision->GetMass() * 50.f;
+	const float ImpactForce = GetVelocity().Length() * VehicleCollision->GetMass() * 5.f;
 	VehicleCollision->AddForceAtLocation(
 		ImpactForce * Hit.ImpactNormal,
 		VehicleCollision->GetComponentLocation()
@@ -530,15 +588,19 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 
 	UE_LOG(LogTemp, Display, TEXT("Dot: %f, Impact Force: %f"), ImpactDot, ImpactForce);
 
-	UKismetSystemLibrary::DrawDebugArrow(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		VehicleCollision->GetComponentLocation() + ImpactForce,
-		10.f,
-		FLinearColor::Red,
-		10.f,
-		1.f
-	);
+	if (bDrawDebug)
+	{
+		UKismetSystemLibrary::DrawDebugArrow(
+			this,
+			VehicleCollision->GetComponentLocation(),
+			VehicleCollision->GetComponentLocation() + ImpactForce,
+			10.f,
+			FLinearColor::Red,
+			10.f,
+			1.f
+		);
+	}
+	
 
 	OnVehicleHit(this, OtherActor, OtherComp, Hit.ImpactPoint, Hit.ImpactNormal);
 }
@@ -607,5 +669,18 @@ void ABaseVehicle::SetupVehicleWheelComponents()
 
 	if (Wheels.IsEmpty()) {
 		UE_LOG(LogTemp, Error, TEXT("%s Cannot setup vehicle wheels!"), *GetName());
+	}
+}
+
+void ABaseVehicle::SetupVehicleSeatComponents()
+{
+	for (UActorComponent* ActorSeatComponent : GetComponents())
+	{
+		UVehicleSeatComponent* SeatComponent = Cast<UVehicleSeatComponent>(ActorSeatComponent);
+		if (!SeatComponent)
+		{
+			continue;
+		}
+		Seats.Add(SeatComponent);
 	}
 }

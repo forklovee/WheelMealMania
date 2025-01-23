@@ -15,37 +15,31 @@ class ABasePickupArea : public AVehicleEventArea
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delivery")
+	bool bSpawnActorOnBeginPlay = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Delivery")
+	TSubclassOf<AActor> ActorToDeliverClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Area")
 	TWeakObjectPtr<ABaseDeliveryTargetArea> DeliveryTargetArea;
-
+	
 private:
 	FTimerHandle DeliveryTickTimerHandle;
 	int SecondsRemaining = 0;
+
+	TWeakObjectPtr<AActor> ActorToDeliver;
 	
 public:	
 	ABasePickupArea();
 
-	void SetDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTarget);
+	UFUNCTION(BlueprintCallable)
+	void SpawnActorToDeliver();
 
-	UFUNCTION(BlueprintCallable, Category = "Pickup Area")
-	int GetTimeSecondsToDeliveryTarget() const;
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorToDeliver() const;
 
 protected:
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void DeliveryTargetSet(ABaseDeliveryTargetArea* NewDeliveryTarget);
-
-	UFUNCTION()
+	
 	virtual void OnVehicleStoppedInsideArea() override;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void DeliveryTimerUpdate(int SecondsRemaining);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void DeliveryTimerStopped();
-private:
-	UFUNCTION()
-	void OnDeliveryTimerTick();
-	void OnDeliveryTimerEnded();
 };

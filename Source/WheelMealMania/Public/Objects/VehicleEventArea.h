@@ -19,8 +19,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* AreaMesh;
 
-private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TWeakObjectPtr<class ABaseVehicle> PlayerVehicle;
+private:
 	bool bIsPlayerVehicleMoving = false;
 
 	FTimerHandle VehicleStoppingDeadzoneTimerHandle;
@@ -34,15 +35,22 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Pickup Area")
-	void PlayerVehicleEntered();
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanVehicleEnterArea(ABaseVehicle* Vehicle) const;
+	
+	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
+	void PlayerVehicleEntered(ABaseVehicle* Vehicle);
+	virtual void PlayerVehicleEntered_Implementation(ABaseVehicle* Vehicle);
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Pickup Area")
-	void PlayerVehicleStoppedInside();
+	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
+	void PlayerVehicleStoppedInside(ABaseVehicle* Vehicle);
+	virtual void PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle);
 	
-	UFUNCTION(BlueprintImplementableEvent, Category="Pickup Area")
-	void PlayerVehicleExited();
-	
+	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
+	void PlayerVehicleExited(ABaseVehicle* Vehicle);
+	virtual void PlayerVehicleExited_Implementation(ABaseVehicle* Vehicle);
+
+	UFUNCTION()
 	virtual void OnVehicleStoppedInsideArea();
 	
 	UFUNCTION()

@@ -62,6 +62,7 @@ protected:
 
 
 private:
+	bool bDrawDebug = false;
 	class UBoxComponent* VehicleCollision;
 
 	bool bIsOnGround = false;
@@ -77,7 +78,8 @@ public:
 	// Sets default values for this component's properties
 	UWheelComponent();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UFUNCTION(BlueprintCallable)
+	void SetDrawDebug(bool bNewDrawDebug);
 
 	UFUNCTION(BlueprintCallable)
 	inline bool IsAffectedBySteering() { return bAffectedBySteering; };
@@ -111,6 +113,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	bool UpdateWheelCollisionCast();
 };

@@ -15,6 +15,11 @@ UWheelComponent::UWheelComponent()
 	}
 }
 
+void UWheelComponent::SetDrawDebug(bool bNewDrawDebug)
+{
+	bDrawDebug = bNewDrawDebug;
+}
+
 
 void UWheelComponent::BeginPlay()
 {
@@ -79,7 +84,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		{ GetOwner() },
-		EDrawDebugTrace::ForOneFrame,
+		(bDrawDebug) ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
 		WheelHitResult,
 		true,
 		FLinearColor::Blue,

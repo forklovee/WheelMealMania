@@ -3,30 +3,71 @@
 
 #include "Game/BaseGameMode.h"
 
-#include "Blueprint/UserWidget.h"
-#include "UI/PlayerHUD.h"
+#include "Components/FareTimerComponent.h"
+#include "Objects/BaseDeliveryTargetArea.h"
 #include "Vehicles/BaseVehicle.h"
 
-ABaseVehicle* ABaseGameMode::GetPlayerVehicle()
+ABaseVehicle* ABaseGameMode::GetPlayerVehicle() const
 {
-	if (PlayerVehicle == nullptr)
+	return Cast<ABaseVehicle>(GetWorld()->GetFirstPlayerController()->GetPawn());
+}
+
+TArray<AActor*>& ABaseGameMode::GetActorsToDeliver()
+{
+	return ActorsToDeliver;
+}
+
+void ABaseGameMode::AddActorToDeliver(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea)
+{
+	UActorComponent* ActorFareTimerComponent = ActorToDeliver->FindComponentByClass(UFareTimerComponent::StaticClass());
+	UFareTimerComponent* FareTimerComponent = Cast<UFareTimerComponent>(ActorFareTimerComponent);
+	if (FareTimerComponent == nullptr)
 	{
-		PlayerVehicle = Cast<ABaseVehicle>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		return;
 	}
-	return PlayerVehicle.Get();
+	ActorsToDeliver.Add(ActorToDeliver);
+	DeliveryTargetArea->SetRequiredActor(ActorToDeliver);
+	
+	const float DistanceToTarget = FVector::Distance(ActorToDeliver->GetActorLocation(), DeliveryTargetArea->GetActorLocation());
+	const int DeliveryTime = FareTimerComponent->GetMinDeliveryTime() + static_cast<int>(DistanceToTarget/2000.f);
+	FareTimerComponent->StartTimer(DeliveryTime, DeliveryTargetArea);
+
+	if (DeliveryTime < TimeRemaining)
+	{
+		AddTime(TimeRemaining-DeliveryTime);
+	}
+	UE_LOG(LogTemp, Display, TEXT("Delivery Time: %i"), DeliveryTime);
+
+	OnActorToDeliverAdded.Broadcast(ActorToDeliver, FareTimerComponent);
+	ActorToDeliverAdded(ActorToDeliver, FareTimerComponent);
 }
 
-TArray<ABaseDeliveryTargetArea*>& ABaseGameMode::GetDeliveryTargets()
+void ABaseGameMode::DeliverActor(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea)
 {
-	return DeliveryTargets;
-}
+	UActorComponent* ActorFareTimerComponent = ActorToDeliver->FindComponentByClass(UFareTimerComponent::StaticClass());
+	UFareTimerComponent* FareTimerComponent = Cast<UFareTimerComponent>(ActorFareTimerComponent);
+	if (FareTimerComponent == nullptr)
+	{
+		return;
+	}
+	ActorsToDeliver.Remove(ActorToDeliver);
+	
+	//Add Bonus Time
+	const int TimeRemaining = FareTimerComponent->GetTimeRemaining();
+	if (TimeRemaining > 0)
+	{
+		AddTime(TimeRemaining);
+		OnBonusTimeAdded.Broadcast(TimeRemaining);
+	}
 
-void ABaseGameMode::AddDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTargetArea)
-{
-	DeliveryTargets.Add(NewDeliveryTargetArea);
-
-	OnNewDeliveryTargetAdded.Broadcast(NewDeliveryTargetArea);
-	DeliveryTargetAdded(NewDeliveryTargetArea);
+	//Add Cash
+	const int MaxDeliveryTime = FareTimerComponent->GetMaxDeliveryTime();
+	const float CashEarned = MaxDeliveryTime * CashPerSecond;
+	Cash += CashEarned;
+	UE_LOG(LogTemp, Display, TEXT("Cash: %f +%f"), Cash, CashEarned);
+	OnCashAdded.Broadcast(Cash, CashEarned);
+	
+	FareTimerComponent->StopTimer();
 }
 
 void ABaseGameMode::StartTimer(int TimeSeconds)
@@ -44,8 +85,9 @@ void ABaseGameMode::StartTimer(int TimeSeconds)
 
 void ABaseGameMode::AddTime(int TimeSeconds)
 {
+	const int OldTimeRemaining = TimeRemaining;
 	TimeRemaining += TimeSeconds;
-	TimerTimeAdded(TimeSeconds);
+	TimerTimeAdded(OldTimeRemaining, TimeSeconds);
 }
 
 int ABaseGameMode::GetRemainingTimeSeconds() const
@@ -61,8 +103,6 @@ int ABaseGameMode::GetRemainingTimeMinutes() const
 void ABaseGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	PlayerVehicle = Cast<ABaseVehicle>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
 
 void ABaseGameMode::DecreaseTime()

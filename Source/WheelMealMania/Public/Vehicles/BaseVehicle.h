@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "BaseVehicle.generated.h"
 
+class UVehicleSeatComponent;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
@@ -34,6 +35,9 @@ public:
 	FOnGearShifting OnGearShiftingDelegate;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	bool bDrawDebug = false;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
 	float GravityScale = 1.f;
 
@@ -146,6 +150,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsHandbreaking = false;
 private:
+	TArray<UVehicleSeatComponent*> Seats;
 	TArray<UWheelComponent*> Wheels;
 
 	TArray<UWheelComponent*> FrontWheels;
@@ -195,6 +200,18 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	EGearShift GetCurrentGearShift();
+
+	UFUNCTION(BlueprintCallable)
+	bool HasPassenger(AActor* Passenger) const;
+
+	UFUNCTION(BlueprintCallable)
+	UVehicleSeatComponent* GetPassengerSeat(AActor* Passenger) const;
+	
+	UFUNCTION(BlueprintCallable)
+	TArray<AActor*> GetPassengers();
+
+	UFUNCTION(BlueprintCallable)
+	UVehicleSeatComponent* GetFirstFreeSeat() const;
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
@@ -276,4 +293,5 @@ private:
 	void ClearDashTimer();
 
 	void SetupVehicleWheelComponents();
+	void SetupVehicleSeatComponents();
 };

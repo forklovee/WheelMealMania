@@ -5,33 +5,49 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objects/BaseDeliveryTargetArea.h"
 
-// Sets default values
 ABasePickupArea::ABasePickupArea()
 {
 	
 }
 
-void ABasePickupArea::SetDeliveryTarget(ABaseDeliveryTargetArea* InDeliveryTarget)
+void ABasePickupArea::SpawnActorToDeliver()
 {
-	DeliveryTargetArea = InDeliveryTarget;
-	DeliveryTargetSet(DeliveryTargetArea.Get());
+	if (ActorToDeliver.IsValid())
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s Actor already spawned"), *GetName());
+		return;
+	}
+	if (ActorToDeliverClass == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s Actor to deliver class nullptr"), *GetName());
+		return;
+	}
+	
+	ActorToDeliver = GetWorld()->SpawnActor<AActor>(ActorToDeliverClass,
+		GetActorLocation() + FVector::UpVector*100.f,
+		FRotator::ZeroRotator
+		);
+	
+	APawn* Pawn = Cast<APawn>(ActorToDeliver.Get());
+	if (Pawn)
+	{
+		Pawn->SpawnDefaultController();
+	}
 }
 
-int ABasePickupArea::GetTimeSecondsToDeliveryTarget() const
+AActor* ABasePickupArea::GetActorToDeliver() const
 {
-	if (DeliveryTargetArea.IsValid())
-	{
-		const float DistanceToTarget = FVector::Distance(GetActorLocation(), DeliveryTargetArea->GetActorLocation());
-		int TimeSeconds = 5;
-		TimeSeconds += static_cast<int>(DistanceToTarget / 500.f);
-		return TimeSeconds;
-	}
-	return 0;
+	return ActorToDeliver.Get();
 }
 
 void ABasePickupArea::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (bSpawnActorOnBeginPlay)
+	{
+		SpawnActorToDeliver();
+	}
 }
 
 void ABasePickupArea::OnVehicleStoppedInsideArea()
@@ -41,22 +57,9 @@ void ABasePickupArea::OnVehicleStoppedInsideArea()
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!GameMode)
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s GameMode is nullptr"), *GetName());
 		return;
 	}
-
-	GameMode->AddDeliveryTarget(DeliveryTargetArea.Get());
-	
-	SecondsRemaining = GetTimeSecondsToDeliveryTarget();
-	GetWorldTimerManager().SetTimer(DeliveryTickTimerHandle, this, &ABasePickupArea::OnDeliveryTimerTick, 1.0, true);
-}
-
-void ABasePickupArea::OnDeliveryTimerTick()
-{
-	SecondsRemaining--;
-	DeliveryTimerUpdate(SecondsRemaining);
-	if (SecondsRemaining <= 0)
-	{
-		DeliveryTickTimerHandle.Invalidate();
-		DeliveryTimerStopped();
-	}
+	GameMode->AddActorToDeliver(ActorToDeliver.Get(), DeliveryTargetArea.Get());
+	AreaMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

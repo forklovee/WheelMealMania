@@ -6,13 +6,18 @@
 #include "GameFramework/GameModeBase.h"
 #include "BaseGameMode.generated.h"
 
+class UFareTimerComponent;
 class ABaseDeliveryTargetArea;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewDeliveryTargetAdded, ABaseDeliveryTargetArea*, DeliveryTargetArea);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorToDeliverAdded, AActor*, ActorToDeliver, UFareTimerComponent*, FareTimerComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorDelivered, AActor*, ActorToDeliver, UFareTimerComponent*, FareTimerComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBonusTimeAdded, int, BonusTime);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStartedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStoppedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTimerUpdatedSignature, int, Minutes, int, Seconds);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCashAdded, float, Cash, float, EarnedCash);
 
 UCLASS()
 class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
@@ -20,7 +25,12 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintAssignable)
-	FOnNewDeliveryTargetAdded OnNewDeliveryTargetAdded;
+	FOnActorToDeliverAdded OnActorToDeliverAdded;
+	UPROPERTY(BlueprintAssignable)
+	FOnActorDelivered OnActorDelivered;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBonusTimeAdded OnBonusTimeAdded;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerStartedSignature OnTimerStarted;
@@ -29,22 +39,32 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerUpdatedSignature OnTimerUpdated;
 
-protected:
-	TWeakObjectPtr<class ABaseVehicle> PlayerVehicle;
+	UPROPERTY(BlueprintAssignable)
+	FOnCashAdded OnCashAdded;
 	
-	TArray<ABaseDeliveryTargetArea*> DeliveryTargets;
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	float CashPerSecond = 10.f;
+	
+	float Cash = 0.f;
+	
+	TArray<AActor*> ActorsToDeliver;
 
 public:
 	UFUNCTION(BlueprintCallable)
-	ABaseVehicle* GetPlayerVehicle();
+	ABaseVehicle* GetPlayerVehicle() const;
 	
 	UFUNCTION(BlueprintCallable)
-	TArray<ABaseDeliveryTargetArea*>& GetDeliveryTargets();
+	TArray<AActor*>& GetActorsToDeliver();
 	UFUNCTION(BlueprintCallable)
-	void AddDeliveryTarget(ABaseDeliveryTargetArea* NewDeliveryTargetArea);
-
+	void AddActorToDeliver(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea);
+	UFUNCTION(BlueprintCallable)
+	void DeliverActor(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea);
+	
 	UFUNCTION(BlueprintImplementableEvent)
-	void DeliveryTargetAdded(ABaseDeliveryTargetArea* NewDeliveryTargetArea);
+	void ActorToDeliverAdded(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent);
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActorDelivered(AActor* DeliveredActor, UFareTimerComponent* FareTimerComponent);
 	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer(int TimeSeconds);
@@ -62,7 +82,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void TimerUpdated(int CurrentTimeRemaining);
 	UFUNCTION(BlueprintImplementableEvent)
-	void TimerTimeAdded(int TimeAdded);
+	void TimerTimeAdded(int OldTimeRemaining, int TimeAdded);
 	
 private:
 	virtual void BeginPlay() override;
