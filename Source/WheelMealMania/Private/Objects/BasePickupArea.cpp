@@ -63,5 +63,6 @@ void ABasePickupArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Ve
 	IActorDeliveryInterface::Execute_StartDelivery(ActorToDeliver.Get(), Vehicle, this, DeliveryTargetArea.Get());
 	
 	AreaMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AreaMesh->SetVisibility(false);
 }
 

@@ -54,4 +54,8 @@ protected:
 
 	UFUNCTION()
 	virtual void DeliveryTimerTimeIsUp_Implementation() override;
+
+private:
+	UFUNCTION()
+	void FareTimerTimeIsUp();
 };

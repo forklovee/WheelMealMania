@@ -38,37 +38,36 @@ int AFareCharacter::StartDelivery_Implementation(ABaseVehicle* Vehicle, ABasePic
 	
 	DeliveryTargetArea->SetRequiredActor(this);
 
-	const int DeliveryTime = GetDeliveryTime_Implementation();
+	const int DeliveryTime = Execute_GetDeliveryTime(this);
 	
-	FareTimerComponent->OnTimerTimeIsUp.AddUniqueDynamic(this, &AFareCharacter::DeliveryTimerTimeIsUp_Implementation);
+	FareTimerComponent->OnTimerTimeIsUp.AddDynamic(this, &AFareCharacter::FareTimerTimeIsUp);
 	FareTimerComponent->StartTimer(DeliveryTime, DeliveryTargetArea.Get());
 	
-	DeliveryStarted_Implementation(this, GetDeliveryTimer_Implementation(), InVehicle.Get());
+	Execute_DeliveryStarted(this, this, Execute_GetDeliveryTimer(this), InVehicle.Get());
 	
 	return DeliveryTime;
 }
 
 int AFareCharacter::StopDelivery_Implementation(bool bSuccess)
 {
-	InVehicle = nullptr;
-	PickupArea = nullptr;
 	DeliveryTargetArea->SetRequiredActor(nullptr);
-	DeliveryTargetArea = nullptr;
+	const int RemainingDeliveryTime = Execute_GetDeliveryTimer(this)->GetTimeRemaining();
+	FareTimerComponent->OnTimerTimeIsUp.RemoveDynamic(this, &AFareCharacter::FareTimerTimeIsUp);
 	
-	const int RemainingDeliveryTime = GetDeliveryTimer_Implementation()->GetTimeRemaining();
-	FareTimerComponent->OnTimerTimeIsUp.RemoveDynamic(this, &AFareCharacter::DeliveryTimerTimeIsUp_Implementation);
-
 	if (bSuccess)
 	{
-		DeliveryFinished_Implementation(this, GetDeliveryTimer_Implementation(), InVehicle.Get());
+		Execute_DeliveryFinished(this, this, Execute_GetDeliveryTimer(this), InVehicle.Get());
 	}
 	else
 	{
-		DeliveryFailed_Implementation(this, GetDeliveryTimer_Implementation(), InVehicle.Get());
+		Execute_DeliveryFailed(this, this, Execute_GetDeliveryTimer(this), InVehicle.Get());
 	}
-
-	FareTimerComponent->StopTimer();
 	
+	InVehicle = nullptr;
+	PickupArea = nullptr;
+	DeliveryTargetArea = nullptr;
+	
+	FareTimerComponent->StopTimer();
 	return RemainingDeliveryTime;
 }
 
@@ -76,23 +75,38 @@ void AFareCharacter::DeliveryTimerTimeIsUp_Implementation()
 {
 	IActorDeliveryInterface::DeliveryTimerTimeIsUp_Implementation();
 	
-	StopDelivery_Implementation(false);
+	Execute_StopDelivery(this, false);
+}
+
+void AFareCharacter::FareTimerTimeIsUp()
+{
+	Execute_DeliveryTimerTimeIsUp(this);
 }
 
 void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
 {
+	IActorDeliveryInterface::DeliveryStarted_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+	
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->AddActorToDeliver(this);
+
+	UE_LOG(LogTemp, Warning, TEXT("Delivery Started! %s"), *GetName());
 }
 
 void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
 {
+	IActorDeliveryInterface::DeliveryFailed_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+	
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->RemoveActorToDeliver(this);
+
+	UE_LOG(LogTemp, Warning, TEXT("Delivery Failed! %s"), *GetName());
 }
 
 void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
 {
+	IActorDeliveryInterface::DeliveryFinished_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->RemoveActorToDeliver(this);
 	
@@ -101,6 +115,8 @@ void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFa
 	const int MaxDeliveryTime = FareTimerComponent->GetMaxDeliveryTime();
 	const float CashEarned = MaxDeliveryTime * CashPerSecond;
 	GameMode->AddCash(CashEarned);
+
+	UE_LOG(LogTemp, Warning, TEXT("Delivery Finished! %s"), *GetName());
 }
 
 UFareTimerComponent* AFareCharacter::GetDeliveryTimer_Implementation() const
