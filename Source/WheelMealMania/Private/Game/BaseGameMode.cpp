@@ -4,6 +4,7 @@
 #include "Game/BaseGameMode.h"
 
 #include "Components/FareTimerComponent.h"
+#include "Interfaces/ActorDeliveryInterface.h"
 #include "Objects/BaseDeliveryTargetArea.h"
 #include "Vehicles/BaseVehicle.h"
 
@@ -17,40 +18,38 @@ TArray<AActor*>& ABaseGameMode::GetActorsToDeliver()
 	return ActorsToDeliver;
 }
 
-void ABaseGameMode::AddActorToDeliver(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea)
+void ABaseGameMode::AddActorToDeliver(AActor* ActorToDeliver)
 {
-	UActorComponent* ActorFareTimerComponent = ActorToDeliver->FindComponentByClass(UFareTimerComponent::StaticClass());
-	UFareTimerComponent* FareTimerComponent = Cast<UFareTimerComponent>(ActorFareTimerComponent);
-	if (FareTimerComponent == nullptr)
+	if (!ActorToDeliver->Implements<UActorDeliveryInterface>())
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s Actor doesn't implement IActorDeliveryInterface!"), *ActorToDeliver->GetName());
 		return;
 	}
 	ActorsToDeliver.Add(ActorToDeliver);
-	DeliveryTargetArea->SetRequiredActor(ActorToDeliver);
 	
-	const float DistanceToTarget = FVector::Distance(ActorToDeliver->GetActorLocation(), DeliveryTargetArea->GetActorLocation());
-	const int DeliveryTime = FareTimerComponent->GetMinDeliveryTime() + static_cast<int>(DistanceToTarget/2000.f);
-	FareTimerComponent->StartTimer(DeliveryTime, DeliveryTargetArea);
-
-	if (DeliveryTime < TimeRemaining)
+	const int DeliveryTime = IActorDeliveryInterface::Execute_GetDeliveryTime(ActorToDeliver);
+	if (TimeRemaining < DeliveryTime)
 	{
 		AddTime(TimeRemaining-DeliveryTime);
 	}
 	UE_LOG(LogTemp, Display, TEXT("Delivery Time: %i"), DeliveryTime);
 
+	UFareTimerComponent* FareTimerComponent = IActorDeliveryInterface::Execute_GetDeliveryTimer(ActorToDeliver);
 	OnActorToDeliverAdded.Broadcast(ActorToDeliver, FareTimerComponent);
 	ActorToDeliverAdded(ActorToDeliver, FareTimerComponent);
 }
 
-void ABaseGameMode::DeliverActor(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea)
+void ABaseGameMode::RemoveActorToDeliver(AActor* ActorToDeliver)
 {
-	UActorComponent* ActorFareTimerComponent = ActorToDeliver->FindComponentByClass(UFareTimerComponent::StaticClass());
-	UFareTimerComponent* FareTimerComponent = Cast<UFareTimerComponent>(ActorFareTimerComponent);
-	if (FareTimerComponent == nullptr)
+	if (!ActorToDeliver->Implements<UActorDeliveryInterface>())
 	{
+		UE_LOG(LogTemp, Error, TEXT("%s Actor doesn't implement IActorDeliveryInterface!"), *ActorToDeliver->GetName());
 		return;
 	}
 	ActorsToDeliver.Remove(ActorToDeliver);
+	
+	UFareTimerComponent* FareTimerComponent = IActorDeliveryInterface::Execute_GetDeliveryTimer(ActorToDeliver);
+	OnActorDelivered.Broadcast(ActorToDeliver, FareTimerComponent);
 	
 	//Add Bonus Time
 	const int TimeRemaining = FareTimerComponent->GetTimeRemaining();
@@ -59,15 +58,21 @@ void ABaseGameMode::DeliverActor(AActor* ActorToDeliver, ABaseDeliveryTargetArea
 		AddTime(TimeRemaining);
 		OnBonusTimeAdded.Broadcast(TimeRemaining);
 	}
+	ActorDelivered(ActorToDeliver, FareTimerComponent);
+}
 
-	//Add Cash
-	const int MaxDeliveryTime = FareTimerComponent->GetMaxDeliveryTime();
-	const float CashEarned = MaxDeliveryTime * CashPerSecond;
+void ABaseGameMode::FailActorDelivery(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent)
+{
+	ActorsToDeliver.Remove(ActorToDeliver);
+	OnActorDeliveryFailed.Broadcast(ActorToDeliver, FareTimerComponent);
+	ActorDeliveryFailed(ActorToDeliver, FareTimerComponent);
+}
+
+void ABaseGameMode::AddCash(float CashEarned)
+{
 	Cash += CashEarned;
 	UE_LOG(LogTemp, Display, TEXT("Cash: %f +%f"), Cash, CashEarned);
 	OnCashAdded.Broadcast(Cash, CashEarned);
-	
-	FareTimerComponent->StopTimer();
 }
 
 void ABaseGameMode::StartTimer(int TimeSeconds)

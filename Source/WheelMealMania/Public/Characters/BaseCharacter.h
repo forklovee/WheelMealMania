@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+class UBehaviorTree;
+
 UCLASS()
 class WHEELMEALMANIA_API ABaseCharacter : public ACharacter
 {
@@ -13,7 +15,16 @@ public:
 	ABaseCharacter();
 
 protected:
+	UPROPERTY(BlueprintReadWrite)
+	FVector SpawnLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UBehaviorTree> DefaultBehaviorTree;
+	
+protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	
+	
 };

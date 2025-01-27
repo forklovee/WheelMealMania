@@ -10,7 +10,8 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SpawnLocation = GetActorLocation();
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

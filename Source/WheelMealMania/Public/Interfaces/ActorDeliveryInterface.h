@@ -3,14 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/FareTimerComponent.h"
 #include "UObject/Interface.h"
 #include "ActorDeliveryInterface.generated.h"
 
+class UFareTimerComponent;
 class ABaseVehicle;
 class UDeliveryTimer;
 class ABaseDeliveryTargetArea;
 class ABasePickupArea;
-// This class does not need to be modified.
+
 UINTERFACE(MinimalAPI)
 class UActorDeliveryInterface : public UInterface
 {
@@ -23,25 +25,37 @@ class WHEELMEALMANIA_API IActorDeliveryInterface
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void SetStartAndEndPoints(ABasePickupArea* Start, ABaseDeliveryTargetArea* End);
+	//Returns Delivery Time
+	int StartDelivery(ABaseVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	//Returns Remaining Delivery Time
+	int StopDelivery(bool bSuccess = false);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	ABasePickupArea* GetPickupArea() const;
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	ABaseDeliveryTargetArea* GetTargetArea() const;
+	ABaseDeliveryTargetArea* GetDeliveryTargetArea() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void StartDelivery(ABaseVehicle* Vehicle);
+	int GetDeliveryTime() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryStarted(ABaseVehicle* Vehicle);
+	UFareTimerComponent* GetDeliveryTimer() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryFailed(ABaseVehicle* Vehicle);
+	ABaseVehicle* GetDeliveryVehicle() const;
+
+protected:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DeliveryStarted(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DeliveryTimerTimeIsUp();
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryFinished(ABaseVehicle* Vehicle);
+	void DeliveryFailed(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	UDeliveryTimer* GetDeliveryTimer() const;
+	void DeliveryFinished(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
 };

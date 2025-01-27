@@ -41,5 +41,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	virtual void OnVehicleStoppedInsideArea() override;
+	virtual void PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle) override;
 };

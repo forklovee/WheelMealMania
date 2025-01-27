@@ -6,11 +6,13 @@
 #include "GameFramework/GameModeBase.h"
 #include "BaseGameMode.generated.h"
 
+class ABaseVehicle;
 class UFareTimerComponent;
 class ABaseDeliveryTargetArea;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorToDeliverAdded, AActor*, ActorToDeliver, UFareTimerComponent*, FareTimerComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorDelivered, AActor*, ActorToDeliver, UFareTimerComponent*, FareTimerComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorDeliveryFailed, AActor*, ActorToDeliver, UFareTimerComponent*, FareTimerComponent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBonusTimeAdded, int, BonusTime);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStartedSignature);
@@ -28,7 +30,9 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	FOnActorToDeliverAdded OnActorToDeliverAdded;
 	UPROPERTY(BlueprintAssignable)
 	FOnActorDelivered OnActorDelivered;
-
+	UPROPERTY(BlueprintAssignable)
+	FOnActorDelivered OnActorDeliveryFailed;
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnBonusTimeAdded OnBonusTimeAdded;
 	
@@ -57,14 +61,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<AActor*>& GetActorsToDeliver();
 	UFUNCTION(BlueprintCallable)
-	void AddActorToDeliver(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea);
+	void AddActorToDeliver(AActor* ActorToDeliver);
 	UFUNCTION(BlueprintCallable)
-	void DeliverActor(AActor* ActorToDeliver, ABaseDeliveryTargetArea* DeliveryTargetArea);
+	void RemoveActorToDeliver(AActor* ActorToDeliver);
+	UFUNCTION(BlueprintCallable)
+	void FailActorDelivery(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void ActorToDeliverAdded(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent);
 	UFUNCTION(BlueprintImplementableEvent)
 	void ActorDelivered(AActor* DeliveredActor, UFareTimerComponent* FareTimerComponent);
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActorDeliveryFailed(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent);
+
+	UFUNCTION(BlueprintCallable)
+	void AddCash(float CashEarned);
 	
 	UFUNCTION(BlueprintCallable)
 	void StartTimer(int TimeSeconds);

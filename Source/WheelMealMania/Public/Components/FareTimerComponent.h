@@ -11,6 +11,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerStarted, int, TimeRemaining)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerStopped, int, TimeRemaining);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTimerUpdated, int, TimeRemaining);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerTimeIsUp);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class WHEELMEALMANIA_API UFareTimerComponent : public UActorComponent
 {
@@ -23,6 +25,9 @@ public:
 	FOnTimerStopped OnTimerStopped;
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerUpdated OnTimerUpdated;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnTimerTimeIsUp OnTimerTimeIsUp;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timer", meta=(AllowPrivateAccess=true))
@@ -33,13 +38,13 @@ private:
 	int MaxDeliveryTime = 0;
 	int TimeRemaining = 0;
 
-	TWeakObjectPtr<AActor> DeliveryTarget;
+	TWeakObjectPtr<ABaseDeliveryTargetArea> DeliveryTarget;
 	
 public:
 	UFareTimerComponent();
 	
 	UFUNCTION(BlueprintCallable)
-	void StartTimer(const int TimeSeconds, AActor* NewDeliveryTarget);
+	void StartTimer(const int TimeSeconds, ABaseDeliveryTargetArea* NewDeliveryTarget);
 	UFUNCTION(BlueprintCallable)
 	void StopTimer();
 
@@ -53,7 +58,7 @@ public:
 	int GetMinDeliveryTime() const;
 
 	UFUNCTION(BlueprintCallable)
-	AActor* GetDeliveryTarget() const;
+	ABaseDeliveryTargetArea* GetDeliveryTarget() const;
 	
 protected:
 	virtual void BeginPlay() override;

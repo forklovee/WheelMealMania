@@ -309,13 +309,10 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	}
 
 	// Torque Turn Vehicle
-	float TorqueForce = SteeringTorqueForce * WheelMaxAngleDeg;
+	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
+	
 	VehicleCollision->AddTorqueInRadians(
-		FVector(
-			0.f,
-			0.f,
-			Steering.X * TorqueForce * 10000000.f
-		)
+		VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
 	);
 
 	// Add Momentum
@@ -399,7 +396,7 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
 {
-	Acceleration = FMath::Clamp(Acceleration-Value*.0025f, 0.f, 1.f);
+	Acceleration = FMath::Clamp(Acceleration-Value*.005f, 0.f, 1.f);
 	VehicleCollision->AddForceAtLocation(
 		-Value * VehicleCollision->GetComponentVelocity() * 5000.f * (1.f-Acceleration),
 		VehicleCollision->GetComponentLocation()

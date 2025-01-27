@@ -2,6 +2,7 @@
 #include "Objects/BasePickupArea.h"
 
 #include "Game/BaseGameMode.h"
+#include "Interfaces/ActorDeliveryInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objects/BaseDeliveryTargetArea.h"
 
@@ -50,16 +51,17 @@ void ABasePickupArea::BeginPlay()
 	}
 }
 
-void ABasePickupArea::OnVehicleStoppedInsideArea()
+void ABasePickupArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
 {
-	Super::OnVehicleStoppedInsideArea();
+	Super::PlayerVehicleStoppedInside_Implementation(Vehicle);
 
-	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (!GameMode)
+	if (!ActorToDeliver->Implements<UActorDeliveryInterface>())
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s GameMode is nullptr"), *GetName());
 		return;
 	}
-	GameMode->AddActorToDeliver(ActorToDeliver.Get(), DeliveryTargetArea.Get());
+
+	IActorDeliveryInterface::Execute_StartDelivery(ActorToDeliver.Get(), Vehicle, this, DeliveryTargetArea.Get());
+	
 	AreaMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+

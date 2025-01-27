@@ -4,6 +4,7 @@
 #include "Objects/BaseDeliveryTargetArea.h"
 
 #include "Game/BaseGameMode.h"
+#include "Interfaces/ActorDeliveryInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Vehicles/BaseVehicle.h"
 
@@ -26,17 +27,16 @@ void ABaseDeliveryTargetArea::SetRequiredActor(AActor* PassengerActor)
 void ABaseDeliveryTargetArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
 {
 	Super::PlayerVehicleStoppedInside_Implementation(Vehicle);
-	
-	AreaMesh->SetVisibility(false);
 
-	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (!GameMode)
+	if (!RequiredActor->Implements<UActorDeliveryInterface>())
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s GameMode is nullptr"), *GetName());
 		return;
 	}
 	
-	GameMode->DeliverActor(RequiredActor.Get(), this);
+	IActorDeliveryInterface::Execute_StopDelivery(RequiredActor.Get(), true);
+	
+	AreaMesh->SetVisibility(false);
+	
 	AreaMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RequiredActor = nullptr;
 }

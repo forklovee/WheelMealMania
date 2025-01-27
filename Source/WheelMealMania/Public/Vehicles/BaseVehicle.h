@@ -64,7 +64,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine|Sound")
 	USoundBase* EngineThrottleSound;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering")
 	float SteeringSensitivity = 2.5f;
 

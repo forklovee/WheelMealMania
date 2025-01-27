@@ -13,10 +13,11 @@ public class WheelMealMania : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"Niagara" });
+			"Niagara"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { 
-			"GameplayAbilities", "GameplayTags", "GameplayTasks"
+			"GameplayAbilities", "GameplayTags", "GameplayTasks", "AIModule"
 		});
 
 		// Uncomment if you are using Slate UI
