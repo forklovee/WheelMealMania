@@ -94,7 +94,12 @@ void UWheelComponent::UpdateWheelForwardForce()
 {
 	// Add drive force, if wheel touches the ground
 	FVector WheelForward = GetForwardVector();
-		
+	if (!bIsOnGround)
+	{
+		WheelForward.Z = 0.f;
+		WheelForward = WheelForward.GetSafeNormal();
+	}
+	
 	// Apply Drive Forces
 	FVector WheelForce = WheelForward * TargetSpeed;
 	VehicleCollision->AddForceAtLocation(

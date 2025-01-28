@@ -19,7 +19,7 @@ protected:
 	FVector SpawnLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UBehaviorTree> DefaultBehaviorTree;
+	TWeakObjectPtr<UBehaviorTree> DefaultBehaviorTree;
 	
 protected:
 	virtual void BeginPlay() override;

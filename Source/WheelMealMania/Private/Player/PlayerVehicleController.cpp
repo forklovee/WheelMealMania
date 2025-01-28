@@ -2,6 +2,8 @@
 
 
 #include "Player/PlayerVehicleController.h"
+
+#include "EnhancedInputComponent.h"
 #include "UI/PlayerHUD.h"
 #include "Vehicles/BaseVehicle.h"
 #include "EnhancedInputSubsystems.h"
@@ -37,7 +39,6 @@ void APlayerVehicleController::Tick(float Delta)
 void APlayerVehicleController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
 		Subsystem->AddMappingContext(PlayerInputContext, 0);
 	}

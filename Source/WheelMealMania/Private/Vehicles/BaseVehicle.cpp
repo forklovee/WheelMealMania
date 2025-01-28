@@ -11,7 +11,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/EngineTypes.h"
 #include "InputAction.h"
-#include "NiagaraComponent.h"
 
 #include <EnhancedInputComponent.h>
 
@@ -73,7 +72,6 @@ void ABaseVehicle::Tick(float DeltaTime)
 		}
 	}
 	bIsOnGround = bNewIsOnGround;
-	// VehicleCollision->SetAngularDamping(bIsOnGround ? DefaultAngularDamping : 15.f);
 	
 	VehicleCollision->SetEnableGravity(false);
 
@@ -105,22 +103,25 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Started, this, &ABaseVehicle::ThrottlePressedInput);
+		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Started, this, &ABaseVehicle::ThrottleInputPressed);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ThrottleInput);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::ThrottleInput);
 
+		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Started, this, &ABaseVehicle::BreakInputPressed);
 		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::BreakInput);
 		EnhancedInput->BindAction(BreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::BreakInput);
 
 		EnhancedInput->BindAction(GearShiftInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::GearShiftInput);
 		EnhancedInput->BindAction(GearShiftInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::GearShiftInput);
 
+		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Started, this, &ABaseVehicle::SteeringInputPressed);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::SteeringInput);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::SteeringInput);
 
 		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HydraulicsControlInput);
 		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HydraulicsControlInput);
 
+		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Started, this, &ABaseVehicle::HandbreakInputPressed);
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HandbreakInput);
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HandbreakInput);
 		
@@ -381,19 +382,15 @@ void ABaseVehicle::SteeringInput(const FInputActionValue& InputValue)
 	OnSteeringUpdate(Steering);
 }
 
+void ABaseVehicle::SteeringInputPressed(const FInputActionValue& InputValue)
+{
+	PushKeyToComboBuffer("Steering");
+}
+
 void ABaseVehicle::HydraulicsControlInput(const FInputActionValue& InputValue)
 {
 	TargetHydraulicsControl = InputValue.Get<FVector2D>();
 	OnHydraulicsControlUpdated(TargetHydraulicsControl);
-}
-
-void ABaseVehicle::ThrottlePressedInput(const FInputActionValue& InputValue)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Throttle Pressed."));
-
-	if (MovesetDashTimerHandle.IsValid()){
-		DashForward();
-	}
 }
 
 void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
@@ -405,6 +402,12 @@ void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 	OnThrottleUpdate(Throttle);
 }
 
+void ABaseVehicle::ThrottleInputPressed(const FInputActionValue& InputValue)
+{
+	PushKeyToComboBuffer("Throttle");
+}
+
+
 void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 {
 	float BreakScale = InputValue.Get<float>();
@@ -413,6 +416,12 @@ void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 	InstantAccelerationDecrease(1.0*BreakScale);
 
 	OnBreaking();
+}
+
+
+void ABaseVehicle::BreakInputPressed(const FInputActionValue& InputValue)
+{
+	PushKeyToComboBuffer("Break");
 }
 
 void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
@@ -434,28 +443,29 @@ void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
 		OnGearShifting(bIsGearShifting);
 		OnGearShiftingDelegate.Broadcast(bIsGearShifting);
 	}
-
 	
 	if (LastShift != CurrentShift){
-		ShiftToNewGear(CurrentShift);	
+		ShiftToNewGear(CurrentShift);
 	}
 }
 
 void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 {
-	bJustDashed = false;
-
-	MovesetDashTimerHandle.Invalidate();
-	
-	GetWorld()->GetTimerManager().SetTimer(
-	MovesetDashTimerHandle,
-	this, &ABaseVehicle::ClearDashTimer,
-		DashTimeWindow, false);
-	
 	UE_LOG(LogTemp, Warning, TEXT("Start Dash timer!"));
 
 	OnGearShift(NewGear);
 	OnGearChangedDelegate.Broadcast(NewGear);
+
+	switch (NewGear)
+	{
+		case EGearShift::DRIVE:
+			PushKeyToComboBuffer("Drive");
+			break;
+		case EGearShift::REVERSE:
+			PushKeyToComboBuffer("Reverse");
+			break;
+	}
+	
 }
 
 void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
@@ -463,6 +473,11 @@ void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
 	bIsHandbreaking = InputValue.Get<bool>();
 
 	OnHandbreaking();
+}
+
+void ABaseVehicle::HandbreakInputPressed(const FInputActionValue& InputValue)
+{
+	PushKeyToComboBuffer("Break");
 }
 
 void ABaseVehicle::JumpingInput(const FInputActionValue& InputValue)
@@ -532,24 +547,14 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		);
 	}
 	
-
 	OnVehicleHit(this, OtherActor, OtherComp, Hit.ImpactPoint, Hit.ImpactNormal);
-}
-
-void ABaseVehicle::ClearDashTimer()
-{
-	MovesetDashTimerHandle.Invalidate();
-	UE_LOG(LogTemp, Warning, TEXT("Dash timer cleared!"));
 }
 
 void ABaseVehicle::DashForward()
 {
-	if (!IsAnyWheelOnTheGround() || bJustDashed){
+	if (!IsAnyWheelOnTheGround()){
 		return;
 	}
-
-	bJustDashed = true;
-	ClearDashTimer();
 
 	switch (GetCurrentGearShift())
 	{
@@ -557,9 +562,6 @@ void ABaseVehicle::DashForward()
 			Acceleration = FMath::Clamp(Acceleration * 1.25f, 0.1f, 1.f);
 			UE_LOG(LogTemp, Warning, TEXT("Dash Forward!"));
 			break;
-		case EGearShift::REVERSE:
-			UE_LOG(LogTemp, Display, TEXT("Dash Back! %f"), Acceleration);
-			Acceleration = FMath::Clamp(Acceleration * .5f, -1.0f, 0.f);
 	}
 	
 	float TargetDashForce = DashForce * 100000.f;
@@ -616,4 +618,53 @@ void ABaseVehicle::SetupVehicleSeatComponents()
 		}
 		Seats.Add(SeatComponent);
 	}
+}
+
+void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
+{
+	ComboClearOutTimer.Invalidate();
+	
+	ComboBuffer.Push(KeyString);
+	FString ComboBufferString = "";
+	for (FString ComboKeyName : ComboBuffer)
+	{
+		ComboBufferString += ComboKeyName+"|";
+	}
+	UE_LOG(LogTemp, Display, TEXT("Buffer %s"), *ComboBufferString);
+	
+	// Dash
+	if (ComboBufferString == "Reverse|Throttle|Drive|")
+	{
+		UE_LOG(LogTemp, Display, TEXT("Dash!"));
+		ClearComboBuffer();
+		return;
+	}
+
+	// Force Break
+	if (ComboBuffer.Num() == 2 && ComboBuffer.Contains("Reverse") && ComboBuffer.Contains("Break"))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Force Break!"));
+		ClearComboBuffer();
+		return;
+	}
+
+	// Drift
+	TArray<FString> GearShiftStrings = {"Reverse", "Drive"};
+	if (IsThrottling() && ComboBuffer.Num() >= 2 && (
+		(GearShiftStrings.Contains(ComboBuffer[0]) && ComboBuffer[1] == "Steering") ||
+		(ComboBuffer[0] == "Steering" && ComboBuffer[1] == "Reverse")))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Drift!"));
+		ClearComboBuffer();
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(ComboClearOutTimer, this, &ABaseVehicle::ClearComboBuffer, 0.25f, false);
+}
+
+void ABaseVehicle::ClearComboBuffer()
+{
+	ComboClearOutTimer.Invalidate();
+	ComboBuffer = {};
+	UE_LOG(LogTemp, Display, TEXT("Clear Buffer."));
 }

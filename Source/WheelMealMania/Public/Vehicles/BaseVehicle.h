@@ -22,6 +22,20 @@ enum class EGearShift : uint8{
 	REVERSE = 1		UMETA(DisplayName = "Reverse")
 };
 
+USTRUCT(BlueprintType)
+struct FMovesetComboKeys
+{
+	GENERATED_BODY()
+
+	FMovesetComboKeys() {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ComboName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FName> Keys;
+};
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
 
@@ -33,8 +47,7 @@ class WHEELMEALMANIA_API ABaseVehicle : public APawn
 public:
 	FOnGearChanged OnGearChangedDelegate;
 	FOnGearShifting OnGearShiftingDelegate;
-
-public:
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool bDrawDebug = false;
 	
@@ -93,6 +106,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
 	float JumpStrength = 1000.f;
 
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
+	// TMap<FName, 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
 	float DashTimeWindow = 0.25f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
@@ -149,6 +165,7 @@ protected:
 	bool bIsBreaking = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsHandbreaking = false;
+
 private:
 	TArray<UVehicleSeatComponent*> Seats;
 	TArray<UWheelComponent*> Wheels;
@@ -189,9 +206,12 @@ private:
 
 	bool bIsOnGround = false;
 
-	// Moveset timers
-	FTimerHandle MovesetDashTimerHandle;
-	bool bJustDashed = false;
+	// Movesets
+	TArray<FMovesetComboKeys> ComboKeys;
+	TArray<FString> ComboBuffer;
+	
+	FTimerHandle ComboClearOutTimer;
+	
 public:
 	ABaseVehicle();
 
@@ -215,6 +235,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	UVehicleSeatComponent* GetFirstFreeSeat() const;
+	
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
@@ -223,14 +244,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsThrottling();
 
-	void ThrottlePressedInput(const FInputActionValue& InputValue);
 	void ThrottleInput(const FInputActionValue& InputValue);
+	void ThrottleInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnThrottleUpdate(float NewThrottle);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAccelerationUpdate(float NewAcceleration);
 
 	void SteeringInput(const FInputActionValue& InputValue);
+	void SteeringInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSteeringUpdate(FVector2D NewSteering);
 
@@ -239,6 +261,7 @@ protected:
 	void OnHydraulicsControlUpdated(FVector2D NewHydraulicsControl);
 
 	void BreakInput(const FInputActionValue& InputValue);
+	void BreakInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBreaking();
 
@@ -250,6 +273,7 @@ protected:
 	void OnGearShifting(bool bNewIsGearShifting);
 
 	void HandbreakInput(const FInputActionValue& InputValue);
+	void HandbreakInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnHandbreaking();
 
@@ -293,8 +317,10 @@ private:
 	bool IsOnGround();
 	bool IsAnyWheelOnTheGround();
 
-	void ClearDashTimer();
-
 	void SetupVehicleWheelComponents();
 	void SetupVehicleSeatComponents();
+
+	void PushKeyToComboBuffer(FString KeyString);
+	UFUNCTION()
+	void ClearComboBuffer();
 };

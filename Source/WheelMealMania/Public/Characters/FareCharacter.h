@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components", meta=(AllowPrivateAccess=true))
 	UFareTimerComponent* FareTimerComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UBehaviorTree> FareBehaviorTree;
+	TWeakObjectPtr<UBehaviorTree> FareBehaviorTree;
 	
 private:
 	TWeakObjectPtr<ABasePickupArea> PickupArea;
