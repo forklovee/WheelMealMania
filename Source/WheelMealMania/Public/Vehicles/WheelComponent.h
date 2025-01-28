@@ -42,6 +42,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta=(AllowPrivateAccess="true"))
 	float WheelRadius = 20.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true"))
+	float FrictionCoefficient = 0.5f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true", DisplayName = "Affected by steering"))
+	bool bAffectedByEngine = false;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true", DisplayName = "Affected by steering"))
 	bool bAffectedBySteering = false;
 
@@ -67,20 +73,32 @@ private:
 
 	bool bIsOnGround = false;
 	FVector GroundNormal = FVector::UpVector;
-
+	FVector GravityForce = FVector::ZeroVector;
+	
 	float SpringLengthRatio = 1.f;
 
 	//Target Wheel Height
 	float TargetWheelHeight = 0.f;
 	//Lerped Wheel Height
 	float CurrentWheelHeight = 0.f;
+
+	float GravityScale = 3.f;
+	float TargetSpeed = 0.f;
+	float Steering = 0.f;
+	
 public:	
 	// Sets default values for this component's properties
 	UWheelComponent();
 
+	void SetGravityScale(float NewGravityScale);
+	void SetTargetSpeed(float NewSpeed);
+	
 	UFUNCTION(BlueprintCallable)
 	void SetDrawDebug(bool bNewDrawDebug);
 
+	UFUNCTION(BlueprintCallable)
+	float GetGravityForce() const;
+	
 	UFUNCTION(BlueprintCallable)
 	inline bool IsAffectedBySteering() { return bAffectedBySteering; };
 
@@ -115,5 +133,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
+	void UpdateWheelGravity();
+	void UpdateWheelForwardForce();
 	bool UpdateWheelCollisionCast();
+
+	FHitResult GetWheelHitResult() const;
 };

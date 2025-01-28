@@ -159,12 +159,15 @@ private:
 	TArray<UWheelComponent*> RightWheels;
 
 	TMap<USceneComponent*, UNiagaraComponent*> WheelSocketTrails;
+
 	// Accelerating
 	float Throttle = 0.0;
 	bool bDrivingForwards = true;
 	float Acceleration = 0.0;
 	FVector LastDrivingDirection = FVector::ZeroVector;
 
+	float DefaultAngularDamping = 0.f;
+	
 	// Gear Shift
 	bool bIsGearShifting = false;
 	bool bChangedToNewGear = false;

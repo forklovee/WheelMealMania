@@ -44,6 +44,8 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DefaultAngularDamping = VehicleCollision->GetAngularDamping();
+	
 	SetupVehicleWheelComponents();
 	SetupVehicleSeatComponents();
 	VehicleCollision->OnComponentHit.AddDynamic(this, &ABaseVehicle::VehicleHit);
@@ -57,6 +59,11 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// Check if the vehicle is grounded.
 	bool bNewIsOnGround = IsOnGround();
 	if (bNewIsOnGround != bIsOnGround) {
+		if (!bNewIsOnGround && IsAnyWheelOnTheGround())
+		{
+			bNewIsOnGround = true;
+		}
+		
 		if (bNewIsOnGround) {
 			JumpCounter = 0;
 			OnLanded();
@@ -66,7 +73,8 @@ void ABaseVehicle::Tick(float DeltaTime)
 		}
 	}
 	bIsOnGround = bNewIsOnGround;
-
+	// VehicleCollision->SetAngularDamping(bIsOnGround ? DefaultAngularDamping : 15.f);
+	
 	VehicleCollision->SetEnableGravity(false);
 
 	// Process Steering
@@ -231,6 +239,15 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 	NewAcceleration = bIsOnGround ? NewAcceleration : InAirBreakingRate;
 
 	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, NewAcceleration);
+
+	//Move mass center
+	FVector MaxAccelerationMassCenter = MassCenterOffset;
+	MaxAccelerationMassCenter.X = 0.f;
+	MaxAccelerationMassCenter.Y = 0.f;
+	
+	VehicleCollision->SetCenterOfMass(
+		FMath::Lerp(MassCenterOffset, MaxAccelerationMassCenter, Acceleration)
+	);
 }
 
 void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
@@ -246,82 +263,14 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
 	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
 	for (UWheelComponent* Wheel : Wheels) {
-		
-		bool bWheelOnGround = Wheel->IsOnGround();
-
-		// Add drive force, if wheel touches the ground
-		float WheelSpeed = TargetSpeed * .25f;
-		FVector WheelForward = Wheel->GetForwardVector();
-
-		float SteeringAngleScaler = 1.0f;
-		if (FrontWheels.Contains(Wheel)) {
-			SteeringAngleScaler = 1.f;
-		}
-		else {
-			SteeringAngleScaler = Acceleration;
-
-			if (bIsBreaking) {
-				WheelSpeed *= 0.0f;
-			}
-		}
-
-		float TurnAngle = WheelMaxAngleDeg * TurnAngleScale;
-		if (BackWheels.Contains(Wheel)) {
-			TurnAngle *= Acceleration*.05;
-		}
-
-		// WheelForward = WheelForward.RotateAngleAxis(1.f * TurnAngle * Steering.X, VehicleCollision->GetUpVector());
-
-		FVector WheelGravityDirection = FVector::DownVector;
-		FVector WheelGravity = WheelGravityDirection * 981.f * GravityScale;
-		if (!bWheelOnGround) {
-			WheelGravity *= 900.f;
-			VehicleCollision->AddForceAtLocation(WheelGravity, Wheel->GetComponentLocation());
-
-			WheelMomentumSum += (LastDrivingDirection * WheelSpeed) * 4.f;
-			WheelForceSum += LastDrivingDirection * WheelSpeed;
-			continue;
-		}
-		WheelGravityDirection = -Wheel->GetGroundNormalVector();
-		WheelGravity *= 1050.f;
-
-		VehicleCollision->AddForceAtLocation(WheelGravity, Wheel->GetComponentLocation());
-
-		// Apply Drive Forces
-		FVector WheelForce = WheelForward * TargetSpeed;
-
-		VehicleCollision->AddForceAtLocation(
-			WheelForce, Wheel->GetComponentLocation()
-		);
-		WheelForceSum += WheelForce;
-
-		// Draw wheel force
-		if (bDrawDebug)
-		{
-			UKismetSystemLibrary::DrawDebugArrow(
-				this,
-				Wheel->GetComponentLocation(),
-				Wheel->GetComponentLocation() + WheelForce * 0.001f,
-				55.f,
-				FLinearColor::Yellow
-			);
-		}
+		Wheel->SetTargetSpeed(TargetSpeed);
 	}
 
 	// Torque Turn Vehicle
 	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
-	
 	VehicleCollision->AddTorqueInRadians(
 		VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
 	);
-
-	// Add Momentum
-	VehicleCollision->AddForceAtLocation(
-		WheelMomentumSum, VehicleCollision->GetComponentLocation());
-
-	// Update Mass Center
-	const FVector VehicleMassCenter = MassCenterOffset;
-	VehicleCollision->SetCenterOfMass(VehicleMassCenter);
 	
 	if (bDrawDebug)
 	{
@@ -350,11 +299,6 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			FLinearColor::Red
 		);
 
-		UKismetSystemLibrary::DrawDebugArrow(this,
-		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
-		VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()) + FVector::UpVector * 150.f,
-		128.f, FLinearColor::Blue);
-
 		UKismetSystemLibrary::DrawDebugBox(
 			this,
 			VehicleCollision->GetComponentLocation(),
@@ -363,16 +307,6 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 			VehicleCollision->GetForwardVector().ToOrientationRotator(),
 			0.f,
 			25.f
-		);
-
-		UKismetSystemLibrary::DrawDebugBox(
-			this,
-			VehicleCollision->GetComponentLocation() + VehicleMassCenter.ProjectOnTo(VehicleCollision->GetForwardVector()),
-			FVector::OneVector * 50.f,
-			FLinearColor::Red,
-			VehicleCollision->GetForwardVector().ToOrientationRotator(),
-			0.f,
-			12.f
 		);
 	}
 }
@@ -642,7 +576,9 @@ void ABaseVehicle::SetupVehicleWheelComponents()
 		if (!WheelComponent) {
 			continue;
 		}
-
+		WheelComponent->SetDrawDebug(bDrawDebug);
+		WheelComponent->SetGravityScale(GravityScale);
+		
 		Wheels.Add(WheelComponent);
 
 		switch (WheelComponent->GetVerticalAlignment()) {
