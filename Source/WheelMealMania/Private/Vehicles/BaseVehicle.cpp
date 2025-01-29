@@ -3,7 +3,6 @@
 #include "Vehicles/BaseVehicle.h"
 
 #include "Components/BoxComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
 #include "Vehicles/WheelComponent.h"
@@ -14,6 +13,7 @@
 
 #include <EnhancedInputComponent.h>
 
+#include "Components/DynamicCameraArmComponent.h"
 #include "Vehicles/VehicleSeatComponent.h"
 
 // Sets default values
@@ -31,7 +31,7 @@ ABaseVehicle::ABaseVehicle()
 	VehicleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("VehicleMesh"));
 	VehicleMesh->SetupAttachment(RootComponent);
 	
-	CameraArm = CreateDefaultSubobject<USpringArmComponent>(FName("CameraArm"));
+	CameraArm = CreateDefaultSubobject<UDynamicCameraArmComponent>(FName("CameraArm"));
 	CameraArm->SetupAttachment(RootComponent);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(FName("Camera"));

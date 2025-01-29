@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "BaseVehicle.generated.h"
 
+class UDynamicCameraArmComponent;
 class UVehicleSeatComponent;
 class UBoxComponent;
 class USpringArmComponent;
@@ -122,7 +123,7 @@ protected:
 	USkeletalMeshComponent* VehicleMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraArm;
+	UDynamicCameraArmComponent* CameraArm;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
