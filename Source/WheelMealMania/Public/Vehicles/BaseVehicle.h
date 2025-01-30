@@ -59,6 +59,9 @@ public:
 	float MaxSpeed = 1500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
+	float MaxSpeedOverdrive = 2500.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")
 	float MaxReverseSpeed = 300.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Engine")

@@ -202,46 +202,46 @@ bool ABaseVehicle::IsThrottling()
 
 void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 {
-	// Apply Throttle, when on ground
-	float TargetAcceleration = bIsOnGround ? Throttle : 0.f;
-
-	// Basic acceleration Forward throttle acceleration or idle engine.
-	float NewAcceleration = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
-	bool bVehicleHasStopped = GetHorizontalVelocity().Length() < 100.f;
-	switch (GetCurrentGearShift())
+	const EGearShift CurrentGear = GetCurrentGearShift();
+	
+	// Get target acceleration and lerp timescale
+	float TargetAcceleration = (CurrentGear == EGearShift::DRIVE) ? 1.f : -1.f;
+	float AccelerationLerpTimeScale = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
+	
+	// Set target acceleration to reduce acceleration overdrive
+	if (Acceleration > 1.f)
 	{
-		case EGearShift::DRIVE:
-			if (!bDrivingForwards && bVehicleHasStopped)
-			{
-				if (bVehicleHasStopped) {
-					bDrivingForwards = true;
-					UE_LOG(LogTemp, Warning, TEXT("Can go forward now."));
-				}
-				if (Acceleration > 0.f) {
-					bDrivingForwards = true;
-				}
-			}
-			TargetAcceleration = bDrivingForwards ? TargetAcceleration : 0.f;
-
-			NewAcceleration = bDrivingForwards ? ThrottleAccelerationRate : IdleEngineBreakingRate;
-			break;
-		case EGearShift::REVERSE:
-			if (bDrivingForwards && bVehicleHasStopped)
-			{
-				bDrivingForwards = false;
-				UE_LOG(LogTemp, Warning, TEXT("Can reverse now."));
-			}
-			TargetAcceleration = !bDrivingForwards ? TargetAcceleration : 0.f;
-
-			NewAcceleration = !bDrivingForwards ? ThrottleAccelerationRate : IdleEngineBreakingRate;
-			break;
+		TargetAcceleration = 1.f;
+		AccelerationLerpTimeScale = bIsThrottling ? ThrottleAccelerationRate : 2.f*IdleEngineBreakingRate;
 	}
 
-	NewAcceleration = bIsOnGround ? NewAcceleration : InAirBreakingRate;
+	// Get vehicle driving direction: dot > 0 = forward, dot < 0 = reverse
+	// When current gear direction != current vehicle direction, set acceleration to 0 and lerp time to engine breaking rate
+	float VehicleDrivingDirection = GetVelocity().GetSafeNormal().Dot(GetActorForwardVector());
+	if (FMath::Abs(VehicleDrivingDirection) < 10.0f)
+	{
+		VehicleDrivingDirection = 0.f;
+	}
+	
+	if ((VehicleDrivingDirection > 0.f && CurrentGear == EGearShift::DRIVE) ||
+		(VehicleDrivingDirection < 0.f && CurrentGear == EGearShift::REVERSE))
+	{
+		TargetAcceleration = 0.f;
+		AccelerationLerpTimeScale = IdleEngineBreakingRate;
+	}
 
-	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, NewAcceleration);
+	// When in air, target acceleration goes to zero, air breaking rate is applied. 
+	if (!bIsOnGround)
+	{
+		TargetAcceleration = 0.f;
+		AccelerationLerpTimeScale = InAirBreakingRate;
+	}
+	TargetAcceleration *= Throttle;
+	
+	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, AccelerationLerpTimeScale);
+	UE_LOG(LogTemp, Display, TEXT("Acceleration: %f"), Acceleration);
 
-	//Move mass center
+	//Move mass center to... center.
 	FVector MaxAccelerationMassCenter = MassCenterOffset;
 	MaxAccelerationMassCenter.X = 0.f;
 	MaxAccelerationMassCenter.Y = 0.f;
@@ -253,45 +253,41 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 
 void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 {
-	float TurnAngleScale = 1.f;
-	if (IsValid(SteeringRangeCurve)) {
-		TurnAngleScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+	float TargetSpeed = (Acceleration > 0.f) ? MaxSpeed : MaxReverseSpeed;
+	// Acceleration overdrive
+	if (Acceleration > 1.f)
+	{
+		TargetSpeed = MaxSpeedOverdrive * (Acceleration - 1.f);
+	}
+	else
+	{
+		TargetSpeed *= Acceleration;
 	}
 
-	FVector WheelMomentumSum = FVector::ZeroVector;
-	FVector WheelForceSum = FVector::ZeroVector;
+	TargetSpeed *= VehicleCollision->GetMass();
 
-	float TargetSpeed = Acceleration * VehicleCollision->GetMass();
-	TargetSpeed *= bDrivingForwards ? MaxSpeed : -MaxReverseSpeed;
+	// Apply speed to wheels
 	for (UWheelComponent* Wheel : Wheels) {
 		Wheel->SetTargetSpeed(TargetSpeed);
 	}
 
-	// Torque Turn Vehicle
-	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
+	// Normalize acceleration to read curve properly.
+	// Acceleration = -1 is reverse, and curve starts with 0...
+	const float NormalizedAcceleration = FMath::Abs(Acceleration);
+	
+	// Apply torque to turn around, use steering curve if exists
+	float TurnAngleScale = 1.f * NormalizedAcceleration;
+	if (IsValid(SteeringRangeCurve)) {
+		TurnAngleScale = SteeringRangeCurve->GetFloatValue(NormalizedAcceleration);
+	}
+	
+	const float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
 	VehicleCollision->AddTorqueInRadians(
 		VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
 	);
 	
 	if (bDrawDebug)
 	{
-		UKismetSystemLibrary::DrawDebugArrow(
-		this,
-		VehicleCollision->GetComponentLocation(),
-		VehicleCollision->GetComponentLocation() + WheelMomentumSum * 200.f,
-		120.f,
-		FLinearColor::Gray
-		);
-
-		// Desired Velocity
-		UKismetSystemLibrary::DrawDebugArrow(
-			this,
-			VehicleCollision->GetComponentLocation(),
-			VehicleCollision->GetComponentLocation() + WheelForceSum * 200.f,
-			120.f,
-			FLinearColor::Green
-		);
-
 		UKismetSystemLibrary::DrawDebugArrow(
 			this,
 			VehicleCollision->GetComponentLocation(),
@@ -336,8 +332,6 @@ void ABaseVehicle::InstantAccelerationDecrease(float Value)
 		-Value * VehicleCollision->GetComponentVelocity() * 5000.f * (1.f-Acceleration),
 		VehicleCollision->GetComponentLocation()
 	);
-
-	// UE_LOG(LogTemp, Display, TEXT("%f"), VehicleCollision->GetComponentVelocity().Length())
 }
 
 float ABaseVehicle::GetTargetWheelSpeed()
@@ -395,8 +389,7 @@ void ABaseVehicle::HydraulicsControlInput(const FInputActionValue& InputValue)
 
 void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
-	bool bLastThrottling = bIsThrottling;
-	Throttle = FMath::Clamp(InputValue.Get<float>(), -1.0, 1.0);
+	Throttle = InputValue.Get<float>();
 	bIsThrottling = Throttle > 0.0;
 
 	OnThrottleUpdate(Throttle);
@@ -451,8 +444,6 @@ void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
 
 void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start Dash timer!"));
-
 	OnGearShift(NewGear);
 	OnGearChangedDelegate.Broadcast(NewGear);
 

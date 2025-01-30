@@ -45,8 +45,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true"))
 	float FrictionCoefficient = 0.5f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true", DisplayName = "Affected by steering"))
-	bool bAffectedByEngine = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true", DisplayName = "Affected by engine"))
+	bool bAffectedByEngine = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel", meta = (AllowPrivateAccess = "true", DisplayName = "Affected by steering"))
 	bool bAffectedBySteering = false;

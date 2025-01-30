@@ -57,7 +57,7 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 		UEngineTypes::ConvertToTraceType(ProbeChannel),
 		false,
 		{ GetOwner() },
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		HeightHit,
 		true,
 		FLinearColor::Blue,

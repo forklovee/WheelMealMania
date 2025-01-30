@@ -92,6 +92,10 @@ void UWheelComponent::UpdateWheelGravity()
 
 void UWheelComponent::UpdateWheelForwardForce()
 {
+	if (!bAffectedByEngine)
+	{
+		return;
+	}
 	// Add drive force, if wheel touches the ground
 	FVector WheelForward = GetForwardVector();
 	if (!bIsOnGround)
