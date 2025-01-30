@@ -11,9 +11,20 @@ UDynamicCameraArmComponent::UDynamicCameraArmComponent()
 	bInheritYaw = false;
 }
 
+float UDynamicCameraArmComponent::GetDefaultArmLength() const
+{
+	return DefaultArmLength;
+}
+
+void UDynamicCameraArmComponent::ResetDistanceToTarget_Implementation()
+{
+	TargetTargetArmLength = DefaultArmLength;
+}
+
 void UDynamicCameraArmComponent::SetDistanceToTarget_Implementation(float NewDistance)
 {
-	TargetArmLength = NewDistance;
+	TargetTargetArmLength = NewDistance;
+	UE_LOG(LogTemp, Display, TEXT("SetDistanceToTarget: %f"), TargetArmLength);
 }
 
 void UDynamicCameraArmComponent::SetCameraLookAtTarget_Implementation(AActor* NewLookAtTarget)
@@ -25,6 +36,9 @@ void UDynamicCameraArmComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DefaultArmLength = TargetArmLength;
+	TargetTargetArmLength = DefaultArmLength;
+	
 	DefaultSocketOffset = SocketOffset;
 }
 
@@ -118,4 +132,6 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 	SetRelativeRotation(
 		FMath::RInterpTo(GetRelativeRotation(), TargetRotation, DeltaTime, 15.f)
 	);
+
+	TargetArmLength = FMath::Lerp(TargetArmLength, TargetTargetArmLength, DeltaTime*15.f);
 }

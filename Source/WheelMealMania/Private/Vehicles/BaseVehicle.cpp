@@ -448,6 +448,11 @@ void ABaseVehicle::GearShiftInput(const FInputActionValue& InputValue)
 	if (LastShift != CurrentShift){
 		ShiftToNewGear(CurrentShift);
 	}
+
+	if (bDriftMode && bIsGearShifting != bLastIsGearShifting)
+	{
+		SetDriftMode(false);
+	}
 }
 
 void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
@@ -458,13 +463,14 @@ void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 	switch (NewGear)
 	{
 		case EGearShift::DRIVE:
+			CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength());
 			PushKeyToComboBuffer("Drive");
 			break;
 		case EGearShift::REVERSE:
+			CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength()*1.05f);
 			PushKeyToComboBuffer("Reverse");
 			break;
 	}
-	
 }
 
 void ABaseVehicle::HandbreakInput(const FInputActionValue& InputValue)
@@ -567,6 +573,27 @@ void ABaseVehicle::DashForward()
 	);
 }
 
+void ABaseVehicle::ForceBreak()
+{
+	if (GetVelocity().Length() > 500.f)
+	{
+		const float TargetDashForce = DashForce * 50000.f * Acceleration;
+		VehicleCollision->AddForceAtLocation(
+			TargetDashForce * -VehicleCollision->GetForwardVector(),
+			VehicleCollision->GetComponentLocation()
+		);
+	}
+	
+	Acceleration *= 0.5;
+}
+
+void ABaseVehicle::SetDriftMode(bool bNewDriftMode)
+{
+	bDriftMode = bNewDriftMode;
+
+	UE_LOG(LogTemp, Warning, TEXT("Drift Mode Changed to %i"), bNewDriftMode);
+}
+
 void ABaseVehicle::SetupVehicleWheelComponents() 
 {
 	for (UActorComponent* ActorWheelComponent : GetComponents()) {
@@ -621,6 +648,10 @@ void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
 	GetWorld()->GetTimerManager().ClearTimer(ComboClearOutTimer);
 	
 	ComboBuffer.Push(KeyString);
+	if (ComboBuffer.Num() > 3)
+	{
+		ComboBuffer.RemoveAt(ComboBuffer.Num() - 1);
+	}
 	FString ComboBufferString = "";
 	for (FString ComboKeyName : ComboBuffer)
 	{
@@ -635,17 +666,6 @@ void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
 		return;
 	}
 
-	// // Drift
-	// TArray<FString> GearShiftStrings = {"Reverse", "Drive"};
-	// if (IsThrottling() && ComboBuffer.Num() >= 2 && (
-	// 	(GearShiftStrings.Contains(ComboBuffer[0]) && ComboBuffer[1] == "Steering") ||
-	// 	(ComboBuffer[0] == "Steering" && ComboBuffer[1] == "Reverse")))
-	// {
-	// 	UE_LOG(LogTemp, Display, TEXT("Drift!"));
-	// 	ClearComboBuffer();
-	// 	return;
-	// }
-
 	//Dash
 	if (ComboBufferString.Contains("Drive|Throttle|"))
 	{
@@ -655,25 +675,22 @@ void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
 		return;
 	}
 	
+	// Force Break
 	if (ComboBufferString.Contains("Reverse|Break|") ||
 		ComboBufferString.Contains("Break|Reverse|"))
 	{
-		// Force Break
-		if (ComboBuffer.Contains("Reverse") && ComboBuffer.Contains("Break"))
-		{
-			UE_LOG(LogTemp, Display, TEXT("Force Break!"));
+		ForceBreak();
+		ClearComboBuffer();
+		return;
+	}
 
-			const float TargetDashForce = DashForce * 50000.f;
-			VehicleCollision->AddForceAtLocation(
-				TargetDashForce * -VehicleCollision->GetForwardVector(),
-				VehicleCollision->GetComponentLocation()
-			);
-			
-			Acceleration *= 0.5;
-			
-			ClearComboBuffer();
-			return;
-		}
+	// Drift
+	if (bIsThrottling && (
+		ComboBufferString.Contains("Reverse|Drive|") ||
+		ComboBufferString.Contains("Reverse|Steering|Drive|"))
+		)
+	{
+		SetDriftMode(true);
 	}
 }
 

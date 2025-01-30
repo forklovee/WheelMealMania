@@ -22,18 +22,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bAffectRoll = false;
 	
-protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Rig", meta = (AllowPrivateAccess = "true"))
 	float TargetHeight = 50.f;
-	
+
+protected:
 	UPROPERTY(BlueprintReadOnly)
 	TWeakObjectPtr<AActor> LookAtTarget;
 
 private:
+	float DefaultArmLength = 0.f;
+	//Target of the target :))))
+	float TargetTargetArmLength = 0.f;
 	FVector DefaultSocketOffset = FVector::ZeroVector;
 	
 public:
 	UDynamicCameraArmComponent();
+
+	UFUNCTION(BlueprintCallable)
+	float GetDefaultArmLength() const;
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void ResetDistanceToTarget();
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void SetDistanceToTarget(float NewDistance);

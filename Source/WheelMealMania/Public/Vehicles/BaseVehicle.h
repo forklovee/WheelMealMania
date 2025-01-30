@@ -214,6 +214,7 @@ private:
 	// Movesets
 	TArray<FMovesetComboKeys> ComboKeys;
 	TArray<FString> ComboBuffer;
+	bool bDriftMode = false;
 	
 	FTimerHandle ComboClearOutTimer;
 	
@@ -305,8 +306,12 @@ protected:
 		AActor* ActorHit, USceneComponent* ComponentHit,
 		FVector HitPoint, FVector HitNormal);
 
+#pragma region Movesets
 	void DashForward();
-
+	void ForceBreak();
+	void SetDriftMode(bool bNewDriftMode);
+#pragma endregion
+	
 private:
 	void UpdateAcceleration(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
