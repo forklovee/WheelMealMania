@@ -2,8 +2,14 @@
 
 #include "Components/DynamicCameraArmComponent.h"
 
-#include "HeadMountedDisplayTypes.h"
 #include "Kismet/GameplayStatics.h"
+
+UDynamicCameraArmComponent::UDynamicCameraArmComponent()
+{
+	bInheritPitch = false;
+	bInheritRoll = false;
+	bInheritYaw = false;
+}
 
 void UDynamicCameraArmComponent::SetDistanceToTarget_Implementation(float NewDistance)
 {
@@ -76,4 +82,40 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 	}
 	
 	SocketOffset.Z = FMath::Lerp(SocketOffset.Z, CameraHeight, DeltaTime*15.f);
+
+	FVector DirectionToLookAtTarget = -FVector::ForwardVector;
+	if (!LookAtTarget.IsValid())
+	{
+		LookAtTarget = GetOwner();
+	}
+	
+	if (LookAtTarget.IsValid())
+	{
+		if (LookAtTarget == GetOwner())
+		{
+			DirectionToLookAtTarget = GetOwner()->GetActorForwardVector();
+		}
+		else
+		{
+			DirectionToLookAtTarget = (SocketLocation-LookAtTarget->GetActorLocation()).GetSafeNormal();
+		}
+	}
+	
+	FRotator TargetRotation = DirectionToLookAtTarget.Rotation();
+	if (!bAffectYaw)
+	{
+		TargetRotation.Yaw = 0.f;
+	}
+	if (!bAffectPitch)
+	{
+		TargetRotation.Pitch = 0.f;
+	}
+	if (!bAffectRoll)
+	{
+		TargetRotation.Roll = 0.f;
+	}
+	
+	SetRelativeRotation(
+		FMath::RInterpTo(GetRelativeRotation(), TargetRotation, DeltaTime, 15.f)
+	);
 }

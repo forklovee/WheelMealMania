@@ -28,6 +28,12 @@ void ABaseDeliveryTargetArea::PlayerVehicleStoppedInside_Implementation(ABaseVeh
 {
 	Super::PlayerVehicleStoppedInside_Implementation(Vehicle);
 
+	if (!RequiredActor.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Delivery Target: Required Actor Invalid."));
+		return;
+	}
+	
 	if (!RequiredActor->Implements<UActorDeliveryInterface>())
 	{
 		return;

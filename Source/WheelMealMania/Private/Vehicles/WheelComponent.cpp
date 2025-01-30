@@ -97,7 +97,7 @@ void UWheelComponent::UpdateWheelForwardForce()
 		return;
 	}
 	// Add drive force, if wheel touches the ground
-	FVector WheelForward = GetForwardVector();
+	FVector WheelForward = GetOwner()->GetActorForwardVector();
 	if (!bIsOnGround)
 	{
 		WheelForward.Z = 0.f;

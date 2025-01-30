@@ -14,6 +14,14 @@ class WHEELMEALMANIA_API UDynamicCameraArmComponent : public USpringArmComponent
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAffectYaw = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAffectPitch = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAffectRoll = false;
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Rig", meta = (AllowPrivateAccess = "true"))
 	float TargetHeight = 50.f;
@@ -22,9 +30,11 @@ protected:
 	TWeakObjectPtr<AActor> LookAtTarget;
 
 private:
-	FVector DefaultSocketOffset;
+	FVector DefaultSocketOffset = FVector::ZeroVector;
 	
 public:
+	UDynamicCameraArmComponent();
+	
 	UFUNCTION(BlueprintNativeEvent)
 	void SetDistanceToTarget(float NewDistance);
 
@@ -34,5 +44,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
-	
+
 };

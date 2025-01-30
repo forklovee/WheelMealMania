@@ -43,6 +43,8 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CameraArm->SetCameraLookAtTarget(this);
+	
 	DefaultAngularDamping = VehicleCollision->GetAngularDamping();
 	
 	SetupVehicleWheelComponents();
@@ -81,6 +83,10 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// MAIN PROCESSING
 	UpdateAcceleration(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
+	if (!bIsOnGround)
+	{
+		InAirRotation(DeltaTime);
+	}
 	// MAIN PROCESSING
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
@@ -239,7 +245,6 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 	TargetAcceleration *= Throttle;
 	
 	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, AccelerationLerpTimeScale);
-	UE_LOG(LogTemp, Display, TEXT("Acceleration: %f"), Acceleration);
 
 	//Move mass center to... center.
 	FVector MaxAccelerationMassCenter = MassCenterOffset;
@@ -254,16 +259,12 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 {
 	float TargetSpeed = (Acceleration > 0.f) ? MaxSpeed : MaxReverseSpeed;
+	TargetSpeed *= Acceleration;
 	// Acceleration overdrive
 	if (Acceleration > 1.f)
 	{
-		TargetSpeed = MaxSpeedOverdrive * (Acceleration - 1.f);
+		TargetSpeed += MaxSpeedOverdrive * (Acceleration - 1.f);
 	}
-	else
-	{
-		TargetSpeed *= Acceleration;
-	}
-
 	TargetSpeed *= VehicleCollision->GetMass();
 
 	// Apply speed to wheels
@@ -281,7 +282,12 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		TurnAngleScale = SteeringRangeCurve->GetFloatValue(NormalizedAcceleration);
 	}
 	
-	const float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
+	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
+	if (!bIsOnGround)
+	{
+		TorqueForce *= 0.001f;
+	}
+	
 	VehicleCollision->AddTorqueInRadians(
 		VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
 	);
@@ -310,24 +316,26 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 
 void ABaseVehicle::InAirRotation(float DeltaTime)
 {
-	if (bIsOnGround) {
-		return;
-	}
-
-	/*VehicleCollision->AddTorqueInDegrees(
-		-VehicleCollision->GetRightVector() * Steering.Y * 50.f * 100000000.f);
-
-	VehicleCollision->AddTorqueInRadians(
-		FVector(
-			0.f,
-			0.f,
-			Steering.X * 50.f * 100000.f).ProjectOnTo(VehicleCollision->GetUpVector())
-	);*/
+	const FVector ActorForwardVector = (GetActorForwardVector() * FVector(1.f, 1.f, 0.f)).GetSafeNormal();
+	FVector RotationStabilizationTarget = ActorForwardVector;
+	RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.X * 15.f, FVector::UpVector);
+	RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.Y * 15.f, ActorForwardVector);
+	
+	
+	VehicleCollision->SetWorldRotation(
+		FMath::RInterpTo(VehicleCollision->GetComponentRotation(), RotationStabilizationTarget.ToOrientationRotator(), DeltaTime, 5.f),
+		true);
 }
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
 {
-	Acceleration = FMath::Clamp(Acceleration-Value*.005f, 0.f, 1.f);
+	if (Acceleration < 0.f)
+	{
+		Value = -Value;
+	}
+	
+	Acceleration = FMath::Clamp(Acceleration-Value*.005f, -1.f, 2.f);
+	
 	VehicleCollision->AddForceAtLocation(
 		-Value * VehicleCollision->GetComponentVelocity() * 5000.f * (1.f-Acceleration),
 		VehicleCollision->GetComponentLocation()
@@ -391,7 +399,7 @@ void ABaseVehicle::ThrottleInput(const FInputActionValue& InputValue)
 {
 	Throttle = InputValue.Get<float>();
 	bIsThrottling = Throttle > 0.0;
-
+	
 	OnThrottleUpdate(Throttle);
 }
 
@@ -517,7 +525,9 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		return;
 	}
 
-	const float ImpactForce = GetVelocity().Length() * VehicleCollision->GetMass() * 5.f;
+	Acceleration *= 0.25;
+	
+	const float ImpactForce = 5000.f * VehicleCollision->GetMass();
 	VehicleCollision->AddForceAtLocation(
 		ImpactForce * Hit.ImpactNormal,
 		VehicleCollision->GetComponentLocation()
@@ -546,16 +556,11 @@ void ABaseVehicle::DashForward()
 	if (!IsAnyWheelOnTheGround()){
 		return;
 	}
-
-	switch (GetCurrentGearShift())
-	{
-		case EGearShift::DRIVE:
-			Acceleration = FMath::Clamp(Acceleration * 1.25f, 0.1f, 1.f);
-			UE_LOG(LogTemp, Warning, TEXT("Dash Forward!"));
-			break;
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Dash Forward!"));
 	
-	float TargetDashForce = DashForce * 100000.f;
+	Acceleration = FMath::Clamp(Acceleration + DashAccelerationBoost, -1.0f, 2.f);
+	
+	const float TargetDashForce = DashForce * 50000.f;
 	VehicleCollision->AddForceAtLocation(
 		TargetDashForce * VehicleCollision->GetForwardVector(),
 		VehicleCollision->GetComponentLocation()
@@ -613,7 +618,7 @@ void ABaseVehicle::SetupVehicleSeatComponents()
 
 void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
 {
-	ComboClearOutTimer.Invalidate();
+	GetWorld()->GetTimerManager().ClearTimer(ComboClearOutTimer);
 	
 	ComboBuffer.Push(KeyString);
 	FString ComboBufferString = "";
@@ -622,40 +627,60 @@ void ABaseVehicle::PushKeyToComboBuffer(FString KeyString)
 		ComboBufferString += ComboKeyName+"|";
 	}
 	UE_LOG(LogTemp, Display, TEXT("Buffer %s"), *ComboBufferString);
-	
-	// Dash
-	if (ComboBufferString == "Reverse|Throttle|Drive|")
-	{
-		UE_LOG(LogTemp, Display, TEXT("Dash!"));
-		ClearComboBuffer();
-		return;
-	}
-
-	// Force Break
-	if (ComboBuffer.Num() == 2 && ComboBuffer.Contains("Reverse") && ComboBuffer.Contains("Break"))
-	{
-		UE_LOG(LogTemp, Display, TEXT("Force Break!"));
-		ClearComboBuffer();
-		return;
-	}
-
-	// Drift
-	TArray<FString> GearShiftStrings = {"Reverse", "Drive"};
-	if (IsThrottling() && ComboBuffer.Num() >= 2 && (
-		(GearShiftStrings.Contains(ComboBuffer[0]) && ComboBuffer[1] == "Steering") ||
-		(ComboBuffer[0] == "Steering" && ComboBuffer[1] == "Reverse")))
-	{
-		UE_LOG(LogTemp, Display, TEXT("Drift!"));
-		ClearComboBuffer();
-		return;
-	}
 
 	GetWorld()->GetTimerManager().SetTimer(ComboClearOutTimer, this, &ABaseVehicle::ClearComboBuffer, 0.25f, false);
+	
+	if (ComboBuffer.Num() < 1)
+	{
+		return;
+	}
+
+	// // Drift
+	// TArray<FString> GearShiftStrings = {"Reverse", "Drive"};
+	// if (IsThrottling() && ComboBuffer.Num() >= 2 && (
+	// 	(GearShiftStrings.Contains(ComboBuffer[0]) && ComboBuffer[1] == "Steering") ||
+	// 	(ComboBuffer[0] == "Steering" && ComboBuffer[1] == "Reverse")))
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("Drift!"));
+	// 	ClearComboBuffer();
+	// 	return;
+	// }
+
+	//Dash
+	if (ComboBufferString.Contains("Drive|Throttle|"))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Dash!"));
+		DashForward();
+		ClearComboBuffer();
+		return;
+	}
+	
+	if (ComboBufferString.Contains("Reverse|Break|") ||
+		ComboBufferString.Contains("Break|Reverse|"))
+	{
+		// Force Break
+		if (ComboBuffer.Contains("Reverse") && ComboBuffer.Contains("Break"))
+		{
+			UE_LOG(LogTemp, Display, TEXT("Force Break!"));
+
+			const float TargetDashForce = DashForce * 50000.f;
+			VehicleCollision->AddForceAtLocation(
+				TargetDashForce * -VehicleCollision->GetForwardVector(),
+				VehicleCollision->GetComponentLocation()
+			);
+			
+			Acceleration *= 0.5;
+			
+			ClearComboBuffer();
+			return;
+		}
+	}
 }
 
 void ABaseVehicle::ClearComboBuffer()
 {
-	ComboClearOutTimer.Invalidate();
+	GetWorld()->GetTimerManager().ClearTimer(ComboClearOutTimer);
+
 	ComboBuffer = {};
 	UE_LOG(LogTemp, Display, TEXT("Clear Buffer."));
 }

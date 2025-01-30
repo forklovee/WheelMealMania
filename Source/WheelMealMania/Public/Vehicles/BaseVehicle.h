@@ -104,19 +104,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	FVector MassCenterOffset = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Socket")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	float SocketDistanceOffset = 17.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension|Jumping")
-	float JumpStrength = 1000.f;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
-	// TMap<FName, 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
-	float DashTimeWindow = 0.25f;
+	float DashAccelerationBoost = 0.45f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
 	float DashForce = 5000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Drifting")
+	float DriftingMaxAngleDeg = 45.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Jumping")
+	float JumpStrength = 1000.f;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
@@ -137,7 +138,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* BreakInputAction;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* GearShiftInputAction;
 
