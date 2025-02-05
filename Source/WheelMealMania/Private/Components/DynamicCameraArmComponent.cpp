@@ -16,6 +16,12 @@ float UDynamicCameraArmComponent::GetDefaultArmLength() const
 	return DefaultArmLength;
 }
 
+void UDynamicCameraArmComponent::SetFollowTargetEnabled_Implementation(bool bNewFollowTargetState)
+{
+	bFollowTarget = bNewFollowTargetState;
+	UE_LOG(LogTemp, Warning, TEXT("Set Follow Target: %i"), bFollowTarget);
+}
+
 void UDynamicCameraArmComponent::ResetDistanceToTarget_Implementation()
 {
 	TargetTargetArmLength = DefaultArmLength;
@@ -97,22 +103,20 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 	
 	SocketOffset.Z = FMath::Lerp(SocketOffset.Z, CameraHeight, DeltaTime*15.f);
 
-	FVector DirectionToLookAtTarget = -FVector::ForwardVector;
+	FVector DirectionToLookAtTarget = -LastDirectionToLookAtTarget;
 	if (!LookAtTarget.IsValid())
 	{
 		LookAtTarget = GetOwner();
 	}
-	
-	if (LookAtTarget.IsValid())
+
+	if (bFollowTarget && LookAtTarget == GetOwner())
 	{
-		if (LookAtTarget == GetOwner())
-		{
-			DirectionToLookAtTarget = GetOwner()->GetActorForwardVector();
-		}
-		else
-		{
-			DirectionToLookAtTarget = (SocketLocation-LookAtTarget->GetActorLocation()).GetSafeNormal();
-		}
+		DirectionToLookAtTarget = GetOwner()->GetActorForwardVector();
+		LastDirectionToLookAtTarget = DirectionToLookAtTarget;
+	}
+	else
+	{
+		DirectionToLookAtTarget = LastDirectionToLookAtTarget;
 	}
 	
 	FRotator TargetRotation = DirectionToLookAtTarget.Rotation();

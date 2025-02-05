@@ -270,6 +270,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	// Apply speed to wheels
 	for (UWheelComponent* Wheel : Wheels) {
 		Wheel->SetTargetSpeed(TargetSpeed);
+		
 	}
 
 	// Normalize acceleration to read curve properly.
@@ -408,7 +409,6 @@ void ABaseVehicle::ThrottleInputPressed(const FInputActionValue& InputValue)
 	PushKeyToComboBuffer("Throttle");
 }
 
-
 void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 {
 	float BreakScale = InputValue.Get<float>();
@@ -418,7 +418,6 @@ void ABaseVehicle::BreakInput(const FInputActionValue& InputValue)
 
 	OnBreaking();
 }
-
 
 void ABaseVehicle::BreakInputPressed(const FInputActionValue& InputValue)
 {
@@ -590,6 +589,7 @@ void ABaseVehicle::ForceBreak()
 void ABaseVehicle::SetDriftMode(bool bNewDriftMode)
 {
 	bDriftMode = bNewDriftMode;
+	CameraArm->SetFollowTargetEnabled(!bDriftMode);
 
 	UE_LOG(LogTemp, Warning, TEXT("Drift Mode Changed to %i"), bNewDriftMode);
 }

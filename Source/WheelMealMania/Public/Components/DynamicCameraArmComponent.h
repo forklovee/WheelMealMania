@@ -34,6 +34,9 @@ private:
 	//Target of the target :))))
 	float TargetTargetArmLength = 0.f;
 	FVector DefaultSocketOffset = FVector::ZeroVector;
+	FVector LastDirectionToLookAtTarget = -FVector::ForwardVector;
+
+	bool bFollowTarget = true;
 	
 public:
 	UDynamicCameraArmComponent();
@@ -43,6 +46,9 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void ResetDistanceToTarget();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SetFollowTargetEnabled(bool bNewFollowTargetState);
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void SetDistanceToTarget(float NewDistance);
