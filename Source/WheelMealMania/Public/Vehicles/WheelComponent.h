@@ -69,9 +69,12 @@ protected:
 
 private:
 	bool bDrawDebug = false;
-	class UBoxComponent* VehicleCollision;
-
+	TWeakObjectPtr<class UBoxComponent> VehicleCollision;
+	float MaxWheelRotationAngleDeg = 45.f;
+	float GravityScale = 3.f;
+	
 	bool bIsOnGround = false;
+	FVector Velocity = FVector::ZeroVector;
 	FVector GroundNormal = FVector::UpVector;
 	FVector GravityForce = FVector::ZeroVector;
 	
@@ -82,20 +85,20 @@ private:
 	//Lerped Wheel Height
 	float CurrentWheelHeight = 0.f;
 
-	float GravityScale = 3.f;
 	float TargetSpeed = 0.f;
-	float Steering = 0.f;
+	float Angle = 0.f;
+
+	float GroundFriction = 1.f;
 	
 public:	
 	// Sets default values for this component's properties
 	UWheelComponent();
 
-	void SetGravityScale(float NewGravityScale);
-	void SetTargetSpeed(float NewSpeed);
+	void Setup(UBoxComponent* NewVehicleCollision, float NewMaxWheelRotationAngleDeg,
+		float GravityScale,
+		bool bNewDrawDebug = false);
+	void Update(const float& NewSpeed, const float& NewAngle = 0.0f);
 	
-	UFUNCTION(BlueprintCallable)
-	void SetDrawDebug(bool bNewDrawDebug);
-
 	UFUNCTION(BlueprintCallable)
 	float GetGravityForce() const;
 	
@@ -134,7 +137,7 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void UpdateWheelGravity();
-	void UpdateWheelForwardForce();
+	void UpdateWheelForwardForce(float DeltaTime);
 	bool UpdateWheelCollisionCast();
 
 	FHitResult GetWheelHitResult() const;

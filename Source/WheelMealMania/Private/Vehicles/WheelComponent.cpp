@@ -15,19 +15,20 @@ UWheelComponent::UWheelComponent()
 	}
 }
 
-void UWheelComponent::SetGravityScale(float NewGravityScale)
+void UWheelComponent::Setup(UBoxComponent* NewVehicleCollision, float NewMaxWheelRotationAngleDeg,
+	float NewGravityScale,
+	bool bNewDrawDebug)
 {
+	VehicleCollision = NewVehicleCollision;
+	MaxWheelRotationAngleDeg = NewMaxWheelRotationAngleDeg;
 	GravityScale = NewGravityScale;
+	bDrawDebug = bNewDrawDebug;
 }
 
-void UWheelComponent::SetTargetSpeed(float NewSpeed)
+void UWheelComponent::Update(const float& NewSpeed, const float& NewAngle)
 {
 	TargetSpeed = NewSpeed;
-}
-
-void UWheelComponent::SetDrawDebug(bool bNewDrawDebug)
-{
-	bDrawDebug = bNewDrawDebug;
+	Angle = NewAngle;
 }
 
 float UWheelComponent::GetGravityForce() const
@@ -38,14 +39,7 @@ float UWheelComponent::GetGravityForce() const
 void UWheelComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	VehicleCollision = Cast<UBoxComponent>(GetAttachParent());
-	if (!VehicleCollision) {
-		UE_LOG(LogTemp, Error, TEXT("WheelComponent: Can't find parent Vehicle Collision."));
-		SetComponentTickEnabled(false);
-		return;
-	}
-
+	
 	SetComponentTickEnabled(true);
 	TargetWheelHeight = GetSpringLength();
 }
@@ -56,9 +50,14 @@ void UWheelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	UpdateWheelCollisionCast();
 	UpdateWheelGravity();
-	UpdateWheelForwardForce();
-	
+	UpdateWheelForwardForce(DeltaTime);
+
 	CurrentWheelHeight = FMath::FInterpTo(CurrentWheelHeight, TargetWheelHeight, DeltaTime, 5.f);
+	
+	if (bAffectedBySteering)
+	{
+		SetRelativeRotation( FRotator(0.f, Angle, 0.f) );
+	}
 }
 
 void UWheelComponent::UpdateWheelGravity()
@@ -90,7 +89,7 @@ void UWheelComponent::UpdateWheelGravity()
 	}
 }
 
-void UWheelComponent::UpdateWheelForwardForce()
+void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 {
 	if (!bAffectedByEngine)
 	{
@@ -104,23 +103,40 @@ void UWheelComponent::UpdateWheelForwardForce()
 		WheelForward = WheelForward.GetSafeNormal();
 	}
 	
-	// Apply Drive Forces
-	FVector WheelForce = WheelForward * TargetSpeed;
-	VehicleCollision->AddForceAtLocation(
-		WheelForce, GetComponentLocation()
-	);
+	float GroundFriction = 1.f;
 
-	// Draw wheel force
-	if (bDrawDebug)
+	if (WheelHitResult.Component.IsValid())
 	{
-		UKismetSystemLibrary::DrawDebugArrow(
-			this,
-			GetComponentLocation(),
-			GetComponentLocation() + WheelForward * 100.f,
-			55.f,
-			FLinearColor::Yellow
-		);
+		// Todo ground friction
 	}
+
+	GroundFriction *= FrictionCoefficient;
+	
+	// Add drive force, if wheel touches the ground
+
+	Velocity = GetForwardVector() * TargetSpeed * DeltaTime * 100.f;
+	
+	// Desired Driving Direction
+	FVector VehicleForward = VehicleCollision->GetComponentVelocity();
+	
+	const FVector WheelForward = GetForwardVector();
+	const float ForwardVelocityRatio = 1.f-VehicleForward.Dot(WheelForward);
+	const FVector WheelRight = GetRightVector();
+	const float RightVelocityRatio = -VehicleForward.Dot(WheelRight) * -1.f;
+
+	UE_LOG(LogTemp, Display, TEXT("Fratio: %f Rratio: %f"), ForwardVelocityRatio, RightVelocityRatio);
+
+	// Torque
+	Velocity += WheelRight * RightVelocityRatio * DeltaTime * 100.f;
+	VehicleCollision->AddForceAtLocation(
+		Velocity, GetComponentLocation());
+
+	UKismetSystemLibrary::DrawDebugArrow(
+		this,
+		GetComponentLocation(),
+		GetComponentLocation() + WheelRight * RightVelocityRatio,
+		55.f,
+		FLinearColor::Red);
 }
 
 float UWheelComponent::GetSpringLengthRatio()
@@ -175,7 +191,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 		OnWheelOnGround();
 	}
 
-	if (!VehicleCollision) {
+	if (!VehicleCollision.IsValid()) {
 		return false;
 	}
 
@@ -191,7 +207,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 		TargetForce,
 		GetComponentLocation()
 	);
-	
+
 	if (bDrawDebug)
 	{
 		UKismetSystemLibrary::DrawDebugArrow(

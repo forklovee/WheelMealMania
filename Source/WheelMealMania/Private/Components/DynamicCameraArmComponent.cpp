@@ -11,31 +11,46 @@ UDynamicCameraArmComponent::UDynamicCameraArmComponent()
 	bInheritYaw = false;
 }
 
+void UDynamicCameraArmComponent::SetTargetActor(AActor* NewLookAtTarget)
+{
+	LookAtTarget = NewLookAtTarget;
+}
+
 float UDynamicCameraArmComponent::GetDefaultArmLength() const
 {
 	return DefaultArmLength;
 }
 
-void UDynamicCameraArmComponent::SetFollowTargetEnabled_Implementation(bool bNewFollowTargetState)
-{
-	bFollowTarget = bNewFollowTargetState;
-	UE_LOG(LogTemp, Warning, TEXT("Set Follow Target: %i"), bFollowTarget);
-}
-
-void UDynamicCameraArmComponent::ResetDistanceToTarget_Implementation()
-{
-	TargetTargetArmLength = DefaultArmLength;
-}
-
-void UDynamicCameraArmComponent::SetDistanceToTarget_Implementation(float NewDistance)
+void UDynamicCameraArmComponent::SetDistanceToTarget(float NewDistance)
 {
 	TargetTargetArmLength = NewDistance;
 	UE_LOG(LogTemp, Display, TEXT("SetDistanceToTarget: %f"), TargetArmLength);
 }
 
-void UDynamicCameraArmComponent::SetCameraLookAtTarget_Implementation(AActor* NewLookAtTarget)
+void UDynamicCameraArmComponent::ResetDistanceToTarget()
 {
-	LookAtTarget = NewLookAtTarget;
+	TargetTargetArmLength = DefaultArmLength;
+}
+
+void UDynamicCameraArmComponent::SetFollowTargetEnabled(bool bNewFollowTargetState)
+{
+	bFollowTarget = bNewFollowTargetState;
+	UE_LOG(LogTemp, Warning, TEXT("Set Follow Target: %i"), bFollowTarget);
+}
+
+void UDynamicCameraArmComponent::OverrideTargetForwardVector(FVector TargetForwardVector)
+{
+	TargetForwardVectorOverride = TargetForwardVector;
+}
+
+void UDynamicCameraArmComponent::ClearTargetForwardVectorOverride()
+{
+	TargetForwardVectorOverride = FVector::ZeroVector;
+}
+
+bool UDynamicCameraArmComponent::IsTargetForwardVectorOverriden() const
+{
+	return FVector::Distance(TargetForwardVectorOverride, FVector::ZeroVector) >= 1.f;
 }
 
 void UDynamicCameraArmComponent::BeginPlay()
@@ -53,6 +68,12 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
+	UpdateSocketHeight(DeltaTime);
+	FollowTargetForwardVector(DeltaTime);
+}
+
+void UDynamicCameraArmComponent::UpdateSocketHeight(float DeltaTime)
+{
 	const FVector SocketLocation = GetSocketLocation(SocketName);
 	
 	FHitResult SpringArmHit;
@@ -102,24 +123,18 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 	}
 	
 	SocketOffset.Z = FMath::Lerp(SocketOffset.Z, CameraHeight, DeltaTime*15.f);
+	TargetArmLength = FMath::Lerp(TargetArmLength, TargetTargetArmLength, DeltaTime*15.f);
+}
 
-	FVector DirectionToLookAtTarget = -LastDirectionToLookAtTarget;
+void UDynamicCameraArmComponent::FollowTargetForwardVector(float DeltaTime)
+{
 	if (!LookAtTarget.IsValid())
 	{
 		LookAtTarget = GetOwner();
 	}
-
-	if (bFollowTarget && LookAtTarget == GetOwner())
-	{
-		DirectionToLookAtTarget = GetOwner()->GetActorForwardVector();
-		LastDirectionToLookAtTarget = DirectionToLookAtTarget;
-	}
-	else
-	{
-		DirectionToLookAtTarget = LastDirectionToLookAtTarget;
-	}
 	
-	FRotator TargetRotation = DirectionToLookAtTarget.Rotation();
+	// const FVector LookAtTargetDirection = IsTargetForwardVectorOverriden() ? TargetForwardVectorOverride : LookAtTarget->GetActorForwardVector();
+	FRotator TargetRotation = TargetForwardVectorOverride.Rotation();
 	if (!bAffectYaw)
 	{
 		TargetRotation.Yaw = 0.f;
@@ -136,6 +151,4 @@ void UDynamicCameraArmComponent::TickComponent(float DeltaTime, enum ELevelTick 
 	SetRelativeRotation(
 		FMath::RInterpTo(GetRelativeRotation(), TargetRotation, DeltaTime, 15.f)
 	);
-
-	TargetArmLength = FMath::Lerp(TargetArmLength, TargetTargetArmLength, DeltaTime*15.f);
 }

@@ -34,30 +34,39 @@ private:
 	//Target of the target :))))
 	float TargetTargetArmLength = 0.f;
 	FVector DefaultSocketOffset = FVector::ZeroVector;
-	FVector LastDirectionToLookAtTarget = -FVector::ForwardVector;
+
+	FVector TargetForwardVectorOverride = FVector::ZeroVector;
+	FVector LastTargetForwardVector = -FVector::ForwardVector;
 
 	bool bFollowTarget = true;
 	
 public:
 	UDynamicCameraArmComponent();
+	
+	UFUNCTION(BlueprintCallable)
+	void SetTargetActor(AActor* NewLookAtTarget);
 
 	UFUNCTION(BlueprintCallable)
 	float GetDefaultArmLength() const;
-	
-	UFUNCTION(BlueprintNativeEvent)
-	void ResetDistanceToTarget();
-
-	UFUNCTION(BlueprintNativeEvent)
-	void SetFollowTargetEnabled(bool bNewFollowTargetState);
-	
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable)
 	void SetDistanceToTarget(float NewDistance);
-
-	UFUNCTION(BlueprintNativeEvent)
-	void SetCameraLookAtTarget(AActor* NewLookAtTarget);
+	UFUNCTION(BlueprintCallable)
+	void ResetDistanceToTarget();
+	
+	UFUNCTION(BlueprintCallable)
+	void SetFollowTargetEnabled(bool bNewFollowTargetState);
+	UFUNCTION(BlueprintCallable)
+	void OverrideTargetForwardVector(FVector TargetForwardVector);
+	UFUNCTION(BlueprintCallable)
+	void ClearTargetForwardVectorOverride();
+	UFUNCTION(BlueprintCallable)
+	bool IsTargetForwardVectorOverriden() const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;	
 
+private:
+	void UpdateSocketHeight(float DeltaTime);
+	void FollowTargetForwardVector(float DeltaTime);
 };

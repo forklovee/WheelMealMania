@@ -186,6 +186,7 @@ private:
 	float Throttle = 0.0;
 	bool bDrivingForwards = true;
 	float Acceleration = 0.0;
+	FVector DrivingDirection = FVector::ZeroVector;
 	FVector LastDrivingDirection = FVector::ZeroVector;
 
 	float DefaultAngularDamping = 0.f;
@@ -198,6 +199,9 @@ private:
 	// Steering
 	FVector2D TargetSteering = FVector2D::ZeroVector;
 	FVector2D Steering = FVector2D::ZeroVector;
+	float SteeringAngle = 0.f;
+	
+	FVector2D DriftSteering = FVector2D::ZeroVector;
 	float SteeringRange = 1.f;
 
 	// Rotation Control
@@ -214,7 +218,11 @@ private:
 	// Movesets
 	TArray<FMovesetComboKeys> ComboKeys;
 	TArray<FString> ComboBuffer;
+
+	// Drift mode
 	bool bDriftMode = false;
+	float DriftAngle = 0.f;
+	float LastDriftAngle = 0.f;
 	
 	FTimerHandle ComboClearOutTimer;
 	
@@ -315,6 +323,8 @@ protected:
 private:
 	void UpdateAcceleration(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
+	void UpdateVehicleSteeringRotation(float DeltaTime);
+	
 	void InAirRotation(float DeltaTime);
 
 	void InstantAccelerationDecrease(float Value);

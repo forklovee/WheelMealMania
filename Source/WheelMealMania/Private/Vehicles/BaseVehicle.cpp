@@ -43,8 +43,9 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CameraArm->SetCameraLookAtTarget(this);
-	
+	CameraArm->SetTargetActor(this);
+
+	DrivingDirection = VehicleCollision->GetForwardVector();
 	DefaultAngularDamping = VehicleCollision->GetAngularDamping();
 	
 	SetupVehicleWheelComponents();
@@ -78,11 +79,15 @@ void ABaseVehicle::Tick(float DeltaTime)
 	VehicleCollision->SetEnableGravity(false);
 
 	// Process Steering
-	Steering = FMath::Lerp(Steering, TargetSteering, DeltaTime*SteeringSensitivity);
-
+	Steering = FMath::Lerp(Steering, TargetSteering,
+		(FMath::Abs(TargetSteering.X) > 0.0) ? DeltaTime*SteeringSensitivity : DeltaTime*15.f);
+	SteeringAngle = FMath::Lerp(SteeringAngle, Steering.X * WheelMaxAngleDeg, DeltaTime*10.0f);
+	
 	// MAIN PROCESSING
 	UpdateAcceleration(DeltaTime);
+	UpdateVehicleSteeringRotation(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
+	
 	if (!bIsOnGround)
 	{
 		InAirRotation(DeltaTime);
@@ -269,18 +274,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 
 	// Apply speed to wheels
 	for (UWheelComponent* Wheel : Wheels) {
-		Wheel->SetTargetSpeed(TargetSpeed);
-		
-	}
-
-	// Normalize acceleration to read curve properly.
-	// Acceleration = -1 is reverse, and curve starts with 0...
-	const float NormalizedAcceleration = FMath::Abs(Acceleration);
-	
-	// Apply torque to turn around, use steering curve if exists
-	float TurnAngleScale = 1.f * NormalizedAcceleration;
-	if (IsValid(SteeringRangeCurve)) {
-		TurnAngleScale = SteeringRangeCurve->GetFloatValue(NormalizedAcceleration);
+		Wheel->Update(TargetSpeed, SteeringAngle);
 	}
 	
 	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
@@ -589,8 +583,16 @@ void ABaseVehicle::ForceBreak()
 void ABaseVehicle::SetDriftMode(bool bNewDriftMode)
 {
 	bDriftMode = bNewDriftMode;
-	CameraArm->SetFollowTargetEnabled(!bDriftMode);
-
+	// CameraArm->SetFollowTargetEnabled(!bDriftMode);
+	if (bDriftMode)
+	{
+		// CameraArm->OverrideTargetForwardVector(DrivingDirection);
+	}
+	else
+	{
+		DriftAngle = 0.f;
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("Drift Mode Changed to %i"), bNewDriftMode);
 }
 
@@ -601,8 +603,7 @@ void ABaseVehicle::SetupVehicleWheelComponents()
 		if (!WheelComponent) {
 			continue;
 		}
-		WheelComponent->SetDrawDebug(bDrawDebug);
-		WheelComponent->SetGravityScale(GravityScale);
+		WheelComponent->Setup(VehicleCollision, WheelMaxAngleDeg, GravityScale, bDrawDebug);
 		
 		Wheels.Add(WheelComponent);
 
