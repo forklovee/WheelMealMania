@@ -74,6 +74,7 @@ private:
 	float GravityScale = 3.f;
 	
 	bool bIsOnGround = false;
+	bool bIsDrifting = false;
 	FVector Velocity = FVector::ZeroVector;
 	FVector GroundNormal = FVector::UpVector;
 	FVector GravityForce = FVector::ZeroVector;
@@ -101,6 +102,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	float GetGravityForce() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetDriftMode(bool bNewDrifting);
 	
 	UFUNCTION(BlueprintCallable)
 	inline bool IsAffectedBySteering() { return bAffectedBySteering; };

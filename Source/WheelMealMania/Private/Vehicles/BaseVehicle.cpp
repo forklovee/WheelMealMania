@@ -81,12 +81,20 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// Process Steering
 	Steering = FMath::Lerp(Steering, TargetSteering,
 		(FMath::Abs(TargetSteering.X) > 0.0) ? DeltaTime*SteeringSensitivity : DeltaTime*15.f);
-	SteeringAngle = FMath::Lerp(SteeringAngle, Steering.X * WheelMaxAngleDeg, DeltaTime*10.0f);
+
+	float SteeringRangeScale = 1.f;
+	if (SteeringRangeCurve)
+	{
+		SteeringRangeScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+	}
+	SteeringAngle = FMath::Lerp(SteeringAngle, SteeringRangeScale * Steering.X * WheelMaxAngleDeg, DeltaTime*10.0f);
 	
 	// MAIN PROCESSING
 	UpdateAcceleration(DeltaTime);
-	UpdateVehicleSteeringRotation(DeltaTime);
+	// UpdateVehicleSteeringRotation(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
+
+	CameraArm->OverrideTargetForwardVector(GetActorForwardVector());
 	
 	if (!bIsOnGround)
 	{
@@ -277,15 +285,15 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 		Wheel->Update(TargetSpeed, SteeringAngle);
 	}
 	
-	float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
-	if (!bIsOnGround)
-	{
-		TorqueForce *= 0.001f;
-	}
-	
-	VehicleCollision->AddTorqueInRadians(
-		VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
-	);
+	// float TorqueForce = TurnAngleScale * SteeringTorqueForce * WheelMaxAngleDeg;
+	// if (!bIsOnGround)
+	// {
+	// 	TorqueForce *= 0.001f;
+	// }
+	//
+	// VehicleCollision->AddTorqueInRadians(
+	// 	VehicleCollision->GetUpVector() * Steering.X * TorqueForce * 10000000.f
+	// );
 	
 	if (bDrawDebug)
 	{
@@ -313,8 +321,8 @@ void ABaseVehicle::InAirRotation(float DeltaTime)
 {
 	const FVector ActorForwardVector = (GetActorForwardVector() * FVector(1.f, 1.f, 0.f)).GetSafeNormal();
 	FVector RotationStabilizationTarget = ActorForwardVector;
-	RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.X * 15.f, FVector::UpVector);
-	RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.Y * 15.f, ActorForwardVector);
+	// RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.X * 15.f, FVector::UpVector);
+	// RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.Y * 15.f, ActorForwardVector);
 	
 	
 	VehicleCollision->SetWorldRotation(
@@ -583,14 +591,10 @@ void ABaseVehicle::ForceBreak()
 void ABaseVehicle::SetDriftMode(bool bNewDriftMode)
 {
 	bDriftMode = bNewDriftMode;
-	// CameraArm->SetFollowTargetEnabled(!bDriftMode);
-	if (bDriftMode)
+
+	for (UWheelComponent* WheelComponent : Wheels)
 	{
-		// CameraArm->OverrideTargetForwardVector(DrivingDirection);
-	}
-	else
-	{
-		DriftAngle = 0.f;
+		WheelComponent->SetDriftMode(bNewDriftMode);
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("Drift Mode Changed to %i"), bNewDriftMode);

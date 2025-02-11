@@ -323,7 +323,7 @@ protected:
 private:
 	void UpdateAcceleration(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
-	void UpdateVehicleSteeringRotation(float DeltaTime);
+	// void UpdateVehicleSteeringRotation(float DeltaTime);
 	
 	void InAirRotation(float DeltaTime);
 
