@@ -92,7 +92,10 @@ private:
 	float TargetSpeed = 0.f;
 	float Angle = 0.f;
 
+	// Friction
+	float CurrentFriction = 1.f;
 	float GroundFriction = 1.f;
+	float FrictionOverride = 1.f;
 	
 public:	
 	// Sets default values for this component's properties
@@ -151,6 +154,7 @@ protected:
 	
 	void UpdateWheelGravity();
 	void UpdateWheelForwardForce(float DeltaTime);
+	void UpdateSteering(float DeltaTime);
 	bool UpdateWheelCollisionCast();
 
 	FHitResult GetWheelHitResult() const;

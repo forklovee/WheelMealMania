@@ -39,6 +39,8 @@ float UWheelComponent::GetGravityForce() const
 void UWheelComponent::SetDriftMode(bool bNewDrifting)
 {
 	bIsDrifting = bNewDrifting;
+
+	// FrictionOverride = (bIsDrifting) ? 0.f : 1.f;
 }
 
 void UWheelComponent::SetSpringPointingDown(bool bNewSpringPointingDown)
@@ -57,6 +59,11 @@ void UWheelComponent::BeginPlay()
 void UWheelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	CurrentFriction = FMath::FInterpTo(
+		CurrentFriction,
+		FrictionCoefficient*GroundFriction*FrictionOverride,
+		DeltaTime, 10.f);
 
 	UpdateWheelCollisionCast();
 	UpdateWheelGravity();
@@ -101,72 +108,50 @@ void UWheelComponent::UpdateWheelGravity()
 
 void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 {
-	// Add drive force, if wheel touches the ground
-	FVector VehicleForward = GetOwner()->GetActorForwardVector();
-	if (!bIsOnGround)
+	const float VehicleMass = VehicleCollision->GetMass();
+	if (!IsOnGround())
 	{
-		VehicleForward = VehicleCollision->GetComponentVelocity().GetSafeNormal();
-		// VehicleForward.Z = 0.f;
-		// VehicleForward = VehicleForward.GetSafeNormal();
-	}
-	
-	float GroundFriction = 1.f;
-
-	const FHitResult WheelHitResult = GetWheelHitResult();
-	if (WheelHitResult.Component.IsValid())
-	{
-		// Todo ground friction
-	}
-	GroundFriction *= FrictionCoefficient;
-	
-	// Desired Driving Direction
-	const FVector VehicleVelocity = VehicleCollision->GetComponentVelocity();
-	const FVector WheelRight = (bIsOnGround) ? GetRightVector() : FVector::ZeroVector;
-	FVector WheelForward = (bIsOnGround) ? GetForwardVector() : VehicleForward;
-	const float ForwardVelocityRatio = VehicleVelocity.GetSafeNormal().Dot(WheelForward);
-	const float RightVelocityRatio = -VehicleVelocity.GetSafeNormal().Dot(WheelRight);
-	
-	// Drift
-	if (bIsDrifting)
-	{
-		TargetSpeed *= .95;
-		if (!bAffectedBySteering)
-		{
-			WheelForward = WheelForward.RotateAngleAxis(-Angle, GetUpVector());
-		}
-	}
-	else
-	{
-		TargetSpeed *= FMath::Abs(ForwardVelocityRatio);
+		VehicleCollision->AddForceAtLocation(
+			VehicleCollision->GetComponentVelocity() * VehicleMass * 1.1f,
+			GetComponentLocation());
+		return;
 	}
 
-	const FVector ForwardVelocity = TargetSpeed * WheelForward * DeltaTime * 100.f;
-	Velocity = ForwardVelocity;
-	
-	// Torque
-	const FVector RightVelocity = RightVelocityRatio * WheelRight * TargetSpeed * DeltaTime * 100.f; 
-	Velocity += RightVelocity;
+	const FVector WheelForward = GetForwardVector();
+	const FVector WheelForwardForce = WheelForward * TargetSpeed * VehicleCollision->GetMass() * DeltaTime;
 	VehicleCollision->AddForceAtLocation(
-		Velocity, GetComponentLocation());
+		WheelForwardForce,
+		GetComponentLocation());
 
+	const FVector WheelRight = GetRightVector();
+	const float SideDragAcceleration = WheelRight.Dot(VehicleCollision->GetComponentVelocity() * VehicleMass);
+	const float SideSlideDirection = (bIsDrifting && !bAffectedBySteering) ? -1.f : 1.f;
+	const FVector SideDragForce = SideSlideDirection * CurrentFriction * SideDragAcceleration * -WheelRight;
+	VehicleCollision->AddForceAtLocation(
+		SideDragForce,
+		GetComponentLocation());
+	
 	if (bDrawDebug)
 	{
 		UKismetSystemLibrary::DrawDebugArrow(
 		this,
 		GetComponentLocation() + FVector::UpVector * 100.f,
-		GetComponentLocation() + FVector::UpVector * 100.f + ForwardVelocity,
+		GetComponentLocation() + FVector::UpVector * 100.f + WheelForwardForce,
 		55.f,
 		FLinearColor::Blue);
-
-		UE_LOG(LogTemp, Display, TEXT("Forward: %s"), *ForwardVelocity.ToString());
-		
+	
 		UKismetSystemLibrary::DrawDebugArrow(
 		this,
 		GetComponentLocation() + FVector::UpVector * 100.f,
-		GetComponentLocation() + FVector::UpVector * 100.f + RightVelocity,
+		GetComponentLocation() + FVector::UpVector * 100.f + SideDragForce,
 		55.f,
 		FLinearColor::Red);
 	}
+	
+}
+
+void UWheelComponent::UpdateSteering(float DeltaTime)
+{
 	
 }
 
