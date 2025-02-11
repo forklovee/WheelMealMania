@@ -103,7 +103,7 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// MAIN PROCESSING
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
-
+	
 	if (bDrawDebug)
 	{
 		UKismetSystemLibrary::DrawDebugArrow(
@@ -137,14 +137,16 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::SteeringInput);
 		EnhancedInput->BindAction(SteeringInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::SteeringInput);
 
-		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HydraulicsControlInput);
-		EnhancedInput->BindAction(RotationControlInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HydraulicsControlInput);
+		EnhancedInput->BindAction(HydraulicsInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HydraulicsControlInput);
+		EnhancedInput->BindAction(HydraulicsInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HydraulicsControlInput);
 
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Started, this, &ABaseVehicle::HandbreakInputPressed);
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::HandbreakInput);
 		EnhancedInput->BindAction(HandBreakInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::HandbreakInput);
 		
+		EnhancedInput->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ABaseVehicle::JumpingInput);
 		EnhancedInput->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::JumpingInput);
+		EnhancedInput->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::JumpingInput);
 		
 		EnhancedInput->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::LookAroundInput);
 		EnhancedInput->BindAction(LookAroundInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::LookAroundInput);
@@ -394,7 +396,29 @@ void ABaseVehicle::SteeringInputPressed(const FInputActionValue& InputValue)
 
 void ABaseVehicle::HydraulicsControlInput(const FInputActionValue& InputValue)
 {
-	TargetHydraulicsControl = InputValue.Get<FVector2D>();
+	TargetHydraulicsControl = InputValue.Get<float>();
+
+	// Reset spring down vector
+	for (UWheelComponent* Wheel : Wheels)
+	{
+		Wheel->SetSpringPointingDown(false);
+	}
+	
+	if (TargetHydraulicsControl < 0.f) // Left
+	{
+		for (UWheelComponent* Wheel : LeftWheels)
+		{
+			Wheel->SetSpringPointingDown(true);
+		}
+	}
+	else if (TargetHydraulicsControl > 0.f) // Right
+	{
+		for (UWheelComponent* Wheel : RightWheels)
+		{
+			Wheel->SetSpringPointingDown(true);
+		}
+	}
+	
 	OnHydraulicsControlUpdated(TargetHydraulicsControl);
 }
 
@@ -488,17 +512,35 @@ void ABaseVehicle::HandbreakInputPressed(const FInputActionValue& InputValue)
 
 void ABaseVehicle::JumpingInput(const FInputActionValue& InputValue)
 {
-	if (!bIsOnGround || JumpCounter > 0) {
+	const float LastJumpCharge = JumpCharge;
+	JumpCharge = InputValue.Get<float>();
+
+	UE_LOG(LogTemp, Display, TEXT("Jump! %f"), JumpCharge);
+	
+	for (UWheelComponent* WheelComponent : Wheels)
+	{
+		WheelComponent->SetSpringStrengthRatio(1.55f - JumpCharge);
+	}
+	
+	if (!bIsOnGround || JumpCharge != 0.f)
+	{
 		return;
 	}
 
+	for (UWheelComponent* WheelComponent : Wheels)
+	{
+		WheelComponent->SetSpringStrengthRatio(1.f);
+	}
+	
+	UE_LOG(LogTemp, Display, TEXT("Jump! "));
+
+	// Jump!
 	JumpCounter++;
 
-	float TargetJumpStrength = VehicleCollision->GetMass() * JumpStrength;
-	FVector JumpForce = VehicleCollision->GetUpVector() * TargetJumpStrength;
-	VehicleCollision->SetCenterOfMass(MassCenterOffset + FVector(50.f, 0.f, 0.f));
+	const float TargetJumpStrength = LastJumpCharge * JumpStrength * VehicleCollision->GetMass() * 100.f;
+	const FVector JumpForce = VehicleCollision->GetUpVector() * TargetJumpStrength;
 	VehicleCollision->AddForceAtLocation(
-		JumpForce * 2.f * GetWorld()->GetDeltaSeconds() * 4000.f,
+		JumpForce,
 		VehicleCollision->GetComponentLocation()
 	);
 

@@ -41,6 +41,11 @@ void UWheelComponent::SetDriftMode(bool bNewDrifting)
 	bIsDrifting = bNewDrifting;
 }
 
+void UWheelComponent::SetSpringPointingDown(bool bNewSpringPointingDown)
+{
+	bSpringPointingDown = bNewSpringPointingDown;
+}
+
 void UWheelComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -100,8 +105,9 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 	FVector VehicleForward = GetOwner()->GetActorForwardVector();
 	if (!bIsOnGround)
 	{
-		VehicleForward.Z = 0.f;
-		VehicleForward = VehicleForward.GetSafeNormal();
+		VehicleForward = VehicleCollision->GetComponentVelocity().GetSafeNormal();
+		// VehicleForward.Z = 0.f;
+		// VehicleForward = VehicleForward.GetSafeNormal();
 	}
 	
 	float GroundFriction = 1.f;
@@ -182,6 +188,11 @@ void UWheelComponent::SetSpringLengthRatio(float NewSpringLengthRatio)
 	OnSpringLengthUpdatedDelegate.Broadcast(GetSpringLength());
 }
 
+void UWheelComponent::SetSpringStrengthRatio(float NewSpringStrengthRatio)
+{
+	SpringStrengthRatio = NewSpringStrengthRatio;
+}
+
 bool UWheelComponent::IsOnGround()
 {
 	return bIsOnGround;
@@ -227,7 +238,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 
 	const FVector TraceOffset = WheelHitResult.TraceStart - WheelHitResult.TraceEnd;
 	const FVector TraceDirection = TraceOffset.GetSafeNormal();
-	const FVector TargetForce = DistanceInversed * VehicleCollision->GetMass() * SpringStrength * TraceDirection;
+	const FVector TargetForce = DistanceInversed * VehicleCollision->GetMass() * FMath::Lerp(0.f, SpringStrength, SpringStrengthRatio) * TraceDirection;
 	VehicleCollision->AddForceAtLocation(
 		TargetForce,
 		GetComponentLocation()
@@ -258,10 +269,11 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 FHitResult UWheelComponent::GetWheelHitResult() const
 {
 	FHitResult WheelHitResult;
+	const FVector SpringDownVector = (!bSpringPointingDown) ? -GetUpVector() : FVector::DownVector;
 	UKismetSystemLibrary::SphereTraceSingle(
 		this,
 		GetComponentLocation(),
-		GetComponentLocation() - (SpringLength * GetUpVector()),
+		GetComponentLocation() + (FMath::Lerp(0.f, SpringLength, SpringLengthRatio) * SpringDownVector),
 		WheelRadius,
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,

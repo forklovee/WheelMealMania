@@ -149,7 +149,7 @@ protected:
 	UInputAction* JumpInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
-	UInputAction* RotationControlInputAction;
+	UInputAction* HydraulicsInputAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SteeringInputAction;
@@ -205,8 +205,8 @@ private:
 	float SteeringRange = 1.f;
 
 	// Rotation Control
-	FVector2D TargetHydraulicsControl = FVector2D::ZeroVector;
-	FVector2D HydraulicsControl = FVector2D::ZeroVector;
+	float TargetHydraulicsControl = 0.f;
+	float HydraulicsControl = 0.f;
 
 	// Side Balance
 	float TargetSideBalance = 0.0;
@@ -219,6 +219,9 @@ private:
 	TArray<FMovesetComboKeys> ComboKeys;
 	TArray<FString> ComboBuffer;
 
+	// Jump
+	float JumpCharge = 0.f;
+	
 	// Drift mode
 	bool bDriftMode = false;
 	float DriftAngle = 0.f;
@@ -272,7 +275,7 @@ protected:
 
 	void HydraulicsControlInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnHydraulicsControlUpdated(FVector2D NewHydraulicsControl);
+	void OnHydraulicsControlUpdated(float NewHydraulicsControl);
 
 	void BreakInput(const FInputActionValue& InputValue);
 	void BreakInputPressed(const FInputActionValue& InputValue);

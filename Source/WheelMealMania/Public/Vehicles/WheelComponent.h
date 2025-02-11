@@ -66,7 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wheel|Suspension", meta = (AllowPrivateAccess = "true"))
 	float SpringLength = 60.f;
 
-
 private:
 	bool bDrawDebug = false;
 	TWeakObjectPtr<class UBoxComponent> VehicleCollision;
@@ -75,17 +74,21 @@ private:
 	
 	bool bIsOnGround = false;
 	bool bIsDrifting = false;
+	bool bSpringPointingDown = false;
 	FVector Velocity = FVector::ZeroVector;
 	FVector GroundNormal = FVector::UpVector;
 	FVector GravityForce = FVector::ZeroVector;
 	
+	// Spring Length
 	float SpringLengthRatio = 1.f;
-
-	//Target Wheel Height
 	float TargetWheelHeight = 0.f;
-	//Lerped Wheel Height
 	float CurrentWheelHeight = 0.f;
 
+	// Spring Strength
+	float SpringStrengthRatio = 1.f;
+	float TargetSpringStrength = 0.f;
+	float CurrentSpringStrength = 0.f;
+	
 	float TargetSpeed = 0.f;
 	float Angle = 0.f;
 
@@ -105,6 +108,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetDriftMode(bool bNewDrifting);
+
+	UFUNCTION(BlueprintCallable)
+	void SetSpringPointingDown(bool bNewSpringPointingDown);
 	
 	UFUNCTION(BlueprintCallable)
 	inline bool IsAffectedBySteering() { return bAffectedBySteering; };
@@ -118,6 +124,9 @@ public:
 	void SetSpringLengthRatio(float NewSpringLengthRatio);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpringLengthUpdated(float NewSpringLength);
+
+	UFUNCTION(BlueprintCallable)
+	void SetSpringStrengthRatio(float NewSpringStrengthRatio);
 	
 	UFUNCTION(BlueprintCallable)
 	inline bool IsAffectedByHydraulics() { return bAffectedByHydraulics; };
