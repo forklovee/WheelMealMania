@@ -23,6 +23,15 @@ enum class EGearShift : uint8{
 	REVERSE = 1		UMETA(DisplayName = "Reverse")
 };
 
+UENUM(BlueprintType)
+enum class EVehicleTrick : uint8
+{
+	NEAR_MISS = 0	UMETA(DisplayName = "Near Miss"),
+	BIG_AIR = 1	UMETA(DisplayName = "Big Air"),
+	SPIN = 3	UMETA(DisplayName = "Spin"),
+	DRIFT = 4	UMETA(DisplayName = "Drift"),
+};
+
 USTRUCT(BlueprintType)
 struct FMovesetComboKeys
 {
@@ -39,6 +48,7 @@ struct FMovesetComboKeys
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTrickPerformed, EVehicleTrick, VehicleTrick, int, SubsuquentialTricks);
 
 UCLASS()
 class WHEELMEALMANIA_API ABaseVehicle : public APawn
@@ -48,6 +58,8 @@ class WHEELMEALMANIA_API ABaseVehicle : public APawn
 public:
 	FOnGearChanged OnGearChangedDelegate;
 	FOnGearShifting OnGearShiftingDelegate;
+	UPROPERTY(BlueprintAssignable)
+	FOnTrickPerformed OnTrickPerformed;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool bDrawDebug = false;
@@ -204,6 +216,10 @@ private:
 	FVector2D DriftSteering = FVector2D::ZeroVector;
 	float SteeringRange = 1.f;
 
+	FVector FlyDirection = FVector::ZeroVector;
+	uint8 YawSpins = 0;
+	float CurrentYawSpinDegrees = 0.f;
+	
 	// Rotation Control
 	float TargetHydraulicsControl = 0.f;
 	float HydraulicsControl = 0.f;
@@ -226,6 +242,12 @@ private:
 	bool bDriftMode = false;
 	float DriftAngle = 0.f;
 	float LastDriftAngle = 0.f;
+
+	// Tricks
+	FTimerHandle DriftTrickTimerHandle;
+	uint8 DriftTrickCounter = 0;
+	FTimerHandle BigAirTimerHandle;
+	uint8 BigAirTrickCounter = 0;
 	
 	FTimerHandle ComboClearOutTimer;
 	
@@ -330,6 +352,9 @@ private:
 	
 	void InAirRotation(float DeltaTime);
 
+	void InAir();
+	void Landed();
+	
 	void InstantAccelerationDecrease(float Value);
 
 	float GetTargetWheelSpeed();
@@ -346,4 +371,8 @@ private:
 	void PushKeyToComboBuffer(FString KeyString);
 	UFUNCTION()
 	void ClearComboBuffer();
+
+	// Tricks
+	void UpdateDriftTrickCounter();
+	void UpdateBigAirTrickCounter();
 };

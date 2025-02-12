@@ -67,11 +67,10 @@ void ABaseVehicle::Tick(float DeltaTime)
 		}
 		
 		if (bNewIsOnGround) {
-			JumpCounter = 0;
-			OnLanded();
+			Landed();
 		}
 		else {
-			OnInAir();
+			InAir();
 		}
 	}
 	bIsOnGround = bNewIsOnGround;
@@ -94,11 +93,17 @@ void ABaseVehicle::Tick(float DeltaTime)
 	// UpdateVehicleSteeringRotation(DeltaTime);
 	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
 
-	CameraArm->OverrideTargetForwardVector(GetActorForwardVector());
 	
 	if (!bIsOnGround)
 	{
 		InAirRotation(DeltaTime);
+		CameraArm->OverrideTargetForwardVector(
+			(VehicleCollision->GetComponentVelocity() * FVector(1.f, 1.f, 0.f)).GetSafeNormal()
+			);
+	}
+	else
+	{
+		CameraArm->OverrideTargetForwardVector(GetActorForwardVector());
 	}
 	// MAIN PROCESSING
 
@@ -321,15 +326,85 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 
 void ABaseVehicle::InAirRotation(float DeltaTime)
 {
-	const FVector ActorForwardVector = (GetActorForwardVector() * FVector(1.f, 1.f, 0.f)).GetSafeNormal();
-	FVector RotationStabilizationTarget = ActorForwardVector;
-	// RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.X * 15.f, FVector::UpVector);
-	// RotationStabilizationTarget = RotationStabilizationTarget.RotateAngleAxis(Steering.Y * 15.f, ActorForwardVector);
+	const float RotationScalar = 1000000000000.f * DeltaTime;
+	const float StabilizationScalar = 25000000000.f * DeltaTime;
+
+	const FRotator LocalVehicleRotation = VehicleCollision->GetRelativeRotation();
+	const FRotator TargetLocalVehicleRotation = FRotator(0.f, 0.f, 0.f);
 	
+	// Stabilize
+	VehicleCollision->AddTorqueInDegrees(
+		StabilizationScalar * (LocalVehicleRotation.Pitch - TargetLocalVehicleRotation.Pitch) * VehicleCollision->GetRightVector()
+	);
+	VehicleCollision->AddTorqueInDegrees(
+		StabilizationScalar * (LocalVehicleRotation.Roll - TargetLocalVehicleRotation.Roll) * VehicleCollision->GetForwardVector()
+	);
+
+	// Yaw Rotation
+	VehicleCollision->AddTorqueInDegrees(
+		8.5f * RotationScalar * VehicleCollision->GetUpVector() * Steering.X
+	);
+
+	const FVector VehicleForward = FVector(
+		VehicleCollision->GetForwardVector().X,
+		VehicleCollision->GetForwardVector().Y,
+		0.f
+		).GetSafeNormal();
+	const FVector FlyStartDirection = FVector(
+		FlyDirection.X,
+		FlyDirection.Y,
+		0.f
+		).GetSafeNormal();
+
+	const float DirDot = FlyStartDirection.X * VehicleForward.X + FlyStartDirection.Y * VehicleForward.Y;
+	const float DirDet = FlyStartDirection.X * VehicleForward.Y - FlyStartDirection.Y * VehicleForward.X;
+	const float YawSpin = FMath::Atan2(DirDet, DirDot) + PI;
+	CurrentYawSpinDegrees = FMath::RadiansToDegrees(YawSpin);
 	
-	VehicleCollision->SetWorldRotation(
-		FMath::RInterpTo(VehicleCollision->GetComponentRotation(), RotationStabilizationTarget.ToOrientationRotator(), DeltaTime, 5.f),
-		true);
+	UKismetSystemLibrary::DrawDebugArrow(
+		this,
+		VehicleCollision->GetComponentLocation(),
+		VehicleCollision->GetComponentLocation() + 500.f*FlyStartDirection,
+		5.f, FLinearColor::Gray, 0.f, 5.f);
+	
+	UKismetSystemLibrary::DrawDebugArrow(
+		this,
+		VehicleCollision->GetComponentLocation(),
+		VehicleCollision->GetComponentLocation() + 500.f*FlyStartDirection.RotateAngleAxis(CurrentYawSpinDegrees, VehicleCollision->GetUpVector()),
+		5.f, FLinearColor::Red, 0.f, 5.f);
+	
+	if ((Steering.X < 0.f && YawSpin < 0.05f) || (Steering.X > 0.f && YawSpin > 2.f*PI - 0.05f))
+	{
+		YawSpins++;
+		OnTrickPerformed.Broadcast(EVehicleTrick::SPIN, YawSpins);
+	}
+	
+	// Roll Rotation
+	// VehicleCollision->AddTorqueInDegrees(
+	// 	3.5f * RotationScalar * VehicleCollision->GetRightVector() * Steering.Y
+	// );
+}
+
+void ABaseVehicle::InAir()
+{
+	FlyDirection = GetVelocity().GetSafeNormal();
+
+	GetWorldTimerManager().SetTimer(BigAirTimerHandle, this, &ABaseVehicle::UpdateBigAirTrickCounter, .5f, true, .5f);
+
+	OnInAir();
+}
+
+void ABaseVehicle::Landed()
+{
+	JumpCounter = 0;
+	YawSpins = 0;
+	CurrentYawSpinDegrees = 0;
+
+	// Reset Big Air Trick Counter
+	BigAirTrickCounter = 0;
+	GetWorldTimerManager().ClearTimer(BigAirTimerHandle);
+			
+	OnLanded();
 }
 
 void ABaseVehicle::InstantAccelerationDecrease(float Value)
@@ -397,26 +472,76 @@ void ABaseVehicle::SteeringInputPressed(const FInputActionValue& InputValue)
 void ABaseVehicle::HydraulicsControlInput(const FInputActionValue& InputValue)
 {
 	TargetHydraulicsControl = InputValue.Get<float>();
-
+	return;
+	
 	// Reset spring down vector
 	for (UWheelComponent* Wheel : Wheels)
 	{
 		Wheel->SetSpringPointingDown(false);
 	}
+
+	const FVector TargetSideCenter = VehicleCollision->GetCenterOfMass()
+		+ TargetHydraulicsControl * (VehicleCollision->GetRightVector()*FVector(1.f, 1.f, 0.f)).GetSafeNormal() * 100.f
+		+ FVector::UpVector * 135.f;
+	const FVector SideCenter = VehicleCollision->GetCenterOfMass()
+		+ TargetHydraulicsControl * VehicleCollision->GetRightVector() * 100.f;
+
+	TArray<UWheelComponent*>* WheelsToRaise = (TargetHydraulicsControl > 0.f ) ? &RightWheels : &LeftWheels;
+	TArray<UWheelComponent*>* WheelsOnGround = (TargetHydraulicsControl > 0.f ) ? &LeftWheels : &RightWheels;
 	
-	if (TargetHydraulicsControl < 0.f) // Left
+	UKismetSystemLibrary::DrawDebugBox(
+		this,
+		SideCenter,
+		FVector::OneVector * 15.f,
+		FLinearColor::Red,
+		VehicleCollision->GetComponentRotation(),
+		0.f,
+		15.f);
+
+	UKismetSystemLibrary::DrawDebugBox(
+		this,
+		TargetSideCenter,
+		FVector::OneVector * 15.f,
+		FLinearColor::Blue,
+		VehicleCollision->GetComponentRotation(),
+		0.f,
+		15.f);
+
+	const FVector BalanceForce = (TargetSideCenter - SideCenter) * JumpStrength * 5.f;
+
+	uint8 IWheelsOnGround = 0;
+	for (UWheelComponent* Wheel : *WheelsOnGround)
 	{
-		for (UWheelComponent* Wheel : LeftWheels)
+		if (Wheel->IsOnGround())
 		{
-			Wheel->SetSpringPointingDown(true);
+			IWheelsOnGround++;
 		}
 	}
-	else if (TargetHydraulicsControl > 0.f) // Right
+	
+	if (IWheelsOnGround < 2)
 	{
-		for (UWheelComponent* Wheel : RightWheels)
+		for (UWheelComponent* Wheel : *WheelsOnGround)
 		{
-			Wheel->SetSpringPointingDown(true);
+			Wheel->SetSpringPointingDown(false);
 		}
+		return;
+	}
+
+	for (UWheelComponent* Wheel : *WheelsOnGround)
+	{
+		Wheel->SetSpringPointingDown(true);
+		// VehicleCollision->AddForceAtLocation(
+		// 	-BalanceForce * .25f,
+		// 	Wheel->GetComponentLocation());
+	}
+	
+	for (UWheelComponent* Wheel : *WheelsToRaise)
+	{
+		Wheel->SetSpringPointingDown(false);
+		
+		VehicleCollision->AddForceAtLocation(
+			BalanceForce,
+			Wheel->GetComponentLocation());
 	}
 	
 	OnHydraulicsControlUpdated(TargetHydraulicsControl);
@@ -519,7 +644,7 @@ void ABaseVehicle::JumpingInput(const FInputActionValue& InputValue)
 	
 	for (UWheelComponent* WheelComponent : Wheels)
 	{
-		WheelComponent->SetSpringStrengthRatio(1.55f - JumpCharge);
+		WheelComponent->SetSpringStrengthRatio(1.85f - JumpCharge);
 	}
 	
 	if (!bIsOnGround || JumpCharge != 0.f)
@@ -529,20 +654,20 @@ void ABaseVehicle::JumpingInput(const FInputActionValue& InputValue)
 
 	for (UWheelComponent* WheelComponent : Wheels)
 	{
-		WheelComponent->SetSpringStrengthRatio(1.f);
+		WheelComponent->Jump(LastJumpCharge*JumpStrength);
 	}
-	
-	UE_LOG(LogTemp, Display, TEXT("Jump! "));
-
-	// Jump!
 	JumpCounter++;
 
-	const float TargetJumpStrength = LastJumpCharge * JumpStrength * VehicleCollision->GetMass() * 100.f;
-	const FVector JumpForce = VehicleCollision->GetUpVector() * TargetJumpStrength;
-	VehicleCollision->AddForceAtLocation(
-		JumpForce,
-		VehicleCollision->GetComponentLocation()
-	);
+	// UE_LOG(LogTemp, Display, TEXT("Jump! "));
+	//
+	// // Jump!
+	//
+	// const float TargetJumpStrength = LastJumpCharge * JumpStrength * VehicleCollision->GetMass() * 100.f;
+	// const FVector JumpForce = VehicleCollision->GetUpVector() * TargetJumpStrength;
+	// VehicleCollision->AddForceAtLocation(
+	// 	JumpForce,
+	// 	VehicleCollision->GetComponentLocation()
+	// );
 
 	OnJumped();
 }
@@ -609,7 +734,7 @@ void ABaseVehicle::DashForward()
 	
 	Acceleration = FMath::Clamp(Acceleration + DashAccelerationBoost, -1.0f, 2.f);
 	
-	const float TargetDashForce = DashForce * 50000.f;
+	const float TargetDashForce = DashForce * 15000.f;
 	VehicleCollision->AddForceAtLocation(
 		TargetDashForce * VehicleCollision->GetForwardVector(),
 		VehicleCollision->GetComponentLocation()
@@ -620,7 +745,7 @@ void ABaseVehicle::ForceBreak()
 {
 	if (GetVelocity().Length() > 500.f)
 	{
-		const float TargetDashForce = DashForce * 50000.f * Acceleration;
+		const float TargetDashForce = DashForce * 15000.f * Acceleration;
 		VehicleCollision->AddForceAtLocation(
 			TargetDashForce * -VehicleCollision->GetForwardVector(),
 			VehicleCollision->GetComponentLocation()
@@ -637,6 +762,16 @@ void ABaseVehicle::SetDriftMode(bool bNewDriftMode)
 	for (UWheelComponent* WheelComponent : Wheels)
 	{
 		WheelComponent->SetDriftMode(bNewDriftMode);
+	}
+	
+	DriftTrickCounter = 0;
+	if (bDriftMode)
+	{
+		GetWorldTimerManager().SetTimer(DriftTrickTimerHandle, this, &ABaseVehicle::UpdateDriftTrickCounter, 0.5f, true);
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(DriftTrickTimerHandle);
 	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("Drift Mode Changed to %i"), bNewDriftMode);
@@ -747,4 +882,16 @@ void ABaseVehicle::ClearComboBuffer()
 
 	ComboBuffer = {};
 	UE_LOG(LogTemp, Display, TEXT("Clear Buffer."));
+}
+
+void ABaseVehicle::UpdateDriftTrickCounter()
+{
+	DriftTrickCounter++;
+	OnTrickPerformed.Broadcast(EVehicleTrick::DRIFT, DriftTrickCounter);
+}
+
+void ABaseVehicle::UpdateBigAirTrickCounter()
+{
+	BigAirTrickCounter++;
+	OnTrickPerformed.Broadcast(EVehicleTrick::BIG_AIR, BigAirTrickCounter);
 }

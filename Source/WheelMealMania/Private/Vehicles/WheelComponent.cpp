@@ -31,6 +31,17 @@ void UWheelComponent::Update(const float& NewSpeed, const float& NewAngle)
 	Angle = NewAngle;
 }
 
+void UWheelComponent::Jump(float JumpForce)
+{
+	if (!bIsOnGround)
+	{
+		return;
+	}
+	const FVector JumpForceVector = 10.f*JumpForce * VehicleCollision->GetMass() * GetUpVector();
+	VehicleCollision->AddForceAtLocation(JumpForceVector, GetComponentLocation());
+	SetSpringStrengthRatio(1.f);
+}
+
 float UWheelComponent::GetGravityForce() const
 {
 	return 981.f * 1050.0 * GravityScale;
@@ -112,7 +123,7 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 	if (!IsOnGround())
 	{
 		VehicleCollision->AddForceAtLocation(
-			VehicleCollision->GetComponentVelocity() * VehicleMass * 1.1f,
+			VehicleCollision->GetComponentVelocity() * VehicleMass * 1.15f,
 			GetComponentLocation());
 		return;
 	}

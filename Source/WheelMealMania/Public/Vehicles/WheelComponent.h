@@ -105,6 +105,9 @@ public:
 		float GravityScale,
 		bool bNewDrawDebug = false);
 	void Update(const float& NewSpeed, const float& NewAngle = 0.0f);
+
+	UFUNCTION(BlueprintCallable)
+	void Jump(float JumpForce);
 	
 	UFUNCTION(BlueprintCallable)
 	float GetGravityForce() const;
