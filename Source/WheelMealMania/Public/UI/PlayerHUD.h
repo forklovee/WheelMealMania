@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerHUD.generated.h"
 
+enum class EVehicleTrick : uint8;
 enum class EGearShift : uint8;
 /**
  * 
@@ -31,6 +32,9 @@ public:
 	void UpdateCurrentGear(EGearShift CurrentGear);
 	void UpdateIsGearShifting(bool bIsGearShifting);
 
+	UFUNCTION()
+	void PlayerPerformedTrick(EVehicleTrick NewTrick, int TricksPerformed);
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpeedUpdate(float NewSpeed);
@@ -40,4 +44,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnIsGearShiftingUpdate(bool bIsGearShifting);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerPerformedTrick(EVehicleTrick NewTrick, int TricksPerformed);
+	
 };

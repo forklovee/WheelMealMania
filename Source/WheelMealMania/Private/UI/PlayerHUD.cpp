@@ -22,3 +22,8 @@ void UPlayerHUD::UpdateIsGearShifting(bool bIsGearShifting)
 {
 	OnIsGearShiftingUpdate(bIsGearShifting);
 }
+
+void UPlayerHUD::PlayerPerformedTrick(EVehicleTrick NewTrick, int TricksPerformed)
+{
+	OnPlayerPerformedTrick(NewTrick, TricksPerformed);
+}

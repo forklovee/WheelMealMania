@@ -23,6 +23,8 @@ void APlayerVehicleController::BeginPlay()
 		if (IsValid(PlayerVehicle)){
 			PlayerVehicle->OnGearChangedDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateCurrentGear);
 			PlayerVehicle->OnGearShiftingDelegate.AddUObject(PlayerHUD, &UPlayerHUD::UpdateIsGearShifting);
+			
+			PlayerVehicle->OnTrickPerformed.AddDynamic(PlayerHUD, &UPlayerHUD::PlayerPerformedTrick);
 		}
 	}
 }

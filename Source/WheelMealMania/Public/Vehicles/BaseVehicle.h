@@ -229,7 +229,7 @@ private:
 
 	uint8 JumpCounter = 0;
 
-	bool bIsOnGround = false;
+	bool bIsOnGround = true;
 
 	// Movesets
 	TArray<FMovesetComboKeys> ComboKeys;

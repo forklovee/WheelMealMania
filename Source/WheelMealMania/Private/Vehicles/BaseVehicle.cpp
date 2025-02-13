@@ -389,7 +389,7 @@ void ABaseVehicle::InAir()
 {
 	FlyDirection = GetVelocity().GetSafeNormal();
 
-	GetWorldTimerManager().SetTimer(BigAirTimerHandle, this, &ABaseVehicle::UpdateBigAirTrickCounter, .5f, true, .5f);
+	GetWorldTimerManager().SetTimer(BigAirTimerHandle, this, &ABaseVehicle::UpdateBigAirTrickCounter, 1.f, true, .5f);
 
 	OnInAir();
 }
