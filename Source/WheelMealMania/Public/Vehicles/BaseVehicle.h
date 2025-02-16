@@ -145,6 +145,9 @@ protected:
 	UCameraComponent* Camera;
 
 #pragma region InputActions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input|UI", meta = (AllowPrivateAccess="true"))
+	UInputAction* PauseMenuInputAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input", meta = (AllowPrivateAccess="true"))
 	UInputAction* ThrottleInputAction;
 

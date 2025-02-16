@@ -23,11 +23,20 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UPlayerHUD> PlayerHUDClass;
-
+	
+	bool bIsPauseMenuOpen = false;
+	bool bCanTogglePauseMenu = true;
+	
 	TObjectPtr<ABaseVehicle> PlayerVehicle;
 	TObjectPtr<UPlayerHUD> PlayerHUD;
 
 public:
+	void TogglePauseMenuInput(const struct FInputActionValue& InputValue);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Input")
+	void TogglePause(bool bPauseMenuState);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Input")
+	void OnPauseToggled(bool bIsPauseMenuOpen);
+	
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	UPlayerHUD* GetPlayerHUD() const;
 

@@ -14,6 +14,7 @@
 #include <EnhancedInputComponent.h>
 
 #include "Components/DynamicCameraArmComponent.h"
+#include "Player/PlayerVehicleController.h"
 #include "Vehicles/VehicleSeatComponent.h"
 
 // Sets default values
@@ -127,6 +128,12 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		APlayerVehicleController* VehicleController = Cast<APlayerVehicleController>(GetController());
+		if (VehicleController)
+		{
+			EnhancedInput->BindAction(PauseMenuInputAction, ETriggerEvent::Triggered, VehicleController, &APlayerVehicleController::TogglePauseMenuInput);
+		}
+		
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Started, this, &ABaseVehicle::ThrottleInputPressed);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Triggered, this, &ABaseVehicle::ThrottleInput);
 		EnhancedInput->BindAction(ThrottleInputAction, ETriggerEvent::Completed, this, &ABaseVehicle::ThrottleInput);

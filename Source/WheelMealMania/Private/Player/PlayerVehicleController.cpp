@@ -3,10 +3,26 @@
 
 #include "Player/PlayerVehicleController.h"
 
-#include "EnhancedInputComponent.h"
 #include "UI/PlayerHUD.h"
 #include "Vehicles/BaseVehicle.h"
 #include "EnhancedInputSubsystems.h"
+
+void APlayerVehicleController::TogglePause_Implementation(bool bPauseMenuState)
+{
+	if (!bCanTogglePauseMenu)
+	{
+		return;
+	}
+	bIsPauseMenuOpen = bPauseMenuState;
+	
+	SetPause(bIsPauseMenuOpen);
+	OnPauseToggled(bIsPauseMenuOpen);
+}
+
+void APlayerVehicleController::TogglePauseMenuInput(const FInputActionValue& InputValue)
+{
+	TogglePause(!bIsPauseMenuOpen);
+}
 
 UPlayerHUD* APlayerVehicleController::GetPlayerHUD() const
 {
