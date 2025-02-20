@@ -15,9 +15,14 @@ UWheelComponent::UWheelComponent()
 	}
 }
 
+float UWheelComponent::GetPhysicsForceDeltaTimeScaler() const
+{
+	return (1.f/24.f) / (GetWorld()->GetDeltaSeconds());
+}
+
 void UWheelComponent::Setup(UBoxComponent* NewVehicleCollision, float NewMaxWheelRotationAngleDeg,
-	float NewGravityScale,
-	bool bNewDrawDebug)
+                            float NewGravityScale,
+                            bool bNewDrawDebug)
 {
 	VehicleCollision = NewVehicleCollision;
 	MaxWheelRotationAngleDeg = NewMaxWheelRotationAngleDeg;
@@ -146,15 +151,15 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 		GroundDot);
 	
 	const FVector WheelForward = GetForwardVector();
-	const FVector WheelForwardForce = ForceGroundScaler * WheelForward * TargetSpeed * VehicleCollision->GetMass() * DeltaTime;
+	const FVector WheelForwardForce = 10.f * ForceGroundScaler * WheelForward * TargetSpeed;
 	VehicleCollision->AddForceAtLocation(
 		WheelForwardForce,
 		GetComponentLocation());
 
 	const FVector WheelRight = GetRightVector();
-	const float SideDragAcceleration = WheelRight.Dot(VehicleCollision->GetComponentVelocity() * VehicleMass);
+	const float SideDragAcceleration = WheelRight.Dot(VehicleCollision->GetComponentVelocity());
 	const float SideSlideDirection = (bIsDrifting && !bAffectedBySteering) ? -1.f : 1.f;
-	const FVector SideDragForce = SideSlideDirection * CurrentFriction * SideDragAcceleration * -WheelRight;
+	const FVector SideDragForce = SideSlideDirection * 0.f * SideDragAcceleration * -WheelRight;
 	VehicleCollision->AddForceAtLocation(
 		SideDragForce,
 		GetComponentLocation());
@@ -244,7 +249,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 		return false;
 	}
 
-	GroundNormal = FMath::Lerp(GroundNormal, WheelHitResult.ImpactNormal, 0.5f);
+	GroundNormal = FMath::Lerp(GroundNormal, FVector::UpVector, 0.5f);
 	TargetWheelHeight = WheelHitResult.Distance;
 	float DistanceNormalized = FMath::GetMappedRangeValueClamped(FVector2D(0.0, SpringLength), FVector2D(0.0, 1.0), TargetWheelHeight);
 	float DistanceInversed = 1.f - DistanceNormalized;
@@ -252,6 +257,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 	const FVector TraceOffset = WheelHitResult.TraceStart - WheelHitResult.TraceEnd;
 	const FVector TraceDirection = TraceOffset.GetSafeNormal();
 	const FVector TargetForce = DistanceInversed * VehicleCollision->GetMass() * FMath::Lerp(0.f, SpringStrength, SpringStrengthRatio) * TraceDirection;
+
 	VehicleCollision->AddForceAtLocation(
 		TargetForce,
 		GetComponentLocation()

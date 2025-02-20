@@ -101,6 +101,8 @@ public:
 	// Sets default values for this component's properties
 	UWheelComponent();
 
+	float GetPhysicsForceDeltaTimeScaler() const;
+	
 	void Setup(UBoxComponent* NewVehicleCollision, float NewMaxWheelRotationAngleDeg,
 		float GravityScale,
 		bool bNewDrawDebug = false);

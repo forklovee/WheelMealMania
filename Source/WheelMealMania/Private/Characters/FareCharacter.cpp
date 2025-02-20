@@ -35,6 +35,12 @@ int AFareCharacter::StartDelivery_Implementation(APlayerVehicle* Vehicle, ABaseP
 	InVehicle = Vehicle;
 	PickupArea = Start;
 	DeliveryTargetArea = End;
+
+	if (!DeliveryTargetArea.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s: Delivery Target Not Set."), *GetName());
+		return 0;
+	}
 	
 	DeliveryTargetArea->SetRequiredActor(this);
 

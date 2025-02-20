@@ -73,7 +73,7 @@ void ABaseVehicle::SetBreak(float NewBreak)
 void ABaseVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	// Check if the vehicle is grounded.
 	bool bNewIsOnGround = IsOnGround();
 	if (bNewIsOnGround != bIsOnGround) {
@@ -105,8 +105,8 @@ void ABaseVehicle::Tick(float DeltaTime)
 	SteeringAngle = FMath::Lerp(SteeringAngle, SteeringRangeScale * Steering.X * WheelMaxAngleDeg, DeltaTime*10.0f);
 	
 	// MAIN PROCESSING
-	UpdateAcceleration(DeltaTime);
-	UpdateWheelsVelocityAndDirection(DeltaTime); // Updates TargetDriveForce
+	UpdateAcceleration(GetPhysicsForceDeltaTimeScaler());
+	UpdateWheelsVelocityAndDirection(GetPhysicsForceDeltaTimeScaler()); // Updates TargetDriveForce
 	// MAIN PROCESSING
 
 	LastDrivingDirection = GetVelocity().GetSafeNormal();
@@ -121,6 +121,11 @@ void ABaseVehicle::Tick(float DeltaTime)
 			FLinearColor::White
 		);
 	}
+}
+
+float ABaseVehicle::GetPhysicsForceDeltaTimeScaler() const
+{
+	return (1.f/24.f) / (GetWorld()->GetDeltaSeconds());
 }
 
 float ABaseVehicle::GetCurrentTargetSpeed()
@@ -181,7 +186,7 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 	}
 	TargetAcceleration *= Throttle;
 	
-	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, DeltaTime, AccelerationLerpTimeScale);
+	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, GetWorld()->GetDeltaSeconds(), AccelerationLerpTimeScale);
 
 	//Move mass center to... center.
 	FVector MaxAccelerationMassCenter = MassCenterOffset;
@@ -202,7 +207,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 	{
 		TargetSpeed += MaxSpeedOverdrive * (Acceleration - 1.f);
 	}
-	TargetSpeed *= VehicleCollision->GetMass() * DeltaTime * 10.f;
+	TargetSpeed *= VehicleCollision->GetMass() * 0.25f;
 
 	// Apply speed to wheels
 	for (UWheelComponent* Wheel : Wheels) {
@@ -330,9 +335,9 @@ void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		return;
 	}
 
-	InstantAccelerationDecrease(Acceleration * .25f);
+	InstantAccelerationDecrease(.5f);
 	
-	const float ImpactForce = 55000.f * VehicleCollision->GetMass();
+	const float ImpactForce = 100000.f * VehicleCollision->GetMass();
 	VehicleCollision->AddForceAtLocation(
 		ImpactForce * Hit.ImpactNormal,
 		VehicleCollision->GetComponentLocation()

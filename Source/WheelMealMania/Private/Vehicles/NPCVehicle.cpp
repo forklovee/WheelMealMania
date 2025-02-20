@@ -84,7 +84,7 @@ void ANPCVehicle::HoverAboveGround(float DeltaTime)
 	}
 	
 	SetActorLocation(
-		FMath::VInterpTo(VehicleLocation, GroundHit.Location + FVector::UpVector * 80.0, DeltaTime, 10.f),
+		FMath::VInterpTo(VehicleLocation, GroundHit.Location + FVector::UpVector * 65.0, DeltaTime, 10.f),
 		true
 	);
 

@@ -128,6 +128,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	float GetPhysicsForceDeltaTimeScaler() const;
+	
 	UFUNCTION(BlueprintCallable, Category = "Driving")
 	void SetThrottle(float NewThrottle);
 	UFUNCTION(BlueprintCallable, Category = "Driving")

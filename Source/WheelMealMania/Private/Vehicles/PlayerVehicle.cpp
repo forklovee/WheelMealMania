@@ -33,11 +33,14 @@ void APlayerVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CameraArm->OverrideTargetForwardVector(
+		VehicleCollision->GetForwardVector()
+	);
+	
 	if (!bIsOnGround)
 	{
-		CameraArm->OverrideTargetForwardVector(
-			(VehicleCollision->GetComponentVelocity() * FVector(1.f, 1.f, 0.f)).GetSafeNormal()
-			);
+		InAirRotation(DeltaTime);
+		
 	}
 	else
 	{
@@ -218,7 +221,7 @@ void APlayerVehicle::JumpingInput(const FInputActionValue& InputValue)
 	VehicleCollision->SetCenterOfMass(FVector::ZeroVector);
 	for (UWheelComponent* WheelComponent : Wheels)
 	{
-		WheelComponent->Jump(LastJumpCharge*JumpStrength);
+		WheelComponent->Jump(LastJumpCharge*JumpStrength*GetPhysicsForceDeltaTimeScaler());
 	}
 	JumpCounter++;
 
@@ -284,8 +287,8 @@ void APlayerVehicle::GearShiftInput(const FInputActionValue& InputValue)
 
 void APlayerVehicle::InAirRotation(float DeltaTime)
 {
-	const float RotationScalar = 1000000000000.f * DeltaTime;
-	const float StabilizationScalar = 35000000000.f * DeltaTime;
+	const float RotationScalar = 1000000.f;
+	const float StabilizationScalar = 550000000.f;
 
 	const FRotator LocalVehicleRotation = VehicleCollision->GetRelativeRotation();
 	const FRotator TargetLocalVehicleRotation = FRotator(0.f, 0.f, 0.f);
