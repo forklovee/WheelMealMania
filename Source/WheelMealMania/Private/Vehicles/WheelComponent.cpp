@@ -71,6 +71,15 @@ void UWheelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!VehicleCollision.IsValid())
+	{
+		Setup(Cast<UBoxComponent>(GetAttachParent()), 0.f, 1.f);
+	}
+	if (!VehicleCollision.IsValid())
+	{
+		return;
+	}
+	
 	CurrentFriction = FMath::FInterpTo(
 		CurrentFriction,
 		FrictionCoefficient*GroundFriction*FrictionOverride,
@@ -120,16 +129,24 @@ void UWheelComponent::UpdateWheelGravity()
 void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 {
 	const float VehicleMass = VehicleCollision->GetMass();
-	if (!IsOnGround())
+	if (!bIsOnGround)
 	{
 		VehicleCollision->AddForceAtLocation(
 			VehicleCollision->GetComponentVelocity() * VehicleMass * 1.15f,
 			GetComponentLocation());
 		return;
 	}
-
+	
+	//Ramp force scaling
+	const float GroundDot = FVector::UpVector.Dot(GetUpVector());
+	const float MaxSteepness = 0.45f;
+	float ForceGroundScaler = FMath::GetMappedRangeValueClamped(
+		FVector2D(MaxSteepness, 1.0),
+		FVector2D(0.f, 1.f),
+		GroundDot);
+	
 	const FVector WheelForward = GetForwardVector();
-	const FVector WheelForwardForce = WheelForward * TargetSpeed * VehicleCollision->GetMass() * DeltaTime;
+	const FVector WheelForwardForce = ForceGroundScaler * WheelForward * TargetSpeed * VehicleCollision->GetMass() * DeltaTime;
 	VehicleCollision->AddForceAtLocation(
 		WheelForwardForce,
 		GetComponentLocation());

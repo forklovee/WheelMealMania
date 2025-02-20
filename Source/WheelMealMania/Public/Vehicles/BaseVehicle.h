@@ -6,16 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "BaseVehicle.generated.h"
 
-class UDynamicCameraArmComponent;
-class UVehicleSeatComponent;
 class UBoxComponent;
-class USpringArmComponent;
-class UCameraComponent;
-class UInputAction;
-class UNiagaraSystem;
-class UNiagaraComponent;
 class UWheelComponent;
-struct FInputActionValue;
 
 UENUM(BlueprintType)
 enum class EGearShift : uint8{
@@ -23,32 +15,8 @@ enum class EGearShift : uint8{
 	REVERSE = 1		UMETA(DisplayName = "Reverse")
 };
 
-UENUM(BlueprintType)
-enum class EVehicleTrick : uint8
-{
-	NEAR_MISS = 0	UMETA(DisplayName = "Near Miss"),
-	BIG_AIR = 1	UMETA(DisplayName = "Big Air"),
-	SPIN = 3	UMETA(DisplayName = "Spin"),
-	DRIFT = 4	UMETA(DisplayName = "Drift"),
-};
-
-USTRUCT(BlueprintType)
-struct FMovesetComboKeys
-{
-	GENERATED_BODY()
-
-	FMovesetComboKeys() {}
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ComboName;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> Keys;
-};
-
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearChanged, EGearShift);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGearShifting, bool);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTrickPerformed, EVehicleTrick, VehicleTrick, int, SubsuquentialTricks);
 
 UCLASS()
 class WHEELMEALMANIA_API ABaseVehicle : public APawn
@@ -58,8 +26,6 @@ class WHEELMEALMANIA_API ABaseVehicle : public APawn
 public:
 	FOnGearChanged OnGearChangedDelegate;
 	FOnGearShifting OnGearShiftingDelegate;
-	UPROPERTY(BlueprintAssignable)
-	FOnTrickPerformed OnTrickPerformed;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool bDrawDebug = false;
@@ -116,66 +82,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
 	FVector MassCenterOffset = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension")
-	float SocketDistanceOffset = 17.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
-	float DashAccelerationBoost = 0.45f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Dash")
-	float DashForce = 5000.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Drifting")
-	float DriftingMaxAngleDeg = 45.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movesets|Jumping")
-	float JumpStrength = 1000.f;
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
 	UBoxComponent* VehicleCollision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* VehicleMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UDynamicCameraArmComponent* CameraArm;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* Camera;
-
-#pragma region InputActions
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input|UI", meta = (AllowPrivateAccess="true"))
-	UInputAction* PauseMenuInputAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Input", meta = (AllowPrivateAccess="true"))
-	UInputAction* ThrottleInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* BreakInputAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* GearShiftInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
-	UInputAction* HandBreakInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Movement Actions", meta = (AllowPrivateAccess = "true"))
-	UInputAction* HydraulicsInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* SteeringInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookAroundInputAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Camera", meta = (AllowPrivateAccess = "true"))
-	UInputAction* ResetCameraInputAction;
-
-#pragma endregion InputActions
 
 	UPROPERTY(BlueprintReadOnly, Category="Engine")
 	bool bIsThrottling = false;
@@ -185,17 +97,8 @@ protected:
 	bool bIsBreaking = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Breaks")
 	bool bIsHandbreaking = false;
-
-private:
-	TArray<UVehicleSeatComponent*> Seats;
+	
 	TArray<UWheelComponent*> Wheels;
-
-	TArray<UWheelComponent*> FrontWheels;
-	TArray<UWheelComponent*> BackWheels;
-	TArray<UWheelComponent*> LeftWheels;
-	TArray<UWheelComponent*> RightWheels;
-
-	TMap<USceneComponent*, UNiagaraComponent*> WheelSocketTrails;
 
 	// Accelerating
 	float Throttle = 0.0;
@@ -216,124 +119,63 @@ private:
 	FVector2D Steering = FVector2D::ZeroVector;
 	float SteeringAngle = 0.f;
 	
-	FVector2D DriftSteering = FVector2D::ZeroVector;
-	float SteeringRange = 1.f;
-
 	FVector FlyDirection = FVector::ZeroVector;
-	uint8 YawSpins = 0;
-	float CurrentYawSpinDegrees = 0.f;
-	
-	// Rotation Control
-	float TargetHydraulicsControl = 0.f;
-	float HydraulicsControl = 0.f;
-
-	// Side Balance
-	float TargetSideBalance = 0.0;
-
-	uint8 JumpCounter = 0;
 
 	bool bIsOnGround = true;
-
-	// Movesets
-	TArray<FMovesetComboKeys> ComboKeys;
-	TArray<FString> ComboBuffer;
-
-	// Jump
-	float JumpCharge = 0.f;
-	
-	// Drift mode
-	bool bDriftMode = false;
-	float DriftAngle = 0.f;
-	float LastDriftAngle = 0.f;
-
-	// Tricks
-	FTimerHandle DriftTrickTimerHandle;
-	uint8 DriftTrickCounter = 0;
-	FTimerHandle BigAirTimerHandle;
-	uint8 BigAirTrickCounter = 0;
-	
-	FTimerHandle ComboClearOutTimer;
 	
 public:
 	ABaseVehicle();
 
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Driving")
+	void SetThrottle(float NewThrottle);
+	UFUNCTION(BlueprintCallable, Category = "Driving")
+	void SetSteering(FVector2D NewSteering);
+	UFUNCTION(BlueprintCallable, Category = "Driving")
+	void SetBreak(float NewBreak);
+
+	UFUNCTION(BlueprintCallable, Category = "Ground")
+	bool IsOnGround();
+	UFUNCTION(BlueprintCallable, Category = "Ground")
+	bool IsAnyWheelOnTheGround();
+	
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentTargetSpeed();
 	
 	UFUNCTION(BlueprintCallable)
 	EGearShift GetCurrentGearShift();
-
-	UFUNCTION(BlueprintCallable)
-	bool HasPassenger(AActor* Passenger) const;
-
-	UFUNCTION(BlueprintCallable)
-	UVehicleSeatComponent* GetPassengerSeat(AActor* Passenger) const;
-	
-	UFUNCTION(BlueprintCallable)
-	TArray<AActor*> GetPassengers();
-
-	UFUNCTION(BlueprintCallable)
-	UVehicleSeatComponent* GetFirstFreeSeat() const;
 	
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
 	virtual void BeginPlay() override;
-
+	
 	UFUNCTION(BlueprintCallable)
 	bool IsThrottling();
-
-	void ThrottleInput(const FInputActionValue& InputValue);
-	void ThrottleInputPressed(const FInputActionValue& InputValue);
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnThrottleUpdate(float NewThrottle);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnAccelerationUpdate(float NewAcceleration);
-
-	void SteeringInput(const FInputActionValue& InputValue);
-	void SteeringInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSteeringUpdate(FVector2D NewSteering);
-
-	void HydraulicsControlInput(const FInputActionValue& InputValue);
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnHydraulicsControlUpdated(float NewHydraulicsControl);
-
-	void BreakInput(const FInputActionValue& InputValue);
-	void BreakInputPressed(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBreaking();
-
-	void GearShiftInput(const FInputActionValue& InputValue);
+	
 	void ShiftToNewGear(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGearShift(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGearShifting(bool bNewIsGearShifting);
-
-	void HandbreakInput(const FInputActionValue& InputValue);
-	void HandbreakInputPressed(const FInputActionValue& InputValue);
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnHandbreaking();
-
-	void JumpingInput(const FInputActionValue& InputValue);
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnJumped();
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnInAir();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLanded();
 
-	void SideBalanceInput(const FInputActionValue& InputValue);
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnSideBalanceChanged(float NewSideBalance);
-
-	void LookAroundInput(const FInputActionValue& InputValue);
-	void ResetCameraInput(const FInputActionValue& InputValue);
-
+	void InstantAccelerationDecrease(float Value);
+	
 	UFUNCTION()
 	void VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -341,41 +183,19 @@ protected:
 	void OnVehicleHit(ABaseVehicle* Vehicle,
 		AActor* ActorHit, USceneComponent* ComponentHit,
 		FVector HitPoint, FVector HitNormal);
-
-#pragma region Movesets
-	void DashForward();
-	void ForceBreak();
-	void SetDriftMode(bool bNewDriftMode);
-#pragma endregion
 	
 private:
 	void UpdateAcceleration(float DeltaTime);
 	void UpdateWheelsVelocityAndDirection(float DeltaTime);
 	// void UpdateVehicleSteeringRotation(float DeltaTime);
 	
-	void InAirRotation(float DeltaTime);
-
 	void InAir();
 	void Landed();
 	
-	void InstantAccelerationDecrease(float Value);
-
 	float GetTargetWheelSpeed();
 	FVector GetTargetVelocity();
 
 	FVector GetHorizontalVelocity();
 
-	bool IsOnGround();
-	bool IsAnyWheelOnTheGround();
-
 	void SetupVehicleWheelComponents();
-	void SetupVehicleSeatComponents();
-
-	void PushKeyToComboBuffer(FString KeyString);
-	UFUNCTION()
-	void ClearComboBuffer();
-
-	// Tricks
-	void UpdateDriftTrickCounter();
-	void UpdateBigAirTrickCounter();
 };

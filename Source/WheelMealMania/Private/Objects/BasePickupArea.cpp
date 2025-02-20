@@ -51,7 +51,7 @@ void ABasePickupArea::BeginPlay()
 	}
 }
 
-void ABasePickupArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
+void ABasePickupArea::PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle)
 {
 	Super::PlayerVehicleStoppedInside_Implementation(Vehicle);
 

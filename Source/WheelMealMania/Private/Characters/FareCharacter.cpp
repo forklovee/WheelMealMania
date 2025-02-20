@@ -5,7 +5,7 @@
 #include "Components/FareTimerComponent.h"
 #include "Game/BaseGameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Vehicles/BaseVehicle.h"
+#include "Vehicles/PlayerVehicle.h"
 #include "Objects/BasePickupArea.h"
 #include "Objects/BaseDeliveryTargetArea.h"
 
@@ -30,7 +30,7 @@ int AFareCharacter::GetDeliveryTime_Implementation() const
 	return FareTimerComponent->GetMinDeliveryTime() + static_cast<int>(DistanceToTarget/2000.f);
 }
 
-int AFareCharacter::StartDelivery_Implementation(ABaseVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End)
+int AFareCharacter::StartDelivery_Implementation(APlayerVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End)
 {
 	InVehicle = Vehicle;
 	PickupArea = Start;
@@ -83,7 +83,7 @@ void AFareCharacter::FareTimerTimeIsUp()
 	Execute_DeliveryTimerTimeIsUp(this);
 }
 
-void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
+void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
 {
 	IActorDeliveryInterface::DeliveryStarted_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
 	
@@ -93,7 +93,7 @@ void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFar
 	UE_LOG(LogTemp, Warning, TEXT("Delivery Started! %s"), *GetName());
 }
 
-void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
+void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
 {
 	IActorDeliveryInterface::DeliveryFailed_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
 	
@@ -103,7 +103,7 @@ void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFare
 	UE_LOG(LogTemp, Warning, TEXT("Delivery Failed! %s"), *GetName());
 }
 
-void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle)
+void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
 {
 	IActorDeliveryInterface::DeliveryFinished_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
 
@@ -124,7 +124,7 @@ UFareTimerComponent* AFareCharacter::GetDeliveryTimer_Implementation() const
 	return FareTimerComponent;
 }
 
-ABaseVehicle* AFareCharacter::GetDeliveryVehicle_Implementation() const
+APlayerVehicle* AFareCharacter::GetDeliveryVehicle_Implementation() const
 {
 	return InVehicle.Get();
 }

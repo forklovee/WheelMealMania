@@ -30,13 +30,13 @@ private:
 	TWeakObjectPtr<ABasePickupArea> PickupArea;
 	TWeakObjectPtr<ABaseDeliveryTargetArea> DeliveryTargetArea;
 
-	TWeakObjectPtr<ABaseVehicle> InVehicle;
+	TWeakObjectPtr<APlayerVehicle> InVehicle;
 	
 public:
 	AFareCharacter();
 
 	//Delivery
-	virtual int StartDelivery_Implementation(ABaseVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End) override;
+	virtual int StartDelivery_Implementation(APlayerVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End) override;
 	virtual int StopDelivery_Implementation(bool bSuccess = false) override;
 
 	//Getters
@@ -44,13 +44,13 @@ public:
 	virtual ABaseDeliveryTargetArea* GetDeliveryTargetArea_Implementation() const override;
 	virtual int GetDeliveryTime_Implementation() const override;
 	virtual UFareTimerComponent* GetDeliveryTimer_Implementation() const override;
-	virtual ABaseVehicle* GetDeliveryVehicle_Implementation() const override;
+	virtual APlayerVehicle* GetDeliveryVehicle_Implementation() const override;
 	
 protected:
 	//Events
-	virtual void DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle) override;
-	virtual void DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle) override;
-	virtual void DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle) override;
+	virtual void DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle) override;
+	virtual void DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle) override;
+	virtual void DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle) override;
 
 	UFUNCTION()
 	virtual void DeliveryTimerTimeIsUp_Implementation() override;

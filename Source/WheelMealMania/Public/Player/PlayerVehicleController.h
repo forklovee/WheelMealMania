@@ -6,9 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerVehicleController.generated.h"
 
+class APlayerVehicle;
 class UInputMappingContext;
 class UPlayerHUD;
-class ABaseVehicle;
 /**
  * 
  */
@@ -27,7 +27,7 @@ protected:
 	bool bIsPauseMenuOpen = false;
 	bool bCanTogglePauseMenu = true;
 	
-	TObjectPtr<ABaseVehicle> PlayerVehicle;
+	TObjectPtr<APlayerVehicle> PlayerVehicle;
 	TObjectPtr<UPlayerHUD> PlayerHUD;
 
 public:

@@ -23,11 +23,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetRequiredActor(AActor* PassengerActor);
 
-	virtual void PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle) override;
+	virtual void PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle) override;
 	
 protected:
 	virtual void BeginPlay() override;
 
-	virtual bool CanVehicleEnterArea(ABaseVehicle* Vehicle) const override;
+	virtual bool CanVehicleEnterArea(APlayerVehicle* Vehicle) const override;
 
 };

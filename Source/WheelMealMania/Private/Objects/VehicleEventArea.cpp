@@ -3,7 +3,7 @@
 
 #include "Objects/VehicleEventArea.h"
 
-#include "Vehicles/BaseVehicle.h"
+#include "Vehicles/PlayerVehicle.h"
 
 // Sets default values
 AVehicleEventArea::AVehicleEventArea()
@@ -66,12 +66,12 @@ void AVehicleEventArea::Tick(float DeltaTime)
 	}
 }
 
-bool AVehicleEventArea::CanVehicleEnterArea(ABaseVehicle* Vehicle) const
+bool AVehicleEventArea::CanVehicleEnterArea(APlayerVehicle* Vehicle) const
 {
 	return true;
 }
 
-void AVehicleEventArea::PlayerVehicleEntered_Implementation(ABaseVehicle* Vehicle)
+void AVehicleEventArea::PlayerVehicleEntered_Implementation(APlayerVehicle* Vehicle)
 {
 	PlayerVehicle = Vehicle;
 	bIsPlayerVehicleMoving = true;
@@ -82,12 +82,12 @@ void AVehicleEventArea::PlayerVehicleEntered_Implementation(ABaseVehicle* Vehicl
 	}
 }
 
-void AVehicleEventArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
+void AVehicleEventArea::PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle)
 {
 	
 }
 
-void AVehicleEventArea::PlayerVehicleExited_Implementation(ABaseVehicle* Vehicle)
+void AVehicleEventArea::PlayerVehicleExited_Implementation(APlayerVehicle* Vehicle)
 {
 	VehicleStoppingDeadzoneTimerHandle.Invalidate();
 	SetActorTickEnabled(false);
@@ -114,7 +114,7 @@ void AVehicleEventArea::OnVehicleStoppedInsideArea()
 void AVehicleEventArea::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ABaseVehicle* Vehicle = Cast<ABaseVehicle>(OtherActor);
+	APlayerVehicle* Vehicle = Cast<APlayerVehicle>(OtherActor);
 	
 	if (!IsValid(Vehicle)) return;
 	if (Vehicle->GetInstigatorController() != GetWorld()->GetFirstPlayerController()) return;

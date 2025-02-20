@@ -7,6 +7,7 @@
 #include "Interfaces/ActorDeliveryInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Vehicles/BaseVehicle.h"
+#include "Vehicles/PlayerVehicle.h"
 
 
 ABaseDeliveryTargetArea::ABaseDeliveryTargetArea()
@@ -24,7 +25,7 @@ void ABaseDeliveryTargetArea::SetRequiredActor(AActor* PassengerActor)
 	AreaMesh->SetVisibility(RequiredActor.IsValid());
 }
 
-void ABaseDeliveryTargetArea::PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle)
+void ABaseDeliveryTargetArea::PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle)
 {
 	Super::PlayerVehicleStoppedInside_Implementation(Vehicle);
 
@@ -54,7 +55,7 @@ void ABaseDeliveryTargetArea::BeginPlay()
 	AreaMesh->SetVisibility(false);
 }
 
-bool ABaseDeliveryTargetArea::CanVehicleEnterArea(ABaseVehicle* Vehicle) const
+bool ABaseDeliveryTargetArea::CanVehicleEnterArea(APlayerVehicle* Vehicle) const
 {
 	if (!RequiredActor.IsValid())
 	{

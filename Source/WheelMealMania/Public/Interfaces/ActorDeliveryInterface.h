@@ -8,7 +8,7 @@
 #include "ActorDeliveryInterface.generated.h"
 
 class UFareTimerComponent;
-class ABaseVehicle;
+class APlayerVehicle;
 class UDeliveryTimer;
 class ABaseDeliveryTargetArea;
 class ABasePickupArea;
@@ -26,7 +26,7 @@ class WHEELMEALMANIA_API IActorDeliveryInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	//Returns Delivery Time
-	int StartDelivery(ABaseVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End);
+	int StartDelivery(APlayerVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	//Returns Remaining Delivery Time
@@ -44,18 +44,18 @@ public:
 	UFareTimerComponent* GetDeliveryTimer() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	ABaseVehicle* GetDeliveryVehicle() const;
+	APlayerVehicle* GetDeliveryVehicle() const;
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryStarted(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
+	void DeliveryStarted(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DeliveryTimerTimeIsUp();
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryFailed(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
+	void DeliveryFailed(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void DeliveryFinished(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, ABaseVehicle* Vehicle);
+	void DeliveryFinished(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle);
 };

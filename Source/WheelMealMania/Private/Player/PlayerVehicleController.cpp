@@ -4,8 +4,8 @@
 #include "Player/PlayerVehicleController.h"
 
 #include "UI/PlayerHUD.h"
-#include "Vehicles/BaseVehicle.h"
 #include "EnhancedInputSubsystems.h"
+#include "Vehicles/PlayerVehicle.h"
 
 void APlayerVehicleController::TogglePause_Implementation(bool bPauseMenuState)
 {
@@ -66,5 +66,5 @@ void APlayerVehicleController::OnPossess(APawn* NewPawn)
 {
 	Super::OnPossess(NewPawn);
 
-	PlayerVehicle = CastChecked<ABaseVehicle>(NewPawn);
+	PlayerVehicle = CastChecked<APlayerVehicle>(NewPawn);
 }

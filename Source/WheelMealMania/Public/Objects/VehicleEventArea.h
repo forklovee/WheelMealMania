@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "VehicleEventArea.generated.h"
 
+class APlayerVehicle;
+
 UCLASS()
 class WHEELMEALMANIA_API AVehicleEventArea : public AActor
 {
@@ -20,7 +22,7 @@ protected:
 	class UStaticMeshComponent* AreaMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TWeakObjectPtr<class ABaseVehicle> PlayerVehicle;
+	TWeakObjectPtr<class APlayerVehicle> PlayerVehicle;
 private:
 	bool bIsPlayerVehicleMoving = false;
 
@@ -36,19 +38,19 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual bool CanVehicleEnterArea(ABaseVehicle* Vehicle) const;
+	virtual bool CanVehicleEnterArea(APlayerVehicle* Vehicle) const;
 	
 	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
-	void PlayerVehicleEntered(ABaseVehicle* Vehicle);
-	virtual void PlayerVehicleEntered_Implementation(ABaseVehicle* Vehicle);
+	void PlayerVehicleEntered(APlayerVehicle* Vehicle);
+	virtual void PlayerVehicleEntered_Implementation(APlayerVehicle* Vehicle);
 
 	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
-	void PlayerVehicleStoppedInside(ABaseVehicle* Vehicle);
-	virtual void PlayerVehicleStoppedInside_Implementation(ABaseVehicle* Vehicle);
+	void PlayerVehicleStoppedInside(APlayerVehicle* Vehicle);
+	virtual void PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle);
 	
 	UFUNCTION(BlueprintNativeEvent, Category="Pickup Area")
-	void PlayerVehicleExited(ABaseVehicle* Vehicle);
-	virtual void PlayerVehicleExited_Implementation(ABaseVehicle* Vehicle);
+	void PlayerVehicleExited(APlayerVehicle* Vehicle);
+	virtual void PlayerVehicleExited_Implementation(APlayerVehicle* Vehicle);
 
 	UFUNCTION()
 	virtual void OnVehicleStoppedInsideArea();
