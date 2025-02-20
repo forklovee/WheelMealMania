@@ -83,7 +83,7 @@ public:
 	AIntersectionController();
 
 	UFUNCTION(BlueprintCallable)
-	void Start(uint8 SequenceId = 0);
+	void Start();
 	UFUNCTION(BlueprintCallable)
 	uint8 GetSequenceIndex() const;
 	UFUNCTION(BlueprintImplementableEvent)
@@ -103,5 +103,7 @@ private:
 	void SequenceTick();
 
 	void Stop();
+
+	void InitializeIntersectionPoints();
 	
 };

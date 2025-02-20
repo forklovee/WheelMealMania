@@ -11,7 +11,7 @@ AIntersectionController::AIntersectionController()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AIntersectionController::Start(uint8 SequenceId)
+void AIntersectionController::Start()
 {
 	SequenceIndex = -1;
 	if (Sequences.IsEmpty())
@@ -19,6 +19,7 @@ void AIntersectionController::Start(uint8 SequenceId)
 		return;
 	}
 	
+	InitializeIntersectionPoints();
 	StartNewSequence();
 }
 
@@ -48,41 +49,10 @@ TArray<ATrafficIntersectionPoint*> AIntersectionController::GetOpenIntersectionP
 void AIntersectionController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	for (FIntersectionSequence& Sequence : Sequences)
-	{
-		for (FIntersectionPointState PointState: Sequence.States)
-		{
-			ATrafficIntersectionPoint* IntersectionPoint = PointState.IntersectionPoint.Get();
-			AGroupedTrafficIntersectionPoint* GroupedTrafficIntersectionPoint = Cast<AGroupedTrafficIntersectionPoint>(IntersectionPoint);
-			if (GroupedTrafficIntersectionPoint != nullptr)
-			{
-				for (ATrafficIntersectionPoint* SubTrafficIntersectionPoint: GroupedTrafficIntersectionPoint->GetIntersectionPoints())
-				{
-					if (IntersectionPoints.Contains(SubTrafficIntersectionPoint))
-					{
-						continue;
-					}
-					IntersectionPoints.Add(SubTrafficIntersectionPoint);
-					SubTrafficIntersectionPoint->SetIntersectionController(this);
-				}
-				continue;
-			}
-			
-			if (IntersectionPoints.Contains(IntersectionPoint))
-			{
-				continue;
-			}
-			IntersectionPoints.Add(IntersectionPoint);
-			IntersectionPoint->SetIntersectionController(this);
-		}
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("%s Intersection Points initiated: %i"), *GetName(), IntersectionPoints.Num());
 	
 	if (bAutoStart)
 	{
-		Start();
+		GetWorldTimerManager().SetTimer(SequenceTimer, this, &AIntersectionController::Start, 1.f, false);
 	}
 }
 
@@ -143,5 +113,43 @@ void AIntersectionController::Stop()
 	{
 		StartNewSequence();
 	}
+}
+
+void AIntersectionController::InitializeIntersectionPoints()
+{
+	for (FIntersectionSequence& Sequence : Sequences)
+	{
+		for (FIntersectionPointState PointState: Sequence.States)
+		{
+			ATrafficIntersectionPoint* IntersectionPoint = PointState.IntersectionPoint.Get();
+			if (!IntersectionPoint)
+			{
+				continue;
+			}
+			AGroupedTrafficIntersectionPoint* GroupedTrafficIntersectionPoint = Cast<AGroupedTrafficIntersectionPoint>(IntersectionPoint);
+			if (GroupedTrafficIntersectionPoint != nullptr)
+			{
+				for (ATrafficIntersectionPoint* SubTrafficIntersectionPoint: GroupedTrafficIntersectionPoint->GetIntersectionPoints())
+				{
+					if (IntersectionPoints.Contains(SubTrafficIntersectionPoint))
+					{
+						continue;
+					}
+					IntersectionPoints.Add(SubTrafficIntersectionPoint);
+					SubTrafficIntersectionPoint->SetIntersectionController(this);
+				}
+				continue;
+			}
+			
+			if (IntersectionPoints.Contains(IntersectionPoint))
+			{
+				continue;
+			}
+			IntersectionPoints.Add(IntersectionPoint);
+			IntersectionPoint->SetIntersectionController(this);
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%s Intersection Points initialized: %i"), *GetName(), IntersectionPoints.Num());
 }
 
