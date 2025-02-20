@@ -144,7 +144,7 @@ ATrafficVehicleGuidePoint* ANPCVehicle::FindTrafficGuidePoint()
 		CurrentIntersectionPoint = Cast<ATrafficIntersectionPoint>(TrafficGuidePoint);
 		bIgnoreIntersectionWaitingState = false;
 
-		UE_LOG(LogTemp, Warning, TEXT("Guide Point Set: %s [is intersection = %i]"), *TrafficGuidePoint->GetName(), CurrentIntersectionPoint != nullptr);
+		// UE_LOG(LogTemp, Warning, TEXT("Guide Point Set: %s [is intersection = %i]"), *TrafficGuidePoint->GetName(), CurrentIntersectionPoint != nullptr);
 	}
 	return TrafficGuidePoint;
 }
@@ -215,7 +215,7 @@ bool ANPCVehicle::IsBlockedByObstacle()
 	
 	if (IsValid(Hit.GetActor()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: Blocked by %s"), *GetName(), *Hit.GetActor()->GetName());
+		// UE_LOG(LogTemp, Warning, TEXT("%s: Blocked by %s"), *GetName(), *Hit.GetActor()->GetName());
 	}
 	return Hit.bBlockingHit;
 }
