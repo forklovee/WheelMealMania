@@ -50,6 +50,8 @@ void ABaseGameMode::RemoveActorToDeliver(AActor* ActorToDeliver)
 	
 	UFareTimerComponent* FareTimerComponent = IActorDeliveryInterface::Execute_GetDeliveryTimer(ActorToDeliver);
 	OnActorDelivered.Broadcast(ActorToDeliver, FareTimerComponent);
+
+	Clients++;
 	
 	//Add Bonus Time
 	const int TimeRemaining = FareTimerComponent->GetTimeRemaining();
@@ -114,6 +116,7 @@ void ABaseGameMode::DecreaseTime()
 {
 	TimeRemaining -= 1;
 	if (TimeRemaining <= 0) {
+		OnTimerTimesUp.Broadcast();
 		StopTimer();
 		TimeRemaining = 0;
 		return;

@@ -17,6 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBonusTimeAdded, int, BonusTime);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStartedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerStoppedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerTimesUp);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTimerUpdatedSignature, int, Minutes, int, Seconds);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCashAdded, float, Cash, float, EarnedCash);
@@ -41,6 +42,8 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerStoppedSignature OnTimerStopped;
 	UPROPERTY(BlueprintAssignable)
+	FOnTimerTimesUp OnTimerTimesUp;
+	UPROPERTY(BlueprintAssignable)
 	FOnTimerUpdatedSignature OnTimerUpdated;
 
 	UPROPERTY(BlueprintAssignable)
@@ -49,8 +52,11 @@ class WHEELMEALMANIA_API ABaseGameMode : public AGameModeBase
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	float CashPerSecond = 10.f;
-	
+
+	UPROPERTY(BlueprintReadOnly)
 	float Cash = 0.f;
+	UPROPERTY(BlueprintReadOnly)
+	int Clients = 0;
 	
 	TArray<AActor*> ActorsToDeliver;
 
