@@ -47,6 +47,8 @@ public:
 	virtual APlayerVehicle* GetDeliveryVehicle_Implementation() const override;
 	
 protected:
+	virtual void BeginPlay() override;
+	
 	//Events
 	virtual void DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle) override;
 	virtual void DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle) override;

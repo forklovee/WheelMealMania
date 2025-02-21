@@ -47,7 +47,7 @@ void AVehicleEventArea::Tick(float DeltaTime)
 		return;
 	}
 
-	bool bNewIsPlayerVehicleMoving = PlayerVehicle->GetVelocity().Length() > 25.f;
+	bool bNewIsPlayerVehicleMoving = PlayerVehicle->GetVelocity().Length() > 200.f;
 	if (bNewIsPlayerVehicleMoving != bIsPlayerVehicleMoving)
 	{
 		bIsPlayerVehicleMoving = bNewIsPlayerVehicleMoving;

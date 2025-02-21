@@ -63,6 +63,16 @@ void ANPCVehicle::Tick(float DeltaTime)
 		true);
 }
 
+void ANPCVehicle::SetIsRendering(bool IsRendering)
+{
+	Mesh->SetVisibility(IsRendering);
+}
+
+void ANPCVehicle::SetSimulatePhysics(bool bSimulatePhysics)
+{
+	CollisionBox->SetSimulatePhysics(bSimulatePhysics);
+}
+
 void ANPCVehicle::HoverAboveGround(float DeltaTime)
 {
 	const FVector VehicleLocation = GetActorLocation();

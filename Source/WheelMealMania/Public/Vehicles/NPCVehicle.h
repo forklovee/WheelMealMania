@@ -50,6 +50,9 @@ public:
 	// Sets default values for this pawn's properties
 	ANPCVehicle();
 
+	void SetIsRendering(bool IsRendering);
+	void SetSimulatePhysics(bool bSimulatePhysics);
+	
 	UFUNCTION(BlueprintCallable)
 	void SetThrottle(float NewThrottle);
 	

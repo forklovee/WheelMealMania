@@ -33,18 +33,25 @@ void APlayerVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CameraArm->OverrideTargetForwardVector(
-		VehicleCollision->GetForwardVector()
-	);
+	if (!bMovementBlocked)
+	{
+		if (!bDriftMode)
+		{
+			CameraArm->OverrideTargetForwardVector(
+				VehicleCollision->GetForwardVector()
+			);
+		}
+		else
+		{
+			CameraArm->OverrideTargetForwardVector(
+				VehicleCollision->GetComponentVelocity().GetSafeNormal()
+			);
+		}
+	}
 	
 	if (!bIsOnGround)
 	{
 		InAirRotation(DeltaTime);
-		
-	}
-	else
-	{
-		CameraArm->OverrideTargetForwardVector(GetActorForwardVector());
 	}
 }
 
@@ -201,6 +208,16 @@ void APlayerVehicle::BreakInputPressed(const FInputActionValue& InputValue)
 
 void APlayerVehicle::JumpingInput(const FInputActionValue& InputValue)
 {
+	if (bMovementBlocked)
+	{
+		JumpCharge = 0.f;
+		for (UWheelComponent* WheelComponent : Wheels)
+		{
+			WheelComponent->SetSpringStrengthRatio(1.f);
+		}
+		return;
+	}
+	
 	const float LastJumpCharge = JumpCharge;
 	JumpCharge = InputValue.Get<float>();
 
@@ -224,7 +241,10 @@ void APlayerVehicle::JumpingInput(const FInputActionValue& InputValue)
 		WheelComponent->Jump(LastJumpCharge*JumpStrength*GetPhysicsForceDeltaTimeScaler());
 	}
 	JumpCounter++;
-
+	for (UWheelComponent* WheelComponent : Wheels)
+	{
+		WheelComponent->SetSpringStrengthRatio(1.f);
+	}
 	// UE_LOG(LogTemp, Display, TEXT("Jump! "));
 	//
 	// // Jump!
@@ -281,6 +301,23 @@ void APlayerVehicle::GearShiftInput(const FInputActionValue& InputValue)
 	}
 }
 
+void APlayerVehicle::ShiftToNewGear(EGearShift NewGear)
+{
+	Super::ShiftToNewGear(NewGear);
+
+	switch (NewGear)
+	{
+	case EGearShift::DRIVE:
+		CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength());
+		PushKeyToComboBuffer("Drive");
+		break;
+	case EGearShift::REVERSE:
+		CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength()*1.05f);
+		PushKeyToComboBuffer("Reverse");
+		break;
+	}
+}
+
 #pragma endregion
 
 #pragma region Movesets
@@ -288,7 +325,7 @@ void APlayerVehicle::GearShiftInput(const FInputActionValue& InputValue)
 void APlayerVehicle::InAirRotation(float DeltaTime)
 {
 	const float RotationScalar = 1000000.f;
-	const float StabilizationScalar = 550000000.f;
+	const float StabilizationScalar = 5050000000.f;
 
 	const FRotator LocalVehicleRotation = VehicleCollision->GetRelativeRotation();
 	const FRotator TargetLocalVehicleRotation = FRotator(0.f, 0.f, 0.f);
@@ -377,7 +414,12 @@ void APlayerVehicle::ForceBreak()
 }
 
 void APlayerVehicle::SetDriftMode(bool bNewDriftMode)
-{
+{		
+	if (VehicleCollision->GetComponentVelocity().Length() < 500.f)
+	{
+		bNewDriftMode = false;
+	}
+	
 	bDriftMode = bNewDriftMode;
 
 	for (UWheelComponent* WheelComponent : Wheels)
@@ -388,6 +430,7 @@ void APlayerVehicle::SetDriftMode(bool bNewDriftMode)
 	DriftTrickCounter = 0;
 	if (bDriftMode)
 	{
+		InstantAccelerationDecrease(0.98);
 		GetWorldTimerManager().SetTimer(DriftTrickTimerHandle, this, &APlayerVehicle::UpdateDriftTrickCounter, 0.5f, true);
 	}
 	else

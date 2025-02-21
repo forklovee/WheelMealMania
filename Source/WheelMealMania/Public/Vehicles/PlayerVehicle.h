@@ -170,7 +170,8 @@ protected:
 	void ResetCameraInput(const FInputActionValue& InputValue);
 	
 	void GearShiftInput(const FInputActionValue& InputValue);
-
+	virtual void ShiftToNewGear(EGearShift NewGear) override;
+	
 	void JumpingInput(const FInputActionValue& InputValue);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnJumped();

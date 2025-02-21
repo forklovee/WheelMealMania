@@ -14,6 +14,12 @@ AFareCharacter::AFareCharacter()
 	FareTimerComponent = CreateDefaultSubobject<UFareTimerComponent>(FName("FareTimer"));
 }
 
+void AFareCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// GetMesh()->SetSimulatePhysics(false);
+}
+
 ABasePickupArea* AFareCharacter::GetPickupArea_Implementation() const
 {
 	return PickupArea.Get();
@@ -27,7 +33,7 @@ ABaseDeliveryTargetArea* AFareCharacter::GetDeliveryTargetArea_Implementation() 
 int AFareCharacter::GetDeliveryTime_Implementation() const
 {
 	const float DistanceToTarget = FVector::Distance(PickupArea->GetActorLocation(), DeliveryTargetArea->GetActorLocation());
-	return FareTimerComponent->GetMinDeliveryTime() + static_cast<int>(DistanceToTarget/2000.f);
+	return FareTimerComponent->GetMinDeliveryTime() + static_cast<int>(DistanceToTarget/2800.f);
 }
 
 int AFareCharacter::StartDelivery_Implementation(APlayerVehicle* Vehicle, ABasePickupArea* Start, ABaseDeliveryTargetArea* End)

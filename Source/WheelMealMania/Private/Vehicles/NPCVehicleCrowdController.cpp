@@ -43,21 +43,26 @@ void ANPCVehicleCrowdController::Tick(float DeltaTime)
 
 	for (ANPCVehicle* Vehicle : Vehicles)
 	{
-		Vehicle->SetHidden(false);
-		if (IsVehicleOutOfFarRange(Vehicle))
+		const float Distance = FVector::Distance(Vehicle->GetActorLocation(), PlayerCamera->GetCameraLocation());
+
+		if (Distance > FarRange && (!IsVehicleVisible(Vehicle) || Distance > FarRange * 2.f))
 		{
-			if (!IsVehicleVisible(Vehicle))
-			{
-				Vehicle->SetActorTickEnabled(false);
-				Vehicle->SetHidden(true);
-				continue;
-			}
-			Vehicle->SetActorTickEnabled(true);
+			Vehicle->SetActorTickEnabled(false);
+			Vehicle->SetSimulatePhysics(false);
+			Vehicle->SetIsRendering(false);
+			continue;
+		}
+		
+		Vehicle->SetActorTickEnabled(true);
+		Vehicle->SetIsRendering(true);
+		if (Distance > FarRange)
+		{
+			Vehicle->SetSimulatePhysics(false);
 			Vehicle->SetActorTickInterval(VehicleFarTickInterval);
 		}
 		else
 		{
-			Vehicle->SetActorTickEnabled(true);
+			Vehicle->SetSimulatePhysics(true);
 			Vehicle->SetActorTickInterval(VehicleDefaultTickInterval);
 		}
 	}
@@ -82,33 +87,23 @@ bool ANPCVehicleCrowdController::IsVehicleVisible(ANPCVehicle* Vehicle) const
 	}
 
 	const FVector CameraForward = PlayerCamera->GetActorForwardVector();
-	const FVector DirectionToVehicle = (Vehicle->GetActorLocation() - PlayerCamera->GetCameraLocation());
-
-	UKismetSystemLibrary::DrawDebugBox(
-	this,
-	PlayerCamera->GetCameraLocation(),
-	PlayerCamera->GetCameraLocation() + CameraForward * 100000.f,
-	FLinearColor::Red,
-	FRotator::ZeroRotator,
-	0.01f,
-	10.f);
-
+	const FVector DirectionToVehicle = (Vehicle->GetActorLocation() - PlayerCamera->GetCameraLocation()).GetSafeNormal();
 	
 	if (DirectionToVehicle.Dot(CameraForward) < -0.25)
 	{
 		return false;
 	}
-	
+
 	FHitResult Hit;
 	UKismetSystemLibrary::LineTraceSingle(
 		this,
 		PlayerCamera->GetCameraLocation(),
-		PlayerCamera->GetCameraLocation() + PlayerCamera->GetActorForwardVector() * 100000.f,
+		Vehicle->GetActorLocation(),
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
-		{},
-		EDrawDebugTrace::ForOneFrame,
+		{Vehicle},
+		EDrawDebugTrace::None,
 		Hit,
 		true);
-	return Hit.bBlockingHit;
+	return !Hit.bBlockingHit;
 }

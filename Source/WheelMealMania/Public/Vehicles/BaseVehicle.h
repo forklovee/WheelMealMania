@@ -122,12 +122,17 @@ protected:
 	FVector FlyDirection = FVector::ZeroVector;
 
 	bool bIsOnGround = true;
+
+	bool bMovementBlocked = false;
 	
 public:
 	ABaseVehicle();
 
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetMovementBlocked(bool bNewMovementBlocked);
+	
 	float GetPhysicsForceDeltaTimeScaler() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Driving")
@@ -165,7 +170,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBreaking();
 	
-	void ShiftToNewGear(EGearShift NewGear);
+	virtual void ShiftToNewGear(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnGearShift(EGearShift NewGear);
 	UFUNCTION(BlueprintImplementableEvent)

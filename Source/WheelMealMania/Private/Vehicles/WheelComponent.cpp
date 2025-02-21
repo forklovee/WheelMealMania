@@ -110,7 +110,7 @@ void UWheelComponent::UpdateWheelGravity()
 	const float SurfaceDot = FMath::Clamp(FVector::UpVector.Dot(GetUpVector()), 0.f, 1.f);
 
 	FVector GravityDirection = FVector::DownVector;
-	if (WheelHitResult.bBlockingHit && SurfaceDot > MaxSteepness)
+	if (GetComponentVelocity().Length() < 100.f && WheelHitResult.bBlockingHit && SurfaceDot > MaxSteepness)
 	{
 		GravityDirection = -WheelHitResult.Normal;
 	}
@@ -137,14 +137,14 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 	if (!bIsOnGround)
 	{
 		VehicleCollision->AddForceAtLocation(
-			VehicleCollision->GetComponentVelocity() * VehicleMass * 1.15f,
+			VehicleCollision->GetComponentVelocity() * VehicleMass * 2.25f,
 			GetComponentLocation());
 		return;
 	}
 	
 	//Ramp force scaling
 	const float GroundDot = FVector::UpVector.Dot(GetUpVector());
-	const float MaxSteepness = 0.45f;
+	const float MaxSteepness = 0.1f;
 	float ForceGroundScaler = FMath::GetMappedRangeValueClamped(
 		FVector2D(MaxSteepness, 1.0),
 		FVector2D(0.f, 1.f),
@@ -158,8 +158,8 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 
 	const FVector WheelRight = GetRightVector();
 	const float SideDragAcceleration = WheelRight.Dot(VehicleCollision->GetComponentVelocity());
-	const float SideSlideDirection = (bIsDrifting && !bAffectedBySteering) ? -1.f : 1.f;
-	const FVector SideDragForce = SideSlideDirection * 0.f * SideDragAcceleration * -WheelRight;
+	const float SideSlideDirection = (bIsDrifting && !bAffectedBySteering) ? -0.35f : 1.f;
+	const FVector SideDragForce = 10000.f * SideSlideDirection * 1.f * SideDragAcceleration * -WheelRight;
 	VehicleCollision->AddForceAtLocation(
 		SideDragForce,
 		GetComponentLocation());
@@ -249,7 +249,7 @@ bool UWheelComponent::UpdateWheelCollisionCast()
 		return false;
 	}
 
-	GroundNormal = FMath::Lerp(GroundNormal, FVector::UpVector, 0.5f);
+	GroundNormal = WheelHitResult.Normal;
 	TargetWheelHeight = WheelHitResult.Distance;
 	float DistanceNormalized = FMath::GetMappedRangeValueClamped(FVector2D(0.0, SpringLength), FVector2D(0.0, 1.0), TargetWheelHeight);
 	float DistanceInversed = 1.f - DistanceNormalized;
@@ -289,11 +289,10 @@ FHitResult UWheelComponent::GetWheelHitResult() const
 {
 	FHitResult WheelHitResult;
 	const FVector SpringDownVector = (!bSpringPointingDown) ? -GetUpVector() : FVector::DownVector;
-	UKismetSystemLibrary::SphereTraceSingle(
+	UKismetSystemLibrary::LineTraceSingle(
 		this,
 		GetComponentLocation(),
 		GetComponentLocation() + (FMath::Lerp(0.f, SpringLength, SpringLengthRatio) * SpringDownVector),
-		WheelRadius,
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		{ GetOwner() },

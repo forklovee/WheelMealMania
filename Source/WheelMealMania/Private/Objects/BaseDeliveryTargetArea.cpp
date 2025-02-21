@@ -23,6 +23,7 @@ void ABaseDeliveryTargetArea::SetRequiredActor(AActor* PassengerActor)
 {
 	RequiredActor = PassengerActor;
 	AreaMesh->SetVisibility(RequiredActor.IsValid());
+	AreaMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 }
 
 void ABaseDeliveryTargetArea::PlayerVehicleStoppedInside_Implementation(APlayerVehicle* Vehicle)

@@ -26,7 +26,7 @@ void UFareTimerComponent::StartTimer(const int TimeSeconds, ABaseDeliveryTargetA
 void UFareTimerComponent::StopTimer()
 {
 	OnTimerStopped.Broadcast(TimeRemaining);
-	TimerHandle.Invalidate();
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	TimeRemaining = 0;
 }
 

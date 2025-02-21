@@ -14,6 +14,11 @@ class WHEELMEALMANIA_API ABaseCharacter : public ACharacter
 public:
 	ABaseCharacter();
 
+	void SetIsRendering(bool isRendering);
+	void SetAnimationsEnabled(bool bAnimationsEnabled) const;
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetBehaviorTreePaused(bool bPaused);
+	
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	FVector SpawnLocation;

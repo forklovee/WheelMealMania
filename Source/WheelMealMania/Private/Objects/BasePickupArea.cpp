@@ -23,11 +23,26 @@ void ABasePickupArea::SpawnActorToDeliver()
 		UE_LOG(LogTemp, Error, TEXT("%s Actor to deliver class nullptr"), *GetName());
 		return;
 	}
+
+	FHitResult Hit;
+	UKismetSystemLibrary::LineTraceSingle(
+		this,
+		GetActorLocation() + FVector::UpVector * 5000.f,
+		GetActorLocation() - FVector::UpVector * 5000.f,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		{},
+		EDrawDebugTrace::None,
+		Hit,
+		true);
+
+	FVector SpawnLocation = GetActorLocation() + FVector::UpVector*100.f;
+	if (Hit.bBlockingHit)
+	{
+		SpawnLocation = Hit.Location + FVector::UpVector * 150.f;
+	}
 	
-	ActorToDeliver = GetWorld()->SpawnActor<AActor>(ActorToDeliverClass,
-		GetActorLocation() + FVector::UpVector*100.f,
-		FRotator::ZeroRotator
-		);
+	ActorToDeliver = GetWorld()->SpawnActor<AActor>(ActorToDeliverClass, SpawnLocation, FRotator::ZeroRotator);
 	
 	APawn* Pawn = Cast<APawn>(ActorToDeliver.Get());
 	if (Pawn)

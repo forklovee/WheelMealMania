@@ -133,8 +133,8 @@ void UDynamicCameraArmComponent::FollowTargetForwardVector(float DeltaTime)
 		LookAtTarget = GetOwner();
 	}
 	
-	// const FVector LookAtTargetDirection = IsTargetForwardVectorOverriden() ? TargetForwardVectorOverride : LookAtTarget->GetActorForwardVector();
-	FRotator TargetRotation = TargetForwardVectorOverride.Rotation();
+	const FVector LookAtTargetDirection = IsTargetForwardVectorOverriden() ? TargetForwardVectorOverride : LookAtTarget->GetActorForwardVector();
+	FRotator TargetRotation = LookAtTargetDirection.Rotation();
 	if (!bAffectYaw)
 	{
 		TargetRotation.Yaw = 0.f;

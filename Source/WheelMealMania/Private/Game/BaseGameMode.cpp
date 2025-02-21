@@ -30,7 +30,7 @@ void ABaseGameMode::AddActorToDeliver(AActor* ActorToDeliver)
 	const int DeliveryTime = IActorDeliveryInterface::Execute_GetDeliveryTime(ActorToDeliver);
 	if (TimeRemaining < DeliveryTime)
 	{
-		AddTime(TimeRemaining-DeliveryTime);
+		AddTime(DeliveryTime - TimeRemaining);
 	}
 	UE_LOG(LogTemp, Display, TEXT("Delivery Time: %i"), DeliveryTime);
 
@@ -55,7 +55,7 @@ void ABaseGameMode::RemoveActorToDeliver(AActor* ActorToDeliver)
 	const int TimeRemaining = FareTimerComponent->GetTimeRemaining();
 	if (TimeRemaining > 0)
 	{
-		AddTime(TimeRemaining);
+		AddTime((int)(TimeRemaining*.75f));
 		OnBonusTimeAdded.Broadcast(TimeRemaining);
 	}
 	ActorDelivered(ActorToDeliver, FareTimerComponent);

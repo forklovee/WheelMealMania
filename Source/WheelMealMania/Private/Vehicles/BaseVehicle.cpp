@@ -37,6 +37,10 @@ void ABaseVehicle::BeginPlay()
 void ABaseVehicle::SetThrottle(float NewThrottle)
 {
 	Throttle = NewThrottle;
+	if (bMovementBlocked)
+	{
+		Throttle = 0.f;
+	}
 	bIsThrottling = Throttle > 0.0;
 	
 	OnThrottleUpdate(Throttle);
@@ -56,7 +60,7 @@ void ABaseVehicle::SetBreak(float NewBreak)
 	}
 	bIsBreaking = NewBreak > 0.0;
 
-	InstantAccelerationDecrease(0.5);
+	InstantAccelerationDecrease(0.99999999f);
 	
 	// const float BreakForce = FMath::Clamp(VehicleCollision->GetComponentVelocity().Length(), 0.f, 500.f); 
 	// const FVector VelocityDirection = VehicleCollision->GetComponentVelocity().GetSafeNormal();
@@ -94,6 +98,10 @@ void ABaseVehicle::Tick(float DeltaTime)
 	VehicleCollision->SetEnableGravity(false);
 
 	// Process Steering
+	if (bMovementBlocked)
+	{
+		TargetSteering = FVector2D::ZeroVector;
+	}
 	Steering = FMath::Lerp(Steering, TargetSteering,
 		(FMath::Abs(TargetSteering.X) > 0.0) ? DeltaTime*SteeringSensitivity : DeltaTime*15.f);
 
@@ -121,6 +129,11 @@ void ABaseVehicle::Tick(float DeltaTime)
 			FLinearColor::White
 		);
 	}
+}
+
+void ABaseVehicle::SetMovementBlocked(bool bNewMovementBlocked)
+{
+	bMovementBlocked = bNewMovementBlocked;
 }
 
 float ABaseVehicle::GetPhysicsForceDeltaTimeScaler() const
@@ -154,6 +167,10 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 	
 	// Get target acceleration and lerp timescale
 	float TargetAcceleration = (CurrentGear == EGearShift::DRIVE) ? 1.f : -1.f;
+	if (bMovementBlocked)
+	{
+		TargetAcceleration = 0.f; 
+	}
 	float AccelerationLerpTimeScale = bIsThrottling ? ThrottleAccelerationRate : IdleEngineBreakingRate;
 	
 	// Set target acceleration to reduce acceleration overdrive
@@ -185,12 +202,17 @@ void ABaseVehicle::UpdateAcceleration(float DeltaTime)
 		AccelerationLerpTimeScale = InAirBreakingRate;
 	}
 	TargetAcceleration *= Throttle;
+
+	if (bIsOnGround && FMath::Abs(Throttle) < 0.5f && VehicleCollision->GetComponentVelocity().Length() < 100.f)
+	{
+		TargetAcceleration *= VehicleCollision->GetComponentVelocity().Length() * 0.01f;
+	}
 	
 	Acceleration = FMath::FInterpTo(Acceleration, TargetAcceleration, GetWorld()->GetDeltaSeconds(), AccelerationLerpTimeScale);
 
 	//Move mass center to... center.
 	FVector MaxAccelerationMassCenter = MassCenterOffset;
-	MaxAccelerationMassCenter.X = 5.f;
+	MaxAccelerationMassCenter.X = 10.f;
 	MaxAccelerationMassCenter.Y = 0.f;
 	
 	VehicleCollision->SetCenterOfMass(
@@ -268,7 +290,7 @@ void ABaseVehicle::InstantAccelerationDecrease(float Value)
 	Acceleration = FMath::Clamp(Acceleration-Value*.005f, -1.f, 2.f);
 	
 	VehicleCollision->AddForceAtLocation(
-		-Value * VehicleCollision->GetComponentVelocity() * 5000.f * (1.f-Acceleration),
+		-Value * VehicleCollision->GetComponentVelocity() * 100.f * (1.f-Acceleration),
 		VehicleCollision->GetComponentLocation()
 	);
 }
@@ -313,18 +335,6 @@ void ABaseVehicle::ShiftToNewGear(EGearShift NewGear)
 {
 	OnGearShift(NewGear);
 	OnGearChangedDelegate.Broadcast(NewGear);
-
-	// switch (NewGear)
-	// {
-	// 	case EGearShift::DRIVE:
-	// 		CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength());
-	// 		PushKeyToComboBuffer("Drive");
-	// 		break;
-	// 	case EGearShift::REVERSE:
-	// 		CameraArm->SetDistanceToTarget(CameraArm->GetDefaultArmLength()*1.05f);
-	// 		PushKeyToComboBuffer("Reverse");
-	// 		break;
-	// }
 }
 
 void ABaseVehicle::VehicleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
