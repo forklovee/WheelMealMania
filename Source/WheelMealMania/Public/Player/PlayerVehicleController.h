@@ -35,7 +35,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Input")
 	void TogglePause(bool bPauseMenuState);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="Input")
-	void OnPauseToggled(bool bIsPauseMenuOpen);
+	void OnPauseToggled(bool bPauseMenuOpened);
 	
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	UPlayerHUD* GetPlayerHUD() const;

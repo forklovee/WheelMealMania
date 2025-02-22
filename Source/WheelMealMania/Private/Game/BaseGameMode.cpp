@@ -54,11 +54,11 @@ void ABaseGameMode::RemoveActorToDeliver(AActor* ActorToDeliver)
 	Clients++;
 	
 	//Add Bonus Time
-	const int TimeRemaining = FareTimerComponent->GetTimeRemaining();
-	if (TimeRemaining > 0)
+	const int DeliveryTimeRemaining = FareTimerComponent->GetTimeRemaining();
+	if (DeliveryTimeRemaining > 0)
 	{
-		AddTime((int)(TimeRemaining*.75f));
-		OnBonusTimeAdded.Broadcast(TimeRemaining);
+		AddTime((int)(DeliveryTimeRemaining*.75f));
+		OnBonusTimeAdded.Broadcast(DeliveryTimeRemaining);
 	}
 	ActorDelivered(ActorToDeliver, FareTimerComponent);
 }

@@ -95,9 +95,9 @@ void AFareCharacter::FareTimerTimeIsUp()
 	Execute_DeliveryTimerTimeIsUp(this);
 }
 
-void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
+void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFareTimerComponent* TimerComponent, APlayerVehicle* Vehicle)
 {
-	IActorDeliveryInterface::DeliveryStarted_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+	IActorDeliveryInterface::DeliveryStarted_Implementation(ActorToDeliver, TimerComponent, Vehicle);
 	
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->AddActorToDeliver(this);
@@ -105,9 +105,9 @@ void AFareCharacter::DeliveryStarted_Implementation(AActor* ActorToDeliver, UFar
 	UE_LOG(LogTemp, Warning, TEXT("Delivery Started! %s"), *GetName());
 }
 
-void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
+void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFareTimerComponent* TimerComponent, APlayerVehicle* Vehicle)
 {
-	IActorDeliveryInterface::DeliveryFailed_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+	IActorDeliveryInterface::DeliveryFailed_Implementation(ActorToDeliver, TimerComponent, Vehicle);
 	
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->RemoveActorToDeliver(this);
@@ -115,16 +115,16 @@ void AFareCharacter::DeliveryFailed_Implementation(AActor* ActorToDeliver, UFare
 	UE_LOG(LogTemp, Warning, TEXT("Delivery Failed! %s"), *GetName());
 }
 
-void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* FareTimerComponent, APlayerVehicle* Vehicle)
+void AFareCharacter::DeliveryFinished_Implementation(AActor* ActorToDeliver, UFareTimerComponent* TimerComponent, APlayerVehicle* Vehicle)
 {
-	IActorDeliveryInterface::DeliveryFinished_Implementation(ActorToDeliver, FareTimerComponent, Vehicle);
+	IActorDeliveryInterface::DeliveryFinished_Implementation(ActorToDeliver, TimerComponent, Vehicle);
 
 	ABaseGameMode* GameMode = Cast<ABaseGameMode>(UGameplayStatics::GetGameMode(this));
 	GameMode->RemoveActorToDeliver(this);
 	
 	//Add Cash
 	const float CashPerSecond = 2.5f;
-	const int MaxDeliveryTime = FareTimerComponent->GetMaxDeliveryTime();
+	const int MaxDeliveryTime = TimerComponent->GetMaxDeliveryTime();
 	const float CashEarned = MaxDeliveryTime * CashPerSecond;
 	GameMode->AddCash(CashEarned);
 
