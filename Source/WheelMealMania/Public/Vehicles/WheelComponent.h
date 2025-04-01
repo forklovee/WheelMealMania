@@ -90,7 +90,7 @@ private:
 	float CurrentSpringStrength = 0.f;
 	
 	float TargetSpeed = 0.f;
-	float Angle = 0.f;
+	float Steering = 0.f;
 
 	// Friction
 	float CurrentFriction = 1.f;
@@ -106,7 +106,7 @@ public:
 	void Setup(UBoxComponent* NewVehicleCollision, float NewMaxWheelRotationAngleDeg,
 		float GravityScale,
 		bool bNewDrawDebug = false);
-	void Update(const float& NewSpeed, const float& NewAngle = 0.0f);
+	void Update(const float& NewSpeed, const float& NewSteering = 0.0f);
 
 	UFUNCTION(BlueprintCallable)
 	void Jump(float JumpForce);

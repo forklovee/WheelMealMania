@@ -77,10 +77,19 @@ void ABaseGameMode::AddCash(float CashEarned)
 	OnCashAdded.Broadcast(Cash, CashEarned);
 }
 
+void ABaseGameMode::SetGameplayTimer(int GameplayTime)
+{
+	GameplayTimerTime = GameplayTime;
+}
+
 void ABaseGameMode::StartTimer(int TimeSeconds)
 {
-	TimeRemaining = TimeSeconds;
+	TimeRemaining = (TimeSeconds < 0) ? GameplayTimerTime : TimeSeconds;
 
+	if (TimeRemaining < 0)
+	{
+		return;
+	}
 	GetWorld()->GetTimerManager().SetTimer(
 		TimeoutTimerHandle,
 		this, &ABaseGameMode::DecreaseTime,

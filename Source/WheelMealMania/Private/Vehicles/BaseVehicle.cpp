@@ -102,15 +102,15 @@ void ABaseVehicle::Tick(float DeltaTime)
 	{
 		TargetSteering = FVector2D::ZeroVector;
 	}
-	Steering = FMath::Lerp(Steering, TargetSteering,
-		(FMath::Abs(TargetSteering.X) > 0.0) ? DeltaTime*SteeringSensitivity : DeltaTime*15.f);
-
+	
 	float SteeringRangeScale = 1.f;
 	if (SteeringRangeCurve)
 	{
 		SteeringRangeScale = SteeringRangeCurve->GetFloatValue(Acceleration);
+		TargetSteering *= SteeringRangeScale;
 	}
-	SteeringAngle = FMath::Lerp(SteeringAngle, SteeringRangeScale * Steering.X * WheelMaxAngleDeg, DeltaTime*10.0f);
+	Steering = FMath::Lerp(Steering, TargetSteering,
+		(FMath::Abs(TargetSteering.X) > 0.0) ? DeltaTime*SteeringSensitivity : DeltaTime*15.f);
 	
 	// MAIN PROCESSING
 	UpdateAcceleration(GetPhysicsForceDeltaTimeScaler());
@@ -233,7 +233,7 @@ void ABaseVehicle::UpdateWheelsVelocityAndDirection(float DeltaTime)
 
 	// Apply speed to wheels
 	for (UWheelComponent* Wheel : Wheels) {
-		Wheel->Update(TargetSpeed, SteeringAngle);
+		Wheel->Update(TargetSpeed, Steering.X);
 	}
 	
 	if (bDrawDebug)

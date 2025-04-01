@@ -60,6 +60,13 @@ protected:
 	
 	TArray<AActor*> ActorsToDeliver;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Delivery Timer")
+	int GameplayTimerTime = -1;
+	
+private:
+	FTimerHandle TimeoutTimerHandle;
+	int TimeRemaining = 0;
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	ABaseVehicle* GetPlayerVehicle() const;
@@ -82,9 +89,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddCash(float CashEarned);
+
+	UFUNCTION(BlueprintCallable)
+	void SetGameplayTimer(int GameplayTime);
 	
 	UFUNCTION(BlueprintCallable)
-	void StartTimer(int TimeSeconds);
+	void StartTimer(int GameplayTime = -1);
 	UFUNCTION(BlueprintCallable)
 	void AddTime(int TimeSeconds);
 	UFUNCTION(BlueprintCallable)
@@ -107,8 +117,4 @@ private:
 	UFUNCTION()
 	void DecreaseTime();
 	void StopTimer();
-
-private:
-	FTimerHandle TimeoutTimerHandle;
-	int TimeRemaining = 0;
 };

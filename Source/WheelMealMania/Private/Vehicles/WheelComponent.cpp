@@ -30,10 +30,10 @@ void UWheelComponent::Setup(UBoxComponent* NewVehicleCollision, float NewMaxWhee
 	bDrawDebug = bNewDrawDebug;
 }
 
-void UWheelComponent::Update(const float& NewSpeed, const float& NewAngle)
+void UWheelComponent::Update(const float& NewSpeed, const float& NewSteering)
 {
 	TargetSpeed = NewSpeed;
-	Angle = NewAngle;
+	Steering = NewSteering;
 }
 
 void UWheelComponent::Jump(float JumpForce)
@@ -98,6 +98,7 @@ void UWheelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	
 	if (bAffectedBySteering)
 	{
+		const float Angle = FMath::Lerp(GetRelativeRotation().Yaw, Steering * MaxWheelRotationAngleDeg, DeltaTime * 10.f);
 		SetRelativeRotation( FRotator(0.f, Angle, 0.f) );
 	}
 }
@@ -158,8 +159,13 @@ void UWheelComponent::UpdateWheelForwardForce(float DeltaTime)
 
 	const FVector WheelRight = GetRightVector();
 	const float SideDragAcceleration = WheelRight.Dot(VehicleCollision->GetComponentVelocity());
-	const float SideSlideDirection = (bIsDrifting && !bAffectedBySteering) ? -0.35f : 1.f;
-	const FVector SideDragForce = 10000.f * SideSlideDirection * 1.f * SideDragAcceleration * -WheelRight;
+	const float SteeringForce = FMath::Abs(Steering);
+	float SideSlideDirection = (bIsDrifting) ? 1.f : 1.f;
+	if (!bAffectedBySteering && bIsDrifting)
+	{
+		SideSlideDirection *= -SteeringForce;
+	}
+	const FVector SideDragForce = 15000.f * SideSlideDirection * 1.f * SideDragAcceleration * -WheelRight;
 	VehicleCollision->AddForceAtLocation(
 		SideDragForce,
 		GetComponentLocation());

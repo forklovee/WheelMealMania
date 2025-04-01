@@ -35,18 +35,18 @@ void APlayerVehicle::Tick(float DeltaTime)
 
 	if (!bMovementBlocked)
 	{
-		if (!bDriftMode)
-		{
-			CameraArm->OverrideTargetForwardVector(
-				VehicleCollision->GetForwardVector()
-			);
-		}
-		else
-		{
-			CameraArm->OverrideTargetForwardVector(
-				VehicleCollision->GetComponentVelocity().GetSafeNormal()
-			);
-		}
+		// if (!bDriftMode)
+		// {
+		// 	CameraArm->OverrideTargetForwardVector(
+		// 		VehicleCollision->GetForwardVector()
+		// 	);
+		// }
+		// else
+		// {
+		// 	CameraArm->OverrideTargetForwardVector(
+		// 		VehicleCollision->GetComponentVelocity().GetSafeNormal()
+		// 	);
+		// }
 	}
 	
 	if (!bIsOnGround)
