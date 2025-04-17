@@ -8,6 +8,7 @@
 - Classic "Crazy taxi" gameplay
 - Arcade-style vehicle handling made from ground up
 - One working moveset (Crazy dash) [made with input buffer]
+- Jumping!
 - No bonus points for reckless driving
 - No skeletal animations
 - Semi-working traffic - reacts to traffic lights, optimized by distance to camera, no reaction to player collision
