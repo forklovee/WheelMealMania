@@ -1,11 +1,12 @@
 <h1>Wheel Meal Mania</h1>
-<p>"Crazy Taxi" clone made in Unreal Engine.</p>
+<p>"Crazy Taxi" clone made in Unreal Engine, mainly in C++.</p>
 
 "Wheel Meal Mania" is a project I made for university class in a span of approximately 1 month, so it's not exactly polished but... it's playable.
 
 <h2>Current state</h2>
 
 - Classic "Crazy taxi" gameplay
+- Arcade-style vehicle handling made from ground up
 - One working moveset (Crazy dash) [made with input buffer]
 - No bonus points for reckless driving
 - No skeletal animations
